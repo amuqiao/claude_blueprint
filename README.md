@@ -137,13 +137,16 @@ cd ~/code/claude_blueprint
 
 本 blueprint 采用以下 Claude Code 记忆位置约定：
 
-- 项目共享记忆：项目根 `CLAUDE.md`
-- 用户全局记忆：`~/.claude/CLAUDE.md`
-- 项目个人补充：优先在项目 `CLAUDE.md` 中通过 `@import` 引入个人文件
+- **项目共享记忆**：项目根 `CLAUDE.md`
+- **用户全局记忆**：`~/.claude/CLAUDE.md`
+- **项目个人补充**：优先在项目 `CLAUDE.md` 中通过 `@import` 引入个人文件
+
+**重要**: 本 blueprint 不把 `.claude/CLAUDE.md` 作为标准项目记忆位置。
+
+**原因**：根据官方文档，`.claude/CLAUDE.md` 是子目录记忆文件，只在 Claude 读取 `.claude/` 子树文件时才加载，不等价于官方定义的"项目私有 memory"。官方推荐的项目私有记忆方式是 `CLAUDE.local.md` 或通过 `@import` 引入个人文件。
 
 补充说明：
 - 如需兼容官方项目个人记忆文件，也可以使用项目根 `CLAUDE.local.md`
-- 本 blueprint 不把 `.claude/CLAUDE.md` 作为标准项目记忆位置
 - 如果项目里已经存在 `.claude/CLAUDE.md`，应判断其中内容是项目共享说明还是个人私有说明，再迁回合适位置
 
 ## 新用户操作步骤
@@ -264,6 +267,7 @@ bash scripts/deploy-to-claude.sh
 /init-architecture
 /new-module 用户认证
 /update-docs 用户认证
+/distill-draft drafts/真正述求.md
 /add-rule 新增一条跨项目通用约束
 ```
 
