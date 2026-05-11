@@ -181,6 +181,46 @@ bash scripts/deploy-to-claude.sh
 
 这就是后续更新的标准流程：**先更新本仓库，再部署到 `~/.claude`。**
 
+## 验收
+
+部署完成后，建议做一次最小验收。
+
+### 1. 运行 `/smoke-test`
+
+在 Claude Code 里运行：
+
+```text
+/smoke-test
+```
+
+它会做三件事：
+- 检查 `~/.claude` 下关键文件是否存在
+- 输出当前结构摘要
+- 提示下一步手工验收项
+
+### 2. 用固定样例测试 `arch` 和 `rev`
+
+仓库根目录下提供了两个最小 fixtures：
+
+- [`acceptance/rev-bad-sample.py`](/Users/admin/Downloads/Code/claude_blueprint/acceptance/rev-bad-sample.py)
+- [`acceptance/arch-question.md`](/Users/admin/Downloads/Code/claude_blueprint/acceptance/arch-question.md)
+
+建议这样验：
+
+- `@rev` 检查 `acceptance/rev-bad-sample.py`
+  预期：指出“入口层直接访问数据库 / 直接 commit”等违规点
+- `@arch` 读取 `acceptance/arch-question.md`
+  预期：输出“决策表 + 推荐理由 + 风险提示 + 文档影响”
+
+### 3. 手工验证 hooks 和 skill
+
+- 尝试让 Claude 修改 `CLAUDE.md`
+  预期：出现二次确认
+- 尝试让 Claude 执行 `git push`
+  预期：被拒绝
+- 输入“帮我写一份新功能的设计文档”
+  预期：输出应包含“问题定义 / 目标 / 方案设计 / 数据模型 / 接口规范”
+
 ## 脚本说明
 
 ### `scripts/backup-claude.sh`
