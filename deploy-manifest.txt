@@ -1,0 +1,10 @@
+# Paths deployed from this repository into ~/.claude
+# One path per line, relative to repo root.
+
+CLAUDE.md
+settings.json
+hooks/
+skills/
+agents/
+commands/
+templates/

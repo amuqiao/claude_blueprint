@@ -2,6 +2,47 @@
 
 将《独立全栈开发者_OS_完整方案_v3》拆成可直接作为 `~/.claude/` 使用的仓库结构。
 
+## 3 步上手
+
+### 1. 克隆本仓库到本地
+
+```bash
+git clone git@github.com:amuqiao/claude_blueprint.git ~/code/claude_blueprint
+cd ~/code/claude_blueprint
+```
+
+如果你使用 HTTPS：
+
+```bash
+git clone https://github.com/amuqiao/claude_blueprint.git ~/code/claude_blueprint
+cd ~/code/claude_blueprint
+```
+
+### 2. 先预览，再部署到 `~/.claude`
+
+```bash
+bash scripts/deploy-to-claude.sh --dry-run
+bash scripts/deploy-to-claude.sh
+```
+
+如果本机已经有旧的 `~/.claude`，先备份：
+
+```bash
+bash scripts/backup-claude.sh --dry-run
+bash scripts/backup-claude.sh
+bash scripts/deploy-to-claude.sh --dry-run
+bash scripts/deploy-to-claude.sh
+```
+
+### 3. 后续更新
+
+```bash
+cd ~/code/claude_blueprint
+git pull --ff-only origin main
+bash scripts/deploy-to-claude.sh --dry-run
+bash scripts/deploy-to-claude.sh
+```
+
 ## 目录
 
 - `CLAUDE.md`：全局主控
@@ -19,82 +60,180 @@
 - 已按 v3 文档落地全部明确给出的文件内容。
 - 四个补充 skill 已从 `~/.claude/规范/` 同步正文：`python-script`、`python-ops-cli`、`shell-service`、`code-explain`。
 
-## 安装
+## 推荐使用方式
 
-### 全新安装
-
-适用于本机还没有 `~/.claude` 的情况：
+推荐把这个仓库 clone 到一个单独的本地目录维护，例如：
 
 ```bash
-git clone https://github.com/amuqiao/claude_blueprint.git ~/.claude
+git clone git@github.com:amuqiao/claude_blueprint.git ~/code/claude_blueprint
+cd ~/code/claude_blueprint
 ```
 
-### 备份后重建
-
-适用于你想把旧的 `~/.claude` 整体留档，然后用这个仓库重新创建一个干净目录的情况。
-
-不要直接执行 `git clone ... ~/.claude`，因为目标目录已存在且非空时会失败。
-
-先备份当前目录：
+或者使用 HTTPS：
 
 ```bash
-mv ~/.claude ~/.claude.backup.$(date +%Y%m%d_%H%M%S)
+git clone https://github.com/amuqiao/claude_blueprint.git ~/code/claude_blueprint
+cd ~/code/claude_blueprint
 ```
 
-然后再克隆：
+**不要把这个仓库直接 clone 到 `~/.claude`。**
+
+推荐模型是：
+- 本项目根目录：**配置源**
+- `~/.claude`：**Claude Code 实际读取的目标目录**
+
+也就是说，你平时维护和更新的是这个仓库；真正写入 `~/.claude` 时，使用部署脚本同步过去。
+
+## 新用户操作步骤
+
+先进入本项目根目录：
 
 ```bash
-git clone https://github.com/amuqiao/claude_blueprint.git ~/.claude
+cd ~/code/claude_blueprint
 ```
 
-这种方式最干净。完成后，后续更新直接 `git pull` 即可。
+然后根据你的情况选择下面一种。
 
-### 就地接管现有 `~/.claude`
+### 情况 1：本机还没有 `~/.claude`
 
-适用于 `~/.claude` 已经存在，你希望：
-
-- 先完整备份
-- 保留现有运行时目录和个人文件
-- 直接把当前目录接管成这个仓库
-- 后续仍然可以继续 `git pull`
-
-执行仓库内脚本：
+先预览将要同步的文件：
 
 ```bash
-bash scripts/adopt-existing-claude.sh
+bash scripts/deploy-to-claude.sh --dry-run
 ```
 
-如果你要接管的不是默认目录，也可以显式传参：
+确认无误后正式部署：
 
 ```bash
-bash scripts/adopt-existing-claude.sh ~/.claude https://github.com/amuqiao/claude_blueprint.git
+bash scripts/deploy-to-claude.sh
 ```
 
-脚本会做 4 件事：
+执行结果：
+- 会创建 `~/.claude`
+- 会把本仓库管理的文件同步进去
+- 不会把 `~/.claude` 变成 git 仓库
 
-1. 先把当前 `~/.claude` 完整备份到 `~/.claude.backup.<时间戳>/`
-2. 临时 clone 最新仓库
-3. 用仓库内容覆盖 `~/.claude` 中应受版本控制的文件
-4. 把 `~/.claude` 变成这个仓库的 git 工作目录
+### 情况 2：本机已经有 `~/.claude`，想先备份再部署
 
-这样现有运行时目录和个人文件会保留在原位；仓库里的 `.gitignore` 会让这些运行时内容继续保持未跟踪/忽略状态。
-
-### 后续更新远端内容
-
-完成 clone 或“就地接管”之后，`~/.claude` 就是一个正常的 git 仓库。后续同步远端最新内容：
+先预览备份动作：
 
 ```bash
-cd ~/.claude
+bash scripts/backup-claude.sh --dry-run
+```
+
+确认无误后执行备份：
+
+```bash
+bash scripts/backup-claude.sh
+```
+
+然后预览部署：
+
+```bash
+bash scripts/deploy-to-claude.sh --dry-run
+```
+
+最后正式部署：
+
+```bash
+bash scripts/deploy-to-claude.sh
+```
+
+执行结果：
+- 当前 `~/.claude` 会先备份到 `~/.claude.backup.<时间戳>`
+- 本仓库管理的文件会覆盖同步到 `~/.claude`
+- 运行时目录会继续留在原位
+
+### 情况 3：你已经在用这套仓库，只想获取最新版本
+
+先更新本项目根目录里的仓库：
+
+```bash
+cd ~/code/claude_blueprint
 git pull --ff-only origin main
 ```
 
-如果你想先确认本地状态，再更新：
+然后预览这次更新会同步哪些文件到 `~/.claude`：
 
 ```bash
-cd ~/.claude
-git status
-git pull --ff-only origin main
+bash scripts/deploy-to-claude.sh --dry-run
 ```
+
+确认无误后正式部署：
+
+```bash
+bash scripts/deploy-to-claude.sh
+```
+
+这就是后续更新的标准流程：**先更新本仓库，再部署到 `~/.claude`。**
+
+## 脚本说明
+
+### `scripts/backup-claude.sh`
+
+用途：把当前 `~/.claude` 完整备份到带时间戳的新目录。
+
+```bash
+bash scripts/backup-claude.sh --dry-run
+bash scripts/backup-claude.sh
+```
+
+如果目标目录不是默认的 `~/.claude`，可以传路径：
+
+```bash
+bash scripts/backup-claude.sh --target /path/to/claude --dry-run
+bash scripts/backup-claude.sh --target /path/to/claude
+```
+
+### `scripts/deploy-to-claude.sh`
+
+用途：把本仓库管理的文件从当前项目根目录同步到 `~/.claude`。
+
+```bash
+bash scripts/deploy-to-claude.sh --dry-run
+bash scripts/deploy-to-claude.sh
+```
+
+如果目标目录不是默认的 `~/.claude`，可以传参：
+
+```bash
+bash scripts/deploy-to-claude.sh --target /path/to/claude --dry-run
+bash scripts/deploy-to-claude.sh --target /path/to/claude
+```
+
+脚本当前会同步这些路径：
+
+- `CLAUDE.md`
+- `settings.json`
+- `hooks/`
+- `skills/`
+- `agents/`
+- `commands/`
+- `templates/`
+
+这意味着：
+- 你维护的是仓库副本
+- 你部署的是受控文件集合
+- `~/.claude` 里的运行时目录不会被这个脚本初始化成 git 仓库，也不会被脚本删除
+
+部署范围不是靠脚本里硬编码判断，而是由仓库根目录的 [`deploy-manifest.txt`](/Users/admin/Downloads/Code/claude_blueprint/deploy-manifest.txt) 明确控制。
+现在只有这些路径会进入 `~/.claude`：
+
+- `CLAUDE.md`
+- `settings.json`
+- `hooks/`
+- `skills/`
+- `agents/`
+- `commands/`
+- `templates/`
+
+这也意味着以下内容属于**仓库维护文件**，默认不会部署到 `~/.claude`：
+
+- `scripts/`
+- `drafts/`
+- `README.md`
+- `WHY.md`
+- `.gitignore`
 
 ## 运行时目录
 
@@ -115,3 +254,6 @@ git pull --ff-only origin main
 - `telemetry/`
 
 这样把仓库直接作为 `~/.claude` 使用时，不会把运行时噪音提交进 git。
+
+另外，`~/.claude.json` 也应视为 Claude Code 自动维护的本地状态文件，不属于本仓库的管理范围。
+它通常包含启动次数、提示历史、功能开关缓存等运行时状态；不要把它纳入 blueprint 维护，也不要通过部署脚本覆盖它。
