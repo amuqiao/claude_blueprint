@@ -2,7 +2,7 @@
 name: rev
 description: 代码规范合规检查。检查代码是否违反分层约束、事务边界、命名规范时调用。输出违规列表，不写修复代码。
 tools: Read, Bash
-model: sonnet
+model: sonnet 4.6
 permissionMode: plan
 ---
 
