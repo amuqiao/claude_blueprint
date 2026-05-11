@@ -11,6 +11,7 @@
 - `agents/`：`arch` / `rev` 两个子代理定义
 - `commands/`：`/new-module`、`/update-docs`、`/add-rule`
 - `templates/`：项目初始化模板
+- `drafts/`：模具层的思考草稿箱，先记录，后提炼
 - `WHY.md`：模具层设计决策记录
 
 ## 当前状态
