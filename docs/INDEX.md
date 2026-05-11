@@ -11,6 +11,9 @@
 - 想理解设计取舍：看 [`WHY.md`](/Users/admin/Downloads/Code/claude_blueprint/WHY.md)
 - 想维护这套模板：看 [`MAINTAINING.md`](/Users/admin/Downloads/Code/claude_blueprint/MAINTAINING.md)
 
+补充：
+- 想先理解“人类层 vs Claude 层”的边界，先看 [`README.md`](/Users/admin/Downloads/Code/claude_blueprint/README.md) 对应小节
+
 ---
 
 ## 本目录包含什么

@@ -87,6 +87,24 @@ claude_blueprint/
 - `docs/`：给已经理解主结构的人看，补能力区别和工作流参考
 - `drafts/incubating/`：放重要但尚未正式定稿的重点草稿
 
+## 人类层 vs Claude 层
+
+这套 blueprint 同时服务两个对象：
+
+- **人类层**：帮助你判断现在处于哪个阶段、该用哪种能力、如何组织开发流程
+- **Claude 层**：让 Claude 在运行时按你的规范工作
+
+| 层级 | 主要对象 | 解决什么问题 | 典型文件 |
+|------|---------|-------------|---------|
+| 人类层 | 你 | 先做什么、后做什么、如何使用这套系统 | `README.md`、`PLAYBOOK.md`、`docs/能力地图.md`、`docs/工作流参考.md` |
+| Claude 层 | Claude / Codex | 运行时该遵守什么规则、该如何执行工作流 | `CLAUDE.md`、`commands/`、`skills/`、`agents/`、`hooks/`、`templates/`、`settings.json` |
+
+推荐理解顺序：
+
+1. 先看人类层文档，建立正确心智模型
+2. 再在 Claude TUI 中使用 commands / agents / skills
+3. 真正执行时，由 Claude 层配置生效
+
 ## 推荐使用方式
 
 推荐把这个仓库 clone 到一个单独的本地目录维护，例如：
