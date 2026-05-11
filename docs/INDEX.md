@@ -18,6 +18,9 @@
 
 ## 本目录包含什么
 
+- [`用户心智模型.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/用户心智模型.md)
+  解释为什么这套 blueprint 要区分“人类层”和“Claude 层”，以及你在 Claude TUI 中应该如何使用这套系统。
+
 - [`能力地图.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/能力地图.md)
   解释 `commands / agents / skills / hooks / templates` 的区别、触发方式和使用边界。
 

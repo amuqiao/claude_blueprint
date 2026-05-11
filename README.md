@@ -105,6 +105,10 @@ claude_blueprint/
 2. 再在 Claude TUI 中使用 commands / agents / skills
 3. 真正执行时，由 Claude 层配置生效
 
+如果你对这两层仍然有混淆，继续看：
+
+- [`docs/用户心智模型.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/用户心智模型.md)
+
 ## 推荐使用方式
 
 推荐把这个仓库 clone 到一个单独的本地目录维护，例如：
