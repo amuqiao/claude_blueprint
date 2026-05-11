@@ -25,10 +25,6 @@ case "$file_path" in
   */.claude/rules/*|.claude/rules/*|\
   */.claude/commands/*|.claude/commands/*|\
   */docs/design/INDEX.md|docs/design/INDEX.md|\
-  */agents/*.md|agents/*.md|\
-  */skills/*/SKILL.md|skills/*/SKILL.md|\
-  */commands/*.md|commands/*.md|\
-  */templates/*|templates/*|\
   */pyproject.toml|pyproject.toml|\
   */alembic.ini|alembic.ini|\
   */package.json|package.json|\
@@ -66,4 +62,3 @@ print(json.dumps({
 PY
     ;;
 esac
-

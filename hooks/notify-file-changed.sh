@@ -25,18 +25,17 @@ case "$file_path" in
   */commands/*.md|commands/*.md|\
   */templates/*|templates/*|\
   */WHY.md|WHY.md)
-    printf '[hook] Updated OS control file: %s\n' "$file_path" >&2
-    printf '[hook] Check whether related instructions, settings, and docs still match.\n' >&2
+    printf '[hook] Updated OS control file: %s\n' "$file_path"
+    printf '[hook] Check whether related instructions, settings, and docs still match.\n'
     ;;
   */docs/design/INDEX.md|docs/design/INDEX.md)
-    printf '[hook] Updated docs/design/INDEX.md\n' >&2
-    printf '[hook] Verify the module sync status matches the current implementation state.\n' >&2
+    printf '[hook] Updated docs/design/INDEX.md\n'
+    printf '[hook] Verify the module sync status matches the current implementation state.\n'
     ;;
   */.claude/settings.json|.claude/settings.json|\
   */.claude/rules/*|.claude/rules/*|\
   */.claude/commands/*|.claude/commands/*)
-    printf '[hook] Updated project Claude config: %s\n' "$file_path" >&2
-    printf '[hook] Verify the project-level rules still align with CLAUDE.md and real workflows.\n' >&2
+    printf '[hook] Updated project Claude config: %s\n' "$file_path"
+    printf '[hook] Verify the project-level rules still align with CLAUDE.md and real workflows.\n'
     ;;
 esac
-

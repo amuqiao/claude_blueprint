@@ -6,10 +6,12 @@
 
 - `CLAUDE.md`：全局主控
 - `settings.json`：全局设置骨架
+- `hooks/`：强制执行的保护与提醒脚本
 - `skills/`：按任务类型拆分的规范
 - `agents/`：`arch` / `rev` 两个子代理定义
 - `commands/`：`/new-module`、`/update-docs`、`/add-rule`
 - `templates/`：项目初始化模板
+- `WHY.md`：模具层设计决策记录
 
 ## 当前状态
 
