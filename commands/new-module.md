@@ -6,6 +6,19 @@ argument-hint: [模块名称]
 
 收到 /new-module $ARGUMENTS，执行以下流程：
 
+**Step 0 · 检查前置条件**
+
+先检查以下文件是否存在：
+- 项目根 `CLAUDE.md`
+- `docs/design/INDEX.md`
+- `docs/design/架构设计方案.md`
+- `docs/实施清单.md`
+
+如果任一缺失：
+- 停止当前流程
+- 输出缺失文件列表
+- 明确提示用户先运行 `/init-architecture`
+
 **Step 1 · 读取输入**
 - 读 `docs/需求/` 下最新的需求文档，找到与 $ARGUMENTS 相关的内容
 - 读 `docs/design/INDEX.md` 了解当前文档全貌，确认 $ARGUMENTS 是否已存在
@@ -32,4 +45,3 @@ argument-hint: [模块名称]
 **Step 6 · 实施清单**
 - 在 `docs/实施清单.md` 追加该模块的开发任务列表
 - 任务按依赖顺序排列（后端数据模型 → 数据访问层 → 应用层 → 入口层 → 前端）
-

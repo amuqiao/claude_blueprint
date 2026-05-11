@@ -99,6 +99,19 @@ cd ~/code/claude_blueprint
 
 也就是说，你平时维护和更新的是这个仓库；真正写入 `~/.claude` 时，使用部署脚本同步过去。
 
+## 记忆位置约定
+
+本 blueprint 采用以下 Claude Code 记忆位置约定：
+
+- 项目共享记忆：项目根 `CLAUDE.md`
+- 用户全局记忆：`~/.claude/CLAUDE.md`
+- 项目个人补充：优先在项目 `CLAUDE.md` 中通过 `@import` 引入个人文件
+
+补充说明：
+- 如需兼容官方项目个人记忆文件，也可以使用项目根 `CLAUDE.local.md`
+- 本 blueprint 不把 `.claude/CLAUDE.md` 作为标准项目记忆位置
+- 如果项目里已经存在 `.claude/CLAUDE.md`，应判断其中内容是项目共享说明还是个人私有说明，再迁回合适位置
+
 ## 新用户操作步骤
 
 先进入本项目根目录：
@@ -108,6 +121,21 @@ cd ~/code/claude_blueprint
 ```
 
 然后根据你的情况选择下面一种。
+
+如果这是一个新项目，或者项目里还没有完整的 `CLAUDE.md`、`docs/design/INDEX.md`、`docs/design/架构设计方案.md`、`docs/实施清单.md`，建议先在 Claude Code 中运行：
+
+```text
+/init-architecture
+```
+
+它会先补齐项目级架构文档体系，再进入后续的 `/new-module`、`/update-docs` 等正常开发流程。
+
+标准项目生命周期建议按这条主线执行：
+
+1. 新项目 / 老项目首次纳入规范：`/init-architecture`
+2. 新增功能模块：`/new-module`
+3. 代码完成并落库后：`/update-docs`
+4. 发现新的跨项目通用约束：`/add-rule`
 
 ### 情况 1：本机还没有 `~/.claude`
 

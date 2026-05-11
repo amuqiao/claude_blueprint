@@ -51,7 +51,27 @@
 
 ---
 
-## 3. 常见变更应该改哪里
+## 3. 记忆位置约定怎么维护
+
+本 blueprint 采用以下 Claude Code 记忆位置约定：
+
+- 项目共享记忆：项目根 `CLAUDE.md`
+- 用户全局记忆：`~/.claude/CLAUDE.md`
+- 项目个人补充：优先在项目 `CLAUDE.md` 中通过 `@import` 引入个人文件
+
+兼容规则：
+- 如需兼容官方项目个人记忆文件，可使用项目根 `CLAUDE.local.md`
+- `.claude/CLAUDE.md` 不作为本 blueprint 的标准项目记忆位置
+
+维护规则：
+- 如果项目里出现 `.claude/CLAUDE.md`，不要直接沿用为标准方案
+- 其中属于项目共享的内容，应迁回项目根 `CLAUDE.md`
+- 其中属于个人私有的内容，应迁到 `CLAUDE.local.md` 或用户目录下单独文件，再通过 `@import` 引入
+- 这套约定发生变化时，必须同步更新 `README.md`、`MAINTAINING.md` 和 `templates/project-CLAUDE.md`
+
+---
+
+## 4. 常见变更应该改哪里
 
 ### 新增或修改 skill
 
@@ -70,6 +90,7 @@
 - `commands/...`
 - 如 README 中有使用说明，更新 `README.md`
 - 如 command 用于验收，更新“验收”小节
+- 如 command 影响项目生命周期主线，更新“标准项目生命周期”说明
 
 改完至少验证：
 - `/smoke-test` 或对应 command 能正常执行
@@ -107,9 +128,20 @@
 - `bash -n scripts/*.sh`
 - `bash scripts/deploy-to-claude.sh --dry-run`
 
+### 新增或修改模板
+
+要改：
+- `templates/...`
+- 如模板字段、章节或初始化产物变化，更新 `README.md`
+- 如模板改变了项目标准范式，更新 `WHY.md`
+
+改完至少验证：
+- `/init-architecture` 的产出是否仍与模板一致
+- `bash scripts/deploy-to-claude.sh --dry-run`
+
 ---
 
-## 4. 标准迭代流程
+## 5. 标准迭代流程
 
 每次改动本仓库，按这个顺序：
 
@@ -139,7 +171,7 @@ bash scripts/deploy-to-claude.sh
 
 ---
 
-## 5. 发布前检查清单
+## 6. 发布前检查清单
 
 - [ ] `deploy-manifest.txt` 是否仍然准确
 - [ ] `README.md` 的命令是否仍可直接执行
@@ -150,7 +182,7 @@ bash scripts/deploy-to-claude.sh
 
 ---
 
-## 6. 什么情况下必须更新 WHY.md
+## 7. 什么情况下必须更新 WHY.md
 
 出现以下任一情况时，必须考虑更新 `WHY.md`：
 
