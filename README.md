@@ -53,6 +53,7 @@ claude_blueprint/
 ├── settings.json          # 全局 Claude Code 设置骨架
 ├── deploy-manifest.txt    # 部署白名单：哪些路径会同步到 ~/.claude
 ├── WHY.md                 # 模具设计决策记录（仓库元文档，不部署）
+├── MAINTAINING.md         # 维护迭代手册（仓库元文档，不部署）
 ├── README.md              # 仓库说明（仓库元文档，不部署）
 ├── .gitignore             # 仓库忽略规则（仓库元文档，不部署）
 │
@@ -287,10 +288,12 @@ bash scripts/deploy-to-claude.sh --target /path/to/claude
 - `drafts/`
 - `README.md`
 - `WHY.md`
+- `MAINTAINING.md`
 - `.gitignore`
 
 原因是这些文件属于仓库的元文档和维护工具：
 - `WHY.md` 和 `drafts/` 主要给维护者阅读，用来记录设计判断和演化过程
+- `MAINTAINING.md` 用来说明后续如何维护这个仓库
 - `scripts/`、`README.md`、`.gitignore` 也属于仓库管理层，不是 Claude Code 运行时需要加载的工作目录内容
 
 ## 部署后验证
