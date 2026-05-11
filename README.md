@@ -63,6 +63,7 @@ claude_blueprint/
 ├── agents/                # 子代理定义：arch / rev
 ├── commands/              # 自定义斜杠命令
 ├── templates/             # 项目初始化模板
+├── docs/                  # 仓库级总览文档（不部署）
 │
 ├── scripts/               # 仓库维护与部署脚本（不部署）
 │   ├── backup-claude.sh   # 备份现有 ~/.claude
@@ -82,6 +83,7 @@ claude_blueprint/
 - `PLAYBOOK.md`：讲开发范式，回答先做什么、后做什么、每阶段产出什么
 - `WHY.md`：讲为什么这样设计
 - `MAINTAINING.md`：给维护者看，说明以后怎么迭代
+- `docs/`：给已经理解主结构的人看，补能力区别和工作流参考
 
 ## 推荐使用方式
 
@@ -217,6 +219,72 @@ bash scripts/deploy-to-claude.sh
 ```
 
 这就是后续更新的标准流程：**先更新本仓库，再部署到 `~/.claude`。**
+
+## 在 Claude TUI 中如何使用
+
+部署完成后，真正的使用入口主要有 5 类：`commands`、`agents`、`skills`、`hooks`、`templates`。
+
+| 类型 | 作用 | 触发方式 | 适合什么 |
+|------|------|---------|---------|
+| `commands` | 进入某个明确的工作流阶段 | 手动输入 `/命令名` | 初始化、建模块、同步文档、归档规则 |
+| `agents` | 做带角色的分析或审查 | 手动输入 `@agent` | 架构判断、代码审查 |
+| `skills` | 规定某类任务怎么做 | 通常由任务语义触发，也可用明确表述引导 | 设计文档、写作、脚本、运维类任务 |
+| `hooks` | 做强制拦截或提醒 | 自动触发 | 阻止危险动作、提醒关键文件变更 |
+| `templates` | 提供稳定起点 | 通常不手动触发，由 command 使用 | 项目初始化、架构文档、实施清单 |
+
+### commands
+
+直接在 Claude TUI 中输入斜杠命令：
+
+```text
+/init-architecture
+/new-module 用户认证
+/update-docs 用户认证
+/add-rule 新增一条跨项目通用约束
+```
+
+适合你已经明确“现在要进入哪个阶段”的情况。
+
+### agents
+
+直接在对话中显式调用：
+
+```text
+@arch 帮我判断这个模块是否会影响全局架构
+@rev 检查 app/services/user_service.py 是否违反分层约束
+```
+
+适合需要“架构判断”或“合规审查”，而不是直接开始实现的时候。
+
+### skills
+
+通常不需要手动指定文件名；Claude 会根据任务语义加载对应 skill。你也可以用更明确的表达去引导：
+
+```text
+帮我写一份新功能的设计文档
+帮我整理一个运维诊断 CLI 脚本
+帮我写一篇结构清晰的技术说明
+```
+
+适合“这类任务应该按什么规范来做”，而不是“现在进入哪个工作流阶段”。
+
+### hooks
+
+hooks 不需要手动调用。它们会在特定动作时自动触发，例如：
+
+- 让 Claude 修改 `CLAUDE.md` → 会出现二次确认
+- 让 Claude 执行 `git push` → 会被拒绝
+
+适合那些必须强制执行、不能靠提示词软约束的行为。
+
+### templates
+
+templates 通常不需要在 TUI 中单独调用，而是被 command 使用：
+
+- `/init-architecture` 会使用项目模板、架构设计方案模板、实施清单模板
+- `/new-module` 会创建模块设计文档和页面 mock
+
+适合提供“稳定起点”，不适合单独承担工作流逻辑。
 
 ## 验收
 
