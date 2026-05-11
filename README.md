@@ -1,5 +1,7 @@
 # Claude Blueprint
 
+一套面向独立全栈开发者的 Claude Code 个人开发 OS，基于真实项目经验提炼，包含分层架构约束、规范 skill 库、保护 hook 和部署脚本。
+
 将《独立全栈开发者_OS_完整方案_v3》拆成可直接作为 `~/.claude/` 使用的仓库结构。
 
 ## 3 步上手
@@ -43,17 +45,29 @@ bash scripts/deploy-to-claude.sh --dry-run
 bash scripts/deploy-to-claude.sh
 ```
 
-## 目录
+## 仓库结构
 
-- `CLAUDE.md`：全局主控
-- `settings.json`：全局设置骨架
-- `hooks/`：强制执行的保护与提醒脚本
-- `skills/`：按任务类型拆分的规范
-- `agents/`：`arch` / `rev` 两个子代理定义
-- `commands/`：`/new-module`、`/update-docs`、`/add-rule`
-- `templates/`：项目初始化模板
-- `drafts/`：模具层的思考草稿箱，先记录，后提炼
-- `WHY.md`：模具层设计决策记录
+```text
+claude_blueprint/
+├── CLAUDE.md              # 全局主控：跨项目通用约束
+├── settings.json          # 全局 Claude Code 设置骨架
+├── deploy-manifest.txt    # 部署白名单：哪些路径会同步到 ~/.claude
+├── WHY.md                 # 模具设计决策记录（仓库元文档，不部署）
+├── README.md              # 仓库说明（仓库元文档，不部署）
+├── .gitignore             # 仓库忽略规则（仓库元文档，不部署）
+│
+├── hooks/                 # Hook 脚本：保护配置、提醒变更、阻止 git push
+├── skills/                # 按任务类型拆分的规范库
+├── agents/                # 子代理定义：arch / rev
+├── commands/              # 自定义斜杠命令
+├── templates/             # 项目初始化模板
+│
+├── scripts/               # 仓库维护与部署脚本（不部署）
+│   ├── backup-claude.sh   # 备份现有 ~/.claude
+│   └── deploy-to-claude.sh# 把白名单文件同步到 ~/.claude
+│
+└── drafts/                # 模具层思考草稿箱（不部署）
+```
 
 ## 当前状态
 
@@ -234,6 +248,19 @@ bash scripts/deploy-to-claude.sh --target /path/to/claude
 - `README.md`
 - `WHY.md`
 - `.gitignore`
+
+原因是这些文件属于仓库的元文档和维护工具：
+- `WHY.md` 和 `drafts/` 主要给维护者阅读，用来记录设计判断和演化过程
+- `scripts/`、`README.md`、`.gitignore` 也属于仓库管理层，不是 Claude Code 运行时需要加载的工作目录内容
+
+## 部署后验证
+
+部署完成后，建议重启 Claude Code，然后做两步验证：
+
+1. 输入：`我想写一份设计文档`
+   观察是否自动加载 `design-doc` skill，并按设计文档规范响应。
+2. 在 Claude Code 里运行：`/doctor`
+   检查 skill 描述预算是否正常，确认没有加载异常或描述溢出。
 
 ## 运行时目录
 
