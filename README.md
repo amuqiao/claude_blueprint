@@ -52,6 +52,7 @@ claude_blueprint/
 ├── CLAUDE.md              # 全局主控：跨项目通用约束
 ├── settings.json          # 全局 Claude Code 设置骨架
 ├── deploy-manifest.txt    # 部署白名单：哪些路径会同步到 ~/.claude
+├── PLAYBOOK.md            # 开发范式说明（仓库元文档，不部署）
 ├── WHY.md                 # 模具设计决策记录（仓库元文档，不部署）
 ├── MAINTAINING.md         # 维护迭代手册（仓库元文档，不部署）
 ├── README.md              # 仓库说明（仓库元文档，不部署）
@@ -74,6 +75,13 @@ claude_blueprint/
 
 - 已按 v3 文档落地全部明确给出的文件内容。
 - 四个补充 skill 已从 `~/.claude/规范/` 同步正文：`python-script`、`python-ops-cli`、`shell-service`、`code-explain`。
+
+## 核心文档分工
+
+- `README.md`：给使用者看，讲安装、部署、更新、验收
+- `PLAYBOOK.md`：讲开发范式，回答先做什么、后做什么、每阶段产出什么
+- `WHY.md`：讲为什么这样设计
+- `MAINTAINING.md`：给维护者看，说明以后怎么迭代
 
 ## 推荐使用方式
 

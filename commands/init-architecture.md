@@ -17,6 +17,13 @@ description: 初始化项目级架构文档体系。补齐项目 CLAUDE、设计
 
 **Step 2 · 先补齐骨架，再做分析**
 
+先补齐目录骨架（只建目录，不预生成大量空文档）：
+- `docs/design/模块/`
+- `docs/design/基础设施/后端/`
+- `docs/design/基础设施/前端/`
+- `docs/需求/`
+- `docs/专题/`
+
 如果项目根 `CLAUDE.md` 不存在：
 - 读取 `~/.claude/templates/project-CLAUDE.md`
 - 基于当前仓库结构、开发命令和日志位置创建项目初稿
@@ -64,6 +71,7 @@ description: 初始化项目级架构文档体系。补齐项目 CLAUDE、设计
 
 输出：
 - 已初始化的文件列表
+- 已创建的目录骨架
 - 仍需用户补充确认的信息
 - 下一步建议命令：
   - 新建模块 → `/new-module`
