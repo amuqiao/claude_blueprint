@@ -70,6 +70,7 @@ claude_blueprint/
 │   └── deploy-to-claude.sh# 把白名单文件同步到 ~/.claude
 │
 └── drafts/                # 模具层思考草稿箱（不部署）
+    └── incubating/        # 重点草稿：接近正式方法/决策，但尚未定稿
 ```
 
 ## 当前状态
@@ -84,6 +85,7 @@ claude_blueprint/
 - `WHY.md`：讲为什么这样设计
 - `MAINTAINING.md`：给维护者看，说明以后怎么迭代
 - `docs/`：给已经理解主结构的人看，补能力区别和工作流参考
+- `drafts/incubating/`：放重要但尚未正式定稿的重点草稿
 
 ## 推荐使用方式
 
