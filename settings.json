@@ -1,9 +1,23 @@
 {
+  "$schema": "https://code.claude.com/schemas/settings.json",
+  "comment": "系统级 Claude Code 配置，详见 https://code.claude.com/docs/en/settings",
+
+  "model": "claude-sonnet-4-5",
+
   "permissions": {
-    "allow": [],
-    "deny": []
+    "comment": "权限控制：allow 允许自动执行的工具，deny 禁止的工具",
+    "allow": [
+      "// 示例：允许常用只读命令自动执行",
+      "// \"Bash:ls\", \"Bash:pwd\", \"Bash:git status\", \"Read\""
+    ],
+    "deny": [
+      "// 示例：禁止危险操作",
+      "// \"Bash:rm -rf\", \"Bash:git push --force\""
+    ]
   },
+
   "hooks": {
+    "comment": "事件钩子：PreToolUse 工具执行前，PostToolUse 工具执行后",
     "PreToolUse": [
       {
         "matcher": "Edit|MultiEdit|Write",
@@ -11,7 +25,8 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/protect-config.sh",
-            "timeout": 5
+            "timeout": 5,
+            "comment": "保护关键配置文件，防止误改"
           }
         ]
       },
@@ -21,7 +36,8 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/block-git-push.sh",
-            "timeout": 5
+            "timeout": 5,
+            "comment": "阻止自动 git push，需人工确认"
           }
         ]
       }
@@ -33,11 +49,15 @@
           {
             "type": "command",
             "command": "$HOME/.claude/hooks/notify-file-changed.sh",
-            "timeout": 5
+            "timeout": 5,
+            "comment": "文件修改后的通知提醒"
           }
         ]
       }
     ]
   },
-  "model": "claude-sonnet-4-5"
+
+  "environment": {
+    "comment": "环境变量，对所有 Claude Code 会话可见"
+  }
 }

@@ -1,10 +1,18 @@
 # Paths deployed from this repository into ~/.claude
 # One path per line, relative to repo root.
+#
+# 说明：
+# - 官方标准目录：CLAUDE.md, settings.json, rules/, commands/, skills/, agents/
+# - 自定义扩展：hooks/ (脚本统一管理), templates/ (项目初始化模板)
 
+# ── 官方标准 ──
 CLAUDE.md
 settings.json
-hooks/
+rules/
+commands/
 skills/
 agents/
-commands/
+
+# ── 自定义扩展 ──
+hooks/
 templates/
