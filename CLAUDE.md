@@ -57,6 +57,7 @@
 | 新建文档、Review 文档格式 | `~/.claude/skills/writing/SKILL.md` |
 | 写架构文档或模块设计文档 | `~/.claude/skills/design-doc/SKILL.md` |
 | 写代码讲解文档 | `~/.claude/skills/code-explain/SKILL.md` |
+| 设计、初始化或评审 FastAPI 后端项目 | `~/.claude/skills/fastapi-backend/SKILL.md` |
 | 写批量 API 调用脚本 | `~/.claude/skills/python-script/SKILL.md` |
 | 写运维诊断 CLI 工具 | `~/.claude/skills/python-ops-cli/SKILL.md` |
 | 写服务生命周期管理脚本 | `~/.claude/skills/shell-service/SKILL.md` |
