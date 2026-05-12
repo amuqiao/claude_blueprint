@@ -55,6 +55,7 @@ claude_blueprint/
 ├── PLAYBOOK.md            # 开发范式说明（仓库元文档，不部署）
 ├── WHY.md                 # 模具设计决策记录（仓库元文档，不部署）
 ├── MAINTAINING.md         # 维护迭代手册（仓库元文档，不部署）
+├── RUNTIME-MAINTAINING.md # 运行层资产维护手册（仓库元文档，不部署）
 ├── README.md              # 仓库说明（仓库元文档，不部署）
 ├── .gitignore             # 仓库忽略规则（仓库元文档，不部署）
 │
@@ -84,7 +85,8 @@ claude_blueprint/
 - `README.md`：给使用者看，讲安装、部署、更新、验收
 - `PLAYBOOK.md`：讲开发范式，回答先做什么、后做什么、每阶段产出什么
 - `WHY.md`：讲为什么这样设计
-- `MAINTAINING.md`：给维护者看，说明以后怎么迭代
+- `MAINTAINING.md`：给维护者看，说明仓库治理、文档治理、发布与检查
+- `RUNTIME-MAINTAINING.md`：给维护者看，说明 `CLAUDE.md`、`settings.json`、`rules/`、`hooks/`、`skills/`、`agents/`、`commands/`、`templates/` 怎么维护
 - `docs/`：给已经理解主结构的人看，补用户心智模型、项目级落地范式、能力区别和工作流参考
 - `drafts/incubating/`：放重要但尚未正式定稿的重点草稿
 

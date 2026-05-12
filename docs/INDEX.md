@@ -10,6 +10,7 @@
 - 想理解开发范式：看 [`PLAYBOOK.md`](../PLAYBOOK.md)
 - 想理解设计取舍：看 [`WHY.md`](../WHY.md)
 - 想维护这套模板：看 [`MAINTAINING.md`](../MAINTAINING.md)
+- 想维护运行层资产：看 [`RUNTIME-MAINTAINING.md`](../RUNTIME-MAINTAINING.md)
 
 补充：
 - 想先理解“人类层 vs Claude 层”的边界，先看 [`README.md`](../README.md) 对应小节

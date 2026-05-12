@@ -12,13 +12,15 @@
 - `README.md`：给使用者看，讲安装、部署、更新、验收
 - `PLAYBOOK.md`：定义开发范式，说明项目生命周期和阶段边界
 - `WHY.md`：记录为什么这样设计，解释关键决策
-- `MAINTAINING.md`：给维护者看，说明以后怎么改、改哪里、改完怎么验
+- `MAINTAINING.md`：给维护者看，说明仓库治理、文档治理、发布与检查
+- `RUNTIME-MAINTAINING.md`：说明运行层资产（`CLAUDE.md`、`settings.json`、`rules/`、`hooks/`、`skills/`、`agents/`、`commands/`、`templates/`）怎么维护
 
 判断原则：
 - 用户怎么用 → 改 `README.md`
 - 先做什么、后做什么、阶段怎么切 → 改 `PLAYBOOK.md`
 - 为什么这样设计 → 改 `WHY.md`
-- 维护者以后如何继续演进 → 改 `MAINTAINING.md`
+- 仓库治理、文档治理、发布检查 → 改 `MAINTAINING.md`
+- 运行层资产维护规则 → 改 `RUNTIME-MAINTAINING.md`
 
 ---
 
@@ -209,49 +211,19 @@
 - 或当 `drafts/*.md` 文件超过 10 个时触发整理
 
 ### 新增或修改 skill
-
-要改：
-- `skills/...`
-- 如有新目录需要部署，检查 `deploy-manifest.txt`
-- 如触发方式或用途变化，更新 `README.md`
-
-改完至少验证：
-- `bash scripts/deploy-to-claude.sh --dry-run`
-- 部署后在 Claude TUI 中触发对应 skill
+运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。
 
 ### 新增或修改 command
+运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。
 
-要改：
-- `commands/...`
-- 如 README 中有使用说明，更新 `README.md`
-- 如 command 改变了能力边界，更新 `docs/能力地图.md`
-- 如 command 形成了新的标准使用场景，更新 `docs/工作流参考.md`
-- 如 command 用于验收，更新“验收”小节
-- 如 command 影响项目生命周期主线，更新“标准项目生命周期”说明
-
-改完至少验证：
-- `/smoke-test` 或对应 command 能正常执行
+### settings.json 怎么维护
+运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。
 
 ### 新增或修改 hook
-
-要改：
-- `hooks/...`
-- 如 hook 注册规则变化，更新 `settings.json`
-- 如行为变化，更新 `README.md`
-- 如设计边界变化，考虑更新 `WHY.md`
-
-改完至少验证：
-- 部署后手工触发对应场景
+运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。
 
 ### 新增或修改 agent
-
-要改：
-- `agents/...`
-- 如 agent 职责变化，更新 `WHY.md`
-- 如用户需要知道如何验收，更新 `README.md`
-
-改完至少验证：
-- 用 `acceptance/` 里的样例手工测一遍
+运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。
 
 ### 新增或修改部署脚本
 
@@ -266,15 +238,7 @@
 - `bash scripts/deploy-to-claude.sh --dry-run`
 
 ### 新增或修改模板
-
-要改：
-- `templates/...`
-- 如模板字段、章节或初始化产物变化，更新 `README.md`
-- 如模板改变了项目标准范式，更新 `WHY.md`
-
-改完至少验证：
-- `/init-architecture` 的产出是否仍与模板一致
-- `bash scripts/deploy-to-claude.sh --dry-run`
+运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。
 
 ---
 
