@@ -21,6 +21,12 @@
 - [`用户心智模型.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/用户心智模型.md)
   解释为什么这套 blueprint 要区分“人类层”和“Claude 层”，以及你在 Claude TUI 中应该如何使用这套系统。
 
+- [`项目级落地范式.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/项目级落地范式.md)
+  解释面对一个真实项目时，如何从“想法”走到“项目定盘 → 首个核心模块 → 最小可用基建”，而不是误以为可以一键完成项目起盘。
+
+- [`项目开发主干流程.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/项目开发主干流程.md)
+  用节点模型把项目开发串成一条主干，说明每个节点的目标、输入、输出、质量标准和可调用能力。
+
 - [`能力地图.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/能力地图.md)
   解释 `commands / agents / skills / hooks / templates` 的区别、触发方式和使用边界。
 

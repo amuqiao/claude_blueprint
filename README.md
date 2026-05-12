@@ -84,7 +84,7 @@ claude_blueprint/
 - `PLAYBOOK.md`：讲开发范式，回答先做什么、后做什么、每阶段产出什么
 - `WHY.md`：讲为什么这样设计
 - `MAINTAINING.md`：给维护者看，说明以后怎么迭代
-- `docs/`：给已经理解主结构的人看，补能力区别和工作流参考
+- `docs/`：给已经理解主结构的人看，补用户心智模型、项目级落地范式、能力区别和工作流参考
 - `drafts/incubating/`：放重要但尚未正式定稿的重点草稿
 
 ## 人类层 vs Claude 层
@@ -165,7 +165,11 @@ cd ~/code/claude_blueprint
 /init-architecture
 ```
 
-它会先补齐项目级架构文档体系，再进入后续的 `/new-module`、`/update-docs` 等正常开发流程。
+它会先补齐项目级最小骨架，再进入后续的 `/new-module`、`/update-docs` 等正常开发流程。
+
+注意：
+- `/init-architecture` 是**骨架入口**，不是完整的项目起盘方法
+- 如果你卡在“先定技术栈、先选首个模块、先补哪侧基础设施、什么时候该做 `mock.html`”，先看 [`docs/项目级落地范式.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/项目级落地范式.md)
 
 标准项目生命周期建议按这条主线执行：
 
@@ -272,6 +276,10 @@ bash scripts/deploy-to-claude.sh
 ```
 
 适合你已经明确“现在要进入哪个阶段”的情况。
+
+补充：
+- `/init-architecture` 负责补最小项目骨架
+- “项目到底怎么起盘、先做什么、后做什么” 见 [`PLAYBOOK.md`](/Users/admin/Downloads/Code/claude_blueprint/PLAYBOOK.md) 和 [`docs/项目级落地范式.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/项目级落地范式.md)
 
 ### agents
 
