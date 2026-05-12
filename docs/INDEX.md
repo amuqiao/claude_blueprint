@@ -6,32 +6,41 @@
 
 ## 先看什么
 
-- 首次接触本仓库：看 [`README.md`](/Users/admin/Downloads/Code/claude_blueprint/README.md)
-- 想理解开发范式：看 [`PLAYBOOK.md`](/Users/admin/Downloads/Code/claude_blueprint/PLAYBOOK.md)
-- 想理解设计取舍：看 [`WHY.md`](/Users/admin/Downloads/Code/claude_blueprint/WHY.md)
-- 想维护这套模板：看 [`MAINTAINING.md`](/Users/admin/Downloads/Code/claude_blueprint/MAINTAINING.md)
+- 首次接触本仓库：看 [`README.md`](../README.md)
+- 想理解开发范式：看 [`PLAYBOOK.md`](../PLAYBOOK.md)
+- 想理解设计取舍：看 [`WHY.md`](../WHY.md)
+- 想维护这套模板：看 [`MAINTAINING.md`](../MAINTAINING.md)
 
 补充：
-- 想先理解“人类层 vs Claude 层”的边界，先看 [`README.md`](/Users/admin/Downloads/Code/claude_blueprint/README.md) 对应小节
+- 想先理解“人类层 vs Claude 层”的边界，先看 [`README.md`](../README.md) 对应小节
 
 ---
 
 ## 本目录包含什么
 
-- [`用户心智模型.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/用户心智模型.md)
+### 核心文档
+
+这 3 篇是 `docs/` 目录的主柱，分别承载“理解层 / 能力层 / 主干流程层”。
+推荐理解顺序是：先看“这套系统怎么理解”，再看“有哪些能力可用”，最后看“项目开发主线怎么走”。
+
+- [`用户心智模型.md`](用户心智模型.md)
   解释为什么这套 blueprint 要区分“人类层”和“Claude 层”，以及你在 Claude TUI 中应该如何使用这套系统。
 
-- [`项目级落地范式.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/项目级落地范式.md)
-  解释面对一个真实项目时，如何从“想法”走到“项目定盘 → 首个核心模块 → 最小可用基建”，而不是误以为可以一键完成项目起盘。
-
-- [`项目开发主干流程.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/项目开发主干流程.md)
-  用节点模型把项目开发串成一条主干，说明每个节点的目标、输入、输出、质量标准和可调用能力。
-
-- [`能力地图.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/能力地图.md)
+- [`能力地图.md`](能力地图.md)
   解释 `commands / agents / skills / hooks / templates` 的区别、触发方式和使用边界。
 
-- [`工作流参考.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/工作流参考.md)
-  把项目定盘、模块设计、实现落地、回写抽象串成一条可复用主线。
+- [`项目开发主干流程.md`](项目开发主干流程.md)
+  用节点模型把项目开发串成一条主干，说明每个节点的目标、输入、输出、质量标准和可调用能力。
+
+### 辅助文档
+
+这 2 篇用于纠偏和桥接，不承担主方法论，不应继续无限扩写。
+
+- [`项目级落地范式.md`](项目级落地范式.md)
+  解释面对一个真实项目时，如何从“想法”走到“项目定盘 → 首个核心模块 → 最小可用基建”，而不是误以为可以一键完成项目起盘。
+
+- [`工作流参考.md`](工作流参考.md)
+  用场景导航方式说明常见开发场景该从哪个入口进入、应该跳转到哪篇主文档。
 
 ---
 
@@ -54,3 +63,7 @@
 - `templates/*.md`
 
 现阶段优先保证总览清晰，避免文档重复和漂移。
+
+补充：
+- 当前只做**逻辑分级**，不做 `core/`、`support/` 这类物理目录拆分
+- 只有当 `docs/` 数量明显增长、阅读导航开始拥挤时，才考虑物理分级
