@@ -44,6 +44,7 @@
 - `scripts/`
 - `acceptance/`
 - `drafts/`
+- `prompts/`
 - `README.md`
 - `WHY.md`
 - `MAINTAINING.md`
@@ -146,17 +147,19 @@
 
 ### 草稿何时升格
 
-本仓库的草稿分两层：
+本仓库按“资产类型 × 生命周期”维护草稿：
 
-- `drafts/`：普通草稿，允许零散、试探、未收敛
-- `drafts/incubating/`：重点草稿，虽然还没正式定稿，但已经明显会影响方法层或设计判断
+- `drafts/docs/`：普通文档/方法论草稿，允许零散、试探、未收敛
+- `drafts/docs/wip/`：重点文档草稿，虽然还没正式定稿，但已经明显会影响方法层或设计判断
+- `drafts/prompts/wip/`：还在打磨的 prompt 草稿
+- `drafts/prompts/archived/`：已废弃或已被正式 prompt / skill 吸收的 prompt 草稿
 
-进入 `drafts/incubating/` 的信号：
+进入 `drafts/docs/wip/` 的信号：
 - 这篇草稿会反复影响后续设计判断
 - 内容已经不只是随手记录，而是在形成方法论
 - 如果被埋没，会明显影响后续迭代质量
 
-从 `drafts/incubating/` 升格为正式文档的信号：
+从 `drafts/docs/wip/` 升格为正式文档的信号：
 - 判断已经稳定
 - 已开始反复被引用
 - 需要作为当前标准执行
@@ -164,8 +167,10 @@
 升格路径：
 - 方法层稳定了 → `PLAYBOOK.md`
 - 设计决策稳定了 → `WHY.md`
-- 维护流程稳定了 → `MAINTAINING.md`
+- 维护流程稳定了 → `MAINTAINING.md` 或 `RUNTIME-MAINTAINING.md`
 - 使用方式稳定了 → `README.md`
+- Prompt 稳定且可直接复用 → `prompts/`
+- Prompt 已抽象成方法与工作流 → `skills/` 或 `commands/`
 
 ### 草稿整理流程
 
@@ -175,7 +180,7 @@
 
 ```text
 # 提炼具体草稿
-/distill-draft drafts/某想法.md
+/distill-draft drafts/docs/某想法.md
 
 # 批量查看所有草稿状态
 /distill-draft --batch
@@ -183,7 +188,7 @@
 
 **手动整理时的分析框架**（如果不用命令）：
 
-1. **读取草稿**：`drafts/文件名.md`
+1. **读取草稿**：优先从 `drafts/docs/` 或 `drafts/prompts/` 中读取
 
 2. **分析维度**：
    - 核心观点是什么？（1-3 句话）
@@ -192,12 +197,15 @@
    - 影响范围？（仅当前项目 / 跨项目通用 / 影响范式 / 影响维护流程）
 
 3. **判断去向**：
-   - 仅记录 → 保留在 `drafts/`
-   - 初步判断 + 会反复影响设计 → `drafts/incubating/`
+   - 文档类仅记录 → 保留在 `drafts/docs/`
+   - 文档类初步判断 + 会反复影响设计 → `drafts/docs/wip/`
+   - Prompt 类仍在打磨 → `drafts/prompts/wip/`
    - 接近定稿 + 影响方法层 → `PLAYBOOK.md`
    - 接近定稿 + 影响设计决策 → `WHY.md`
-   - 接近定稿 + 影响维护流程 → `MAINTAINING.md`
+   - 接近定稿 + 影响维护流程 → `MAINTAINING.md` 或 `RUNTIME-MAINTAINING.md`
    - 接近定稿 + 影响使用方式 → `README.md`
+   - Prompt 已稳定可复用 → `prompts/`
+   - Prompt 已被更高层机制吸收 → `drafts/prompts/archived/`
 
 4. **整理并迁移**：
    - 提炼核心观点（3-5 条）
@@ -208,7 +216,7 @@
 **推荐频率**：
 - 每次向仓库提交较大改动前，先整理一遍草稿
 - 或每周/每月定期整理一次
-- 或当 `drafts/*.md` 文件超过 10 个时触发整理
+- 或当 `drafts/docs/*.md` 与 `drafts/prompts/wip/*.md` 累积较多时触发整理
 
 ### 新增或修改 skill
 运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。

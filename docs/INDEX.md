@@ -1,6 +1,6 @@
 # 文档索引
 
-> 本目录用于补充仓库级总览文档，不替代 `README.md`、`PLAYBOOK.md`、`WHY.md`、`MAINTAINING.md`。
+> 本目录用于补充仓库级总览文档，不替代 `README.md`、`PLAYBOOK.md`、`WHY.md`、`MAINTAINING.md`、`RUNTIME-MAINTAINING.md`；文档和 prompt 草稿统一留在 `drafts/` 目录，不放进 `docs/`。
 
 ---
 

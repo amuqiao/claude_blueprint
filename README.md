@@ -65,14 +65,19 @@ claude_blueprint/
 ├── agents/                # 子代理定义：arch / rev
 ├── commands/              # 自定义斜杠命令
 ├── templates/             # 项目初始化模板
+├── prompts/               # 正式可复用 prompt（不部署）
 ├── docs/                  # 仓库级总览文档（不部署）
 │
 ├── scripts/               # 仓库维护与部署脚本（不部署）
 │   ├── backup-claude.sh   # 备份现有 ~/.claude
 │   └── deploy-to-claude.sh# 把白名单文件同步到 ~/.claude
 │
-└── drafts/                # 模具层思考草稿箱（不部署）
-    └── incubating/        # 重点草稿：接近正式方法/决策，但尚未定稿
+└── drafts/                # 草稿总入口（不部署）
+    ├── docs/              # 文档/方法论草稿
+    │   └── wip/           # 重点草稿：接近正式方法/决策，但尚未定稿
+    └── prompts/           # prompt 草稿
+        ├── wip/           # 正在打磨的 prompt
+        └── archived/      # 已废弃或已被 skill 吸收的 prompt
 ```
 
 ## 当前状态
@@ -88,7 +93,9 @@ claude_blueprint/
 - `MAINTAINING.md`：给维护者看，说明仓库治理、文档治理、发布与检查
 - `RUNTIME-MAINTAINING.md`：给维护者看，说明 `CLAUDE.md`、`settings.json`、`rules/`、`hooks/`、`skills/`、`agents/`、`commands/`、`templates/` 怎么维护
 - `docs/`：给已经理解主结构的人看，补用户心智模型、项目级落地范式、能力区别和工作流参考
-- `drafts/incubating/`：放重要但尚未正式定稿的重点草稿
+- `prompts/`：放已可复用的正式 prompt
+- `drafts/docs/wip/`：放重要但尚未正式定稿的文档/方法论草稿
+- `drafts/prompts/wip/`：放还在打磨的 prompt 草稿
 
 补充说明：
 - `rules/` 当前不是这套 blueprint 的默认主结构层
@@ -279,7 +286,7 @@ bash scripts/deploy-to-claude.sh
 /init-architecture
 /new-module 用户认证
 /update-docs 用户认证
-/distill-draft drafts/真正述求.md
+/distill-draft drafts/docs/某篇草稿.md
 /add-rule 新增一条跨项目通用约束
 ```
 

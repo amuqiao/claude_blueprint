@@ -1,6 +1,6 @@
 ---
 name: distill-draft
-description: 提炼一篇草稿的核心判断，判断成熟度，并推荐它应留在 drafts、进入 incubating，还是升格为正式文档。
+description: 提炼一篇草稿的核心判断，判断成熟度，并推荐它应留在 drafts/docs、进入 drafts/docs/wip、转入 prompts，还是升格为正式文档。
 argument-hint: [草稿路径]
 ---
 
@@ -33,7 +33,7 @@ argument-hint: [草稿路径]
 从以下三类中选择一个最合适的当前状态：
 
 - 保持普通草稿
-- 升为重点草稿（`drafts/incubating/`）
+- 升为重点草稿（`drafts/docs/wip/`）
 - 可以提炼为正式文档
 
 判断时明确说明理由。
@@ -42,8 +42,10 @@ argument-hint: [草稿路径]
 
 只能给出一个主推荐去向：
 
-- `drafts/`
-- `drafts/incubating/`
+- `drafts/docs/`
+- `drafts/docs/wip/`
+- `prompts/`
+- `drafts/prompts/wip/`
 - `PLAYBOOK.md`
 - `WHY.md`
 - `MAINTAINING.md`
@@ -55,7 +57,7 @@ argument-hint: [草稿路径]
 
 输出一个最小下一步建议，例如：
 - 暂不升格，继续观察
-- 移入 `drafts/incubating/`
+- 移入 `drafts/docs/wip/`
 - 提炼成 `PLAYBOOK.md` 的一个新小节
 - 提炼成 `WHY.md` 的一个新决策节
 
