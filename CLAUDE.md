@@ -54,7 +54,7 @@
 
 | 触发场景 | 读取 skill |
 |---------|-----------|
-| 写任何文档 | `~/.claude/skills/writing/SKILL.md` |
+| 新建文档、Review 文档格式 | `~/.claude/skills/writing/SKILL.md` |
 | 写架构文档或模块设计文档 | `~/.claude/skills/design-doc/SKILL.md` |
 | 写代码讲解文档 | `~/.claude/skills/code-explain/SKILL.md` |
 | 写批量 API 调用脚本 | `~/.claude/skills/python-script/SKILL.md` |
@@ -64,8 +64,15 @@
 
 ---
 
-## 文档与 Markdown 输出规则入口
+## 写作规范路由
 
-- 当任务需要输出 Markdown 文档、设计说明、分析报告、README 或其他结构化文本交付物时，遵循 `rules/writing.md`
-- `rules/writing.md` 负责统一文档输出表达规则；更完整的写文档工作方式仍按 `~/.claude/skills/writing/SKILL.md` 执行
-- 当前这只是对 rules 机制的最小验证；只有当相关规则明显继续增长时，才考虑进一步按主题拆分
+**所有文档写作任务**必须遵守 `rules/writing.md` 的约束：
+- 表达原则（先结论后展开、WHY 注释）
+- 文档结构约束（层级、标题）
+- 代码注释规范
+- 图表规范
+
+**新建文档或 Review 文档格式**时，调用 `~/.claude/skills/writing/SKILL.md`：
+- 提供文档开头模板
+- 指导写作流程
+- 提供检查清单
