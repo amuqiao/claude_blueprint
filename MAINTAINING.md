@@ -31,6 +31,7 @@
 当前会部署的路径：
 - `CLAUDE.md`
 - `settings.json`
+- `rules/`
 - `hooks/`
 - `skills/`
 - `agents/`
@@ -119,7 +120,12 @@
 
 ### 何时引入 rules / plugins
 
-默认情况下，本 blueprint 不要求仓库中必须有 `rules/` 或 `plugins/`。
+默认情况下，本 blueprint 不把 `rules/` 或 `plugins/` 当成默认大规模主结构层。
+
+当前仓库的例外：
+- 已保留一个最小 `rules/writing.md` 示例
+- 它的目的主要是验证 rules 机制可用
+- 这不代表本 blueprint 已转向“默认依赖 rules 拆分 CLAUDE.md”
 
 引入 `rules/` 的信号：
 - 项目级约束已经明显按路径或子域分化
@@ -132,7 +138,7 @@
 - 现有 `commands` / `skills` / `hooks` 已不足以支撑目标能力
 
 维护要求：
-- 引入 `rules/` 后，更新 `PLAYBOOK.md` 说明它在范式中的位置
+- 当 `rules/` 从“最小验证示例”升级为“正式主结构层”时，更新 `PLAYBOOK.md` 说明它在范式中的位置
 - 引入 `plugins/` 后，更新 `README.md` 说明安装和使用方式
 - 任一者进入标准范式后，更新 `WHY.md` 说明为何不再维持当前精简路线
 

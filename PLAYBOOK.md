@@ -298,6 +298,8 @@
 - 复杂任务规范已经有 `skills/`
 - 项目级流程和边界已经有项目根 `CLAUDE.md` 与 `docs/design/...`
 
+当前仓库保留了一个最小 `rules/writing.md` 示例，用于验证 rules 机制可用；这不改变“默认不依赖 rules 分层”的主路线判断。
+
 只有当项目规则开始明显按目录分化，例如：
 - `frontend/` 和 `backend/` 有不同约束
 - `pipeline/`、`adapters/`、`pages/` 有不同约束

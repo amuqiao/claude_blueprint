@@ -59,6 +59,7 @@ claude_blueprint/
 ├── .gitignore             # 仓库忽略规则（仓库元文档，不部署）
 │
 ├── hooks/                 # Hook 脚本：保护配置、提醒变更、阻止 git push
+├── rules/                 # 最小启用的可选规则层：当前仅保留 writing 示例
 ├── skills/                # 按任务类型拆分的规范库
 ├── agents/                # 子代理定义：arch / rev
 ├── commands/              # 自定义斜杠命令
@@ -86,6 +87,11 @@ claude_blueprint/
 - `MAINTAINING.md`：给维护者看，说明以后怎么迭代
 - `docs/`：给已经理解主结构的人看，补用户心智模型、项目级落地范式、能力区别和工作流参考
 - `drafts/incubating/`：放重要但尚未正式定稿的重点草稿
+
+补充说明：
+- `rules/` 当前不是这套 blueprint 的默认主结构层
+- 仓库里只保留了一个最小 `writing` 规则，用来验证 rules 机制可用
+- 只有当 `CLAUDE.md` 明显继续膨胀时，才考虑按主题进一步拆分
 
 ## 人类层 vs Claude 层
 
