@@ -6,9 +6,12 @@
 请基于当前项目代码、配置、脚本、Docker 相关文件和已有文档，整理一份“部署与服务管理文档”。
 
 当前口径固定为：
+- 维护 `.env.example` 作为配置模板
+- `.env` 是默认统一入口
+- `.env`、`.env.dev` 都不提交 Git
+- 通过环境变量在 `.env`、`.env.dev` 之间切换
+- 环境变量优先级高于本地文件
 - 只维护 `docker-compose.yml`
-- 只维护 `.env`、`.env.dev`
-- 通过 `ENV_FILE` 切换 docker-compose 读取的环境文件
 - 不再使用 `docker-compose.prod.yml`、`.env.prod`、`.env.prod.example`
 
 这份文档需要覆盖 3 种部署方式：
@@ -23,7 +26,8 @@
    - 适用场景
    - 服务边界
    - PostgreSQL、Redis 等外部依赖服务由谁提供、如何连接
-   - 配置要求
+   - `.env.example`、`.env`、`.env.dev`、`docker-compose.yml` 各自承担什么职责
+   - 如何通过环境变量切换 `.env`、`.env.dev`
    - 启动方式
    - 服务管理方式
    - 常见问题与排查思路
@@ -45,9 +49,12 @@
 3. 基于 Dockerfile 的独立部署
 
 当前口径固定为：
+- 维护 `.env.example` 作为配置模板
+- `.env` 是默认统一入口
+- `.env`、`.env.dev` 都不提交 Git
+- 通过环境变量在 `.env`、`.env.dev` 之间切换
+- 环境变量优先级高于本地文件
 - 只维护 `docker-compose.yml`
-- 只维护 `.env`、`.env.dev`
-- docker-compose 统一通过 `ENV_FILE` 切换
 - 不再使用 `docker-compose.prod.yml`、`.env.prod`、`.env.prod.example`
 
 输出要求：
@@ -56,7 +63,8 @@
 3. 如果不支持，指出缺什么
 4. 说明每种方式的服务边界和依赖来源
 5. 特别说明 PostgreSQL、Redis 等外部依赖服务在这 3 种方式下的边界是否清楚
-6. 不要进入正式文档输出
+6. 特别说明 `.env.example`、`.env`、`.env.dev`、`docker-compose.yml` 的职责是否清楚
+7. 不要进入正式文档输出
 ```
 
 ### 阶段 2：输出部署与服务管理文档
@@ -72,7 +80,9 @@
    - 服务边界
    - 依赖来源
    - PostgreSQL、Redis 等外部依赖服务由谁提供、如何连接
-   - 配置要求
+   - `.env.example`、`.env`、`.env.dev`、`docker-compose.yml` 的职责
+   - 如何通过环境变量切换 `.env`、`.env.dev`
+   - 环境变量与本地文件的优先级关系
    - 启动方式
    - 服务管理方式
    - 验证方式
@@ -100,25 +110,30 @@
 3. 基于 Dockerfile 的独立部署
 
 当前口径固定为：
+- 维护 `.env.example` 作为配置模板
+- `.env` 是默认统一入口
+- `.env`、`.env.dev` 都不提交 Git
+- 通过环境变量在 `.env`、`.env.dev` 之间切换
+- 环境变量优先级高于本地文件
 - 只维护 `docker-compose.yml`
-- 只维护 `.env`、`.env.dev`
-- docker-compose 统一通过 `ENV_FILE` 切换
 - 不再使用 `docker-compose.prod.yml`、`.env.prod`、`.env.prod.example`
 
 请重点检查：
 1. 仓库里是否真的存在支撑这些方式的配置、脚本、Docker 文件和环境变量方案
-2. 哪些方式是已经能落地的
-3. 哪些方式只是理论可行，但当前仓库没有足够支撑
-4. 哪些关键前提缺失
-5. 三种方式的服务边界、依赖来源、配置方式是否清楚
-6. PostgreSQL、Redis 等外部依赖服务在不同方式下由谁提供、如何连接，是否表达清楚
+2. `.env.example`、`.env`、`.env.dev`、`docker-compose.yml` 的职责是否自洽
+3. 哪些方式是已经能落地的
+4. 哪些方式只是理论可行，但当前仓库没有足够支撑
+5. 哪些关键前提缺失
+6. 三种方式的服务边界、依赖来源、配置方式是否清楚
+7. PostgreSQL、Redis 等外部依赖服务在不同方式下由谁提供、如何连接，是否表达清楚
 
 输出要求：
 1. 分别给出“成立 / 基本成立 / 不成立”的判断
 2. 说明每个判断的依据
 3. 指出缺口和风险
 4. 特别指出 PostgreSQL、Redis 等外部依赖服务的边界是否明确
-5. 不要进入正式文档输出
+5. 特别指出环境变量优先级和本地文件切换机制是否明确
+6. 不要进入正式文档输出
 ```
 
 ### 阶段 2：基于审查结论输出正式文档
@@ -134,7 +149,9 @@
    - 服务边界
    - 依赖来源
    - PostgreSQL、Redis 等外部依赖服务由谁提供、如何连接
-   - 配置要求
+   - `.env.example`、`.env`、`.env.dev`、`docker-compose.yml` 的职责
+   - 如何通过环境变量切换 `.env`、`.env.dev`
+   - 环境变量与本地文件的优先级关系
    - 启动方式
    - 服务管理方式
    - 验证方式
@@ -151,6 +168,6 @@
 
 ## 当前判断
 
-- 当前主线已经固定为“一个 `docker-compose.yml` + `.env` / `.env.dev` + `ENV_FILE`”
+- 当前主线已经固定为“`.env.example` + 默认入口 `.env` + 可切换 `.env.dev` + 一个 `docker-compose.yml`”
 - 这份 prompt 的任务是基于这套口径输出部署与服务管理文档
 - `简单版` 保持单阶段，`详细版` 和 `严格审查版` 保持两阶段
