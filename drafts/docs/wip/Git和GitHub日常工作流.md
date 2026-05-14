@@ -45,8 +45,7 @@ ls -la / | grep tools
 sudo chown -R wangqiao:wangqiao /tools/tag-translation-api
 
 # 第三步：用 sudo clone 到目标目录
-sudo git clone -b dev https://gitlab.stardustgod.com/ai/tag-translation-api.git /tools/tag-translation-api
-git clone -b dev git@gitlab.stardustgod.com:ai/mbp-tts-server.git /tools/tag-translation-api
+git clone -b dev git@gitlab.stardustgod.com:ai/tag-translation-api.git /tools/tag-translation-api
 
 # 第四步：进入目录确认分支
 cd /tools/tag-translation-api
