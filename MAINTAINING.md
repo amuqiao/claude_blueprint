@@ -149,17 +149,26 @@
 
 本仓库按“资产类型 × 生命周期”维护草稿：
 
-- `drafts/docs/`：普通文档/方法论草稿，允许零散、试探、未收敛
-- `drafts/docs/wip/`：重点文档草稿，虽然还没正式定稿，但已经明显会影响方法层或设计判断
+- `drafts/docs/`：普通文档草稿，允许零散、试探、未收敛
+- `drafts/docs/wip/`：正在重点整理中的文档草稿，结构和判断仍可能明显变化
+- `drafts/docs/next/`：当前主线候选稿，已经形成较稳定方案，但还要继续实践验证
+- `drafts/docs/archived/`：已废弃或已退出当前主线的历史文稿
 - `drafts/prompts/wip/`：还在打磨的 prompt 草稿
+- `drafts/prompts/next/`：当前主线候选 prompt，已可反复使用，但还没升为正式 `prompts/`
 - `drafts/prompts/archived/`：已废弃或已被正式 prompt / skill 吸收的 prompt 草稿
 
 进入 `drafts/docs/wip/` 的信号：
 - 这篇草稿会反复影响后续设计判断
 - 内容已经不只是随手记录，而是在形成方法论
-- 如果被埋没，会明显影响后续迭代质量
+- 结构、结论或边界还可能继续大改
 
-从 `drafts/docs/wip/` 升格为正式文档的信号：
+从 `drafts/docs/wip/` 进入 `drafts/docs/next/` 的信号：
+- 当前主线已经比较清楚
+- 已经准备拿去真实使用或对照实践验证
+- 还不想立即升为正式 `docs/`
+
+从 `drafts/docs/next/` 升格为正式文档的信号：
+- 经过实践验证
 - 判断已经稳定
 - 已开始反复被引用
 - 需要作为当前标准执行
@@ -199,7 +208,9 @@
 3. **判断去向**：
    - 文档类仅记录 → 保留在 `drafts/docs/`
    - 文档类初步判断 + 会反复影响设计 → `drafts/docs/wip/`
+   - 文档类已形成当前主线、待实践验证 → `drafts/docs/next/`
    - Prompt 类仍在打磨 → `drafts/prompts/wip/`
+   - Prompt 类已形成当前主线、待实践验证 → `drafts/prompts/next/`
    - 接近定稿 + 影响方法层 → `PLAYBOOK.md`
    - 接近定稿 + 影响设计决策 → `WHY.md`
    - 接近定稿 + 影响维护流程 → `MAINTAINING.md` 或 `RUNTIME-MAINTAINING.md`
@@ -216,7 +227,7 @@
 **推荐频率**：
 - 每次向仓库提交较大改动前，先整理一遍草稿
 - 或每周/每月定期整理一次
-- 或当 `drafts/docs/*.md` 与 `drafts/prompts/wip/*.md` 累积较多时触发整理
+- 或当 `drafts/docs/*.md`、`drafts/docs/wip/`、`drafts/docs/next/`、`drafts/prompts/wip/`、`drafts/prompts/next/` 累积较多时触发整理
 
 ### 新增或修改 skill
 运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。

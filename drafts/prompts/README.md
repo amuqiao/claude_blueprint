@@ -3,6 +3,7 @@
 ## 目录区别
 
 - `wip/`：正在整理、还会继续修改的 prompt 草稿
+- `next/`：当前主线候选 prompt，已可反复使用，但还没进入正式 `prompts/`
 - `archived/`：不再继续维护、仅保留作历史参考的 prompt
 
 ## Prompt 文档格式

@@ -31,7 +31,35 @@ git remote add origin <repo-url>
 git remote set-url origin <new-repo-url>
 ```
 
-### 1.2 查看状态
+### 1.2 特殊场景：受限目录下克隆仓库
+
+当目标目录属于 `root`，当前用户没有写入权限时，普通 `git clone` 会失败。
+
+这种场景下，可以按下面步骤处理：
+
+```bash
+# 第一步：确认目录权限
+ls -la / | grep tools
+
+# 第二步：把项目目录权限交给当前用户
+sudo chown -R wangqiao:wangqiao /tools/tag-translation-api
+
+# 第三步：用 sudo clone 到目标目录
+sudo git clone -b dev https://gitlab.stardustgod.com/ai/tag-translation-api.git /tools/tag-translation-api
+git clone -b dev git@gitlab.stardustgod.com:ai/mbp-tts-server.git /tools/tag-translation-api
+
+# 第四步：进入目录确认分支
+cd /tools/tag-translation-api
+git branch
+```
+
+**说明：**
+
+- 这不是常规 Git 工作流，只适用于目标目录确实没有写权限的情况
+- 如果仓库可以放在当前用户目录下，优先不要使用 `sudo git clone`
+- 更稳的做法是只修改具体项目目录权限，不要一上来修改整个 `/tools`
+
+### 1.3 查看状态
 
 ```bash
 # 查看工作区状态
@@ -53,7 +81,7 @@ git diff main
 git diff <commit-hash>
 ```
 
-### 1.3 暂存和提交
+### 1.4 暂存和提交
 
 ```bash
 # 暂存指定文件
