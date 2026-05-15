@@ -27,6 +27,20 @@ bash scripts/deploy-to-claude.sh --dry-run
 bash scripts/deploy-to-claude.sh
 ```
 
+如需安装这套 blueprint 推荐的 Plugin，再展示插件安装命令：
+
+```bash
+bash scripts/show-plugin-install-commands.sh
+```
+
+这个脚本只展示 `/plugin ...` 命令，不会自动执行安装。
+
+默认只输出 `Core` 主线 Plugin；如需带上增强层：
+
+```bash
+bash scripts/show-plugin-install-commands.sh --extended
+```
+
 如果本机已经有旧的 `~/.claude`，先备份：
 
 ```bash
@@ -43,6 +57,7 @@ cd ~/code/claude_blueprint
 git pull --ff-only origin main
 bash scripts/deploy-to-claude.sh --dry-run
 bash scripts/deploy-to-claude.sh
+bash scripts/show-plugin-install-commands.sh
 ```
 
 ## 仓库结构
@@ -52,6 +67,7 @@ claude_blueprint/
 ├── CLAUDE.md              # 全局主控：跨项目通用约束
 ├── settings.json          # 全局 Claude Code 设置骨架
 ├── deploy-manifest.txt    # 部署白名单：哪些路径会同步到 ~/.claude
+├── plugin-install-plan.md # Plugin 安装计划（不直接部署）
 ├── PLAYBOOK.md            # 开发范式说明（仓库元文档，不部署）
 ├── WHY.md                 # 模具设计决策记录（仓库元文档，不部署）
 ├── MAINTAINING.md         # 维护迭代手册（仓库元文档，不部署）
@@ -71,7 +87,8 @@ claude_blueprint/
 │
 ├── scripts/               # 仓库维护与部署脚本（不部署）
 │   ├── backup-claude.sh   # 备份现有 ~/.claude
-│   └── deploy-to-claude.sh# 把白名单文件同步到 ~/.claude
+│   ├── deploy-to-claude.sh# 把白名单文件同步到 ~/.claude
+│   └── show-plugin-install-commands.sh # 展示 Plugin 安装命令
 │
 └── drafts/                # 草稿总入口（不部署）
     ├── docs/              # 文档/方法论草稿
@@ -86,23 +103,19 @@ claude_blueprint/
 - 已按 v3 文档落地全部明确给出的文件内容。
 - 四个补充 skill 已从 `~/.claude/规范/` 同步正文：`python-script`、`python-ops-cli`、`shell-service`、`code-explain`。
 
-## 核心文档分工
+## 继续阅读
 
-- `README.md`：给使用者看，讲安装、部署、更新、验收
-- `PLAYBOOK.md`：讲开发范式，回答先做什么、后做什么、每阶段产出什么
-- `WHY.md`：讲为什么这样设计
-- `MAINTAINING.md`：给维护者看，说明仓库治理、文档治理、发布与检查
-- `DRAFTS-MAINTAINING.md`：给维护者看，说明草稿箱如何分阶段、如何分类、何时升格
-- `RUNTIME-MAINTAINING.md`：给维护者看，说明 `CLAUDE.md`、`settings.json`、`rules/`、`hooks/`、`skills/`、`agents/`、`commands/`、`templates/` 怎么维护
-- `docs/`：给已经理解主结构的人看，补用户心智模型、项目级落地范式、能力区别和工作流参考
-- `prompts/`：放已可复用的正式 prompt
-- `drafts/docs/wip/`：放重要但尚未正式定稿的文档/方法论草稿
-- `drafts/prompts/wip/`：放还在打磨的 prompt 草稿
+这份 `README.md` 只负责用法入口，不维护完整的文档职责矩阵。
 
-补充说明：
-- `rules/` 当前不是这套 blueprint 的默认主结构层
-- 仓库里只保留了一个最小 `writing` 规则，用来验证 rules 机制可用
-- 只有当 `CLAUDE.md` 明显继续膨胀时，才考虑按主题进一步拆分
+推荐阅读顺序：
+- 想直接使用这套 blueprint：继续看本页
+- 想理解先做什么、后做什么：看 [`PLAYBOOK.md`](/Users/admin/Downloads/Code/claude_blueprint/PLAYBOOK.md)
+- 想理解为什么这样设计：看 [`WHY.md`](/Users/admin/Downloads/Code/claude_blueprint/WHY.md)
+- 想维护这个仓库本身：看 [`MAINTAINING.md`](/Users/admin/Downloads/Code/claude_blueprint/MAINTAINING.md)
+- 想维护运行层资产：看 [`RUNTIME-MAINTAINING.md`](/Users/admin/Downloads/Code/claude_blueprint/RUNTIME-MAINTAINING.md)
+- 想浏览 `docs/` 子目录：看 [`docs/INDEX.md`](/Users/admin/Downloads/Code/claude_blueprint/docs/INDEX.md)
+
+文档职责边界以 [`MAINTAINING.md`](/Users/admin/Downloads/Code/claude_blueprint/MAINTAINING.md) 为准。
 
 ## 人类层 vs Claude 层
 
@@ -149,6 +162,12 @@ cd ~/code/claude_blueprint
 - `~/.claude`：**Claude Code 实际读取的目标目录**
 
 也就是说，你平时维护和更新的是这个仓库；真正写入 `~/.claude` 时，使用部署脚本同步过去。
+
+补充：
+- `skills/` 由本仓库直接维护，并通过 `deploy-to-claude.sh` 同步到 `~/.claude/skills/`
+- Plugin 不直接镜像 `~/.claude/plugins/`
+- Plugin 的安装计划记录在 [`plugin-install-plan.md`](/Users/admin/Downloads/Code/claude_blueprint/plugin-install-plan.md)，再由 `show-plugin-install-commands.sh` 展示安装命令
+- 默认主线只装 `Core` Plugin；`Extended / Experimental` 按需追加
 
 ## 记忆位置约定
 
@@ -214,6 +233,20 @@ bash scripts/deploy-to-claude.sh
 - 会把本仓库管理的文件同步进去
 - 不会把 `~/.claude` 变成 git 仓库
 
+如需补装 blueprint 推荐 Plugin：
+
+```bash
+bash scripts/show-plugin-install-commands.sh
+```
+
+然后把输出的 `/plugin ...` 命令粘贴到 Claude Code TUI 中执行。
+
+如果你要连增强层一起安装：
+
+```bash
+bash scripts/show-plugin-install-commands.sh --extended
+```
+
 ### 情况 2：本机已经有 `~/.claude`，想先备份再部署
 
 先预览备份动作：
@@ -245,6 +278,18 @@ bash scripts/deploy-to-claude.sh
 - 本仓库管理的文件会覆盖同步到 `~/.claude`
 - 运行时目录会继续留在原位
 
+如需同步推荐 Plugin 安装清单：
+
+```bash
+bash scripts/show-plugin-install-commands.sh
+```
+
+如果只想看实验层插件：
+
+```bash
+bash scripts/show-plugin-install-commands.sh --experimental-only
+```
+
 ### 情况 3：你已经在用这套仓库，只想获取最新版本
 
 先更新本项目根目录里的仓库：
@@ -258,6 +303,13 @@ git pull --ff-only origin main
 
 ```bash
 bash scripts/deploy-to-claude.sh --dry-run
+```
+
+确认无误后正式部署并重新生成 Plugin 安装命令：
+
+```bash
+bash scripts/deploy-to-claude.sh
+bash scripts/show-plugin-install-commands.sh
 ```
 
 确认无误后正式部署：
@@ -417,6 +469,7 @@ bash scripts/deploy-to-claude.sh --target /path/to/claude
 
 - `CLAUDE.md`
 - `settings.json`
+- `rules/`
 - `hooks/`
 - `skills/`
 - `agents/`
@@ -433,6 +486,7 @@ bash scripts/deploy-to-claude.sh --target /path/to/claude
 
 - `CLAUDE.md`
 - `settings.json`
+- `rules/`
 - `hooks/`
 - `skills/`
 - `agents/`
@@ -447,11 +501,71 @@ bash scripts/deploy-to-claude.sh --target /path/to/claude
 - `WHY.md`
 - `MAINTAINING.md`
 - `.gitignore`
+- `plugin-install-plan.md`
 
 原因是这些文件属于仓库的元文档和维护工具：
 - `WHY.md` 和 `drafts/` 主要给维护者阅读，用来记录设计判断和演化过程
 - `MAINTAINING.md` 用来说明后续如何维护这个仓库
 - `scripts/`、`README.md`、`.gitignore` 也属于仓库管理层，不是 Claude Code 运行时需要加载的工作目录内容
+- `plugin-install-plan.md` 记录的是 Plugin 安装计划，不是 `~/.claude/plugins/` 的运行时镜像
+
+### `scripts/show-plugin-install-commands.sh`
+
+用途：读取 [`plugin-install-plan.md`](/Users/admin/Downloads/Code/claude_blueprint/plugin-install-plan.md)，展示需要在 Claude Code TUI 中执行的 Plugin 安装命令。
+
+```bash
+bash scripts/show-plugin-install-commands.sh
+```
+
+它只展示命令，不会直接安装任何 Plugin。
+
+默认只输出 `Core` 主线 Plugin。
+
+如需输出 `Core + Extended`：
+
+```bash
+bash scripts/show-plugin-install-commands.sh --extended
+```
+
+如需输出 `Core + Extended + Experimental`：
+
+```bash
+bash scripts/show-plugin-install-commands.sh --all
+```
+
+如果只想输出实验层：
+
+```bash
+bash scripts/show-plugin-install-commands.sh --experimental-only
+```
+
+如果只想输出一段可直接粘贴给 Claude 的提示词块：
+
+```bash
+bash scripts/show-plugin-install-commands.sh --prompt
+```
+
+它不会直接覆盖 `~/.claude/plugins/`，而是把 Plugin 管理成两层：
+- 仓库里维护期望状态
+- Claude Code 里按官方 `/plugin ...` 流程安装
+
+这样做的目的：
+- 避免把 `~/.claude/plugins/` 当成源码目录维护
+- 避免和 Claude 自动管理的插件运行时数据打架
+- 保留一份可复现的 Plugin 安装清单
+
+Plugin 分层策略：
+
+| 层级 | 默认是否安装 | 准入标准 | 当前用途 |
+|------|--------------|----------|----------|
+| `Core` | 是 | 对主线工作流有持续价值，收益稳定，适合所有使用这套 blueprint 的环境 | 需求澄清、任务推进 |
+| `Extended` | 否 | 对部分阶段明显增益，但不是所有环境都必需 | 局部提效、后处理增强 |
+| `Experimental` | 否 | 仍在观察稳定性、收益或心智负担，不进入默认主线 | 候选插件试验场 |
+
+放入某层前，至少问三个问题：
+- 不装它，主线流程是否仍然完整可用
+- 装上它，是否会显著增加心智负担或副作用
+- 它的收益，是否已经稳定到值得长期维护
 
 ## 部署后验证
 

@@ -9,12 +9,16 @@
 
 ## 1. 核心文档各管什么
 
+文档职责边界以本节为唯一准则。
+
 - `README.md`：给使用者看，讲安装、部署、更新、验收
 - `PLAYBOOK.md`：定义开发范式，说明项目生命周期和阶段边界
 - `WHY.md`：记录为什么这样设计，解释关键决策
 - `MAINTAINING.md`：给维护者看，说明仓库治理、文档治理、发布与检查
 - `DRAFTS-MAINTAINING.md`：说明 `drafts/` 草稿箱如何分阶段、如何分类、何时升格
 - `RUNTIME-MAINTAINING.md`：说明运行层资产（`CLAUDE.md`、`settings.json`、`rules/`、`hooks/`、`skills/`、`agents/`、`commands/`、`templates/`）怎么维护
+- `docs/INDEX.md`：只索引 `docs/` 子目录，不负责全仓入口导航
+- `plugin-install-plan.md`：Plugin 安装计划，属于配置资产，不属于维护文档
 
 判断原则：
 - 用户怎么用 → 改 `README.md`
@@ -23,6 +27,8 @@
 - 仓库治理、文档治理、发布检查 → 改 `MAINTAINING.md`
 - 草稿箱治理、升格路径、分类规则 → 改 `DRAFTS-MAINTAINING.md`
 - 运行层资产维护规则 → 改 `RUNTIME-MAINTAINING.md`
+- `docs/` 子目录导航 → 改 `docs/INDEX.md`
+- Plugin 分层和安装计划 → 改 `plugin-install-plan.md`
 
 ---
 
@@ -116,6 +122,8 @@
 - 方法主线的变化，优先落到 `docs/项目开发主干流程.md`
 - 能力边界的变化，优先落到 `docs/能力地图.md`
 - 理解框架的变化，优先落到 `docs/用户心智模型.md`
+- 新增、删除或重命名 `docs/*.md` 时，必须同步检查 `docs/INDEX.md`
+- `docs/INDEX.md` 只维护 `docs/` 子目录的导航，不重复维护根目录元文档职责
 
 何时考虑物理分级：
 - `docs/` 数量超过 8 到 10 篇
@@ -197,12 +205,19 @@
 要改：
 - `scripts/backup-claude.sh`
 - `scripts/deploy-to-claude.sh`
+- `scripts/show-plugin-install-commands.sh`
+- `plugin-install-plan.md`
 - `README.md`
 - 如部署模型变化，更新 `WHY.md`
 
 改完至少验证：
 - `bash -n scripts/*.sh`
 - `bash scripts/deploy-to-claude.sh --dry-run`
+- `bash scripts/show-plugin-install-commands.sh`
+
+补充规则：
+- `plugin-install-plan.md` 不是自由格式文档，而是脚本直接解析的 Markdown 数据源
+- 修改二级标题名、列表格式或插件条目语法时，必须同步检查 `scripts/show-plugin-install-commands.sh`
 
 ### 新增或修改模板
 运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。
@@ -246,7 +261,7 @@ bash scripts/deploy-to-claude.sh
 - [ ] `WHY.md` 是否遗漏了新的设计决策
 - [ ] `/smoke-test` 是否仍然有效
 - [ ] `acceptance/` 下的 fixtures 是否还能用于验收
-- [ ] `bash -n scripts/backup-claude.sh scripts/deploy-to-claude.sh` 是否通过
+- [ ] `bash -n scripts/backup-claude.sh scripts/deploy-to-claude.sh scripts/show-plugin-install-commands.sh` 是否通过
 
 ---
 

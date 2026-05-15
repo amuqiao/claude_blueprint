@@ -1,19 +1,13 @@
 # 文档索引
 
-> 本目录用于补充仓库级总览文档，不替代 `README.md`、`PLAYBOOK.md`、`WHY.md`、`MAINTAINING.md`、`RUNTIME-MAINTAINING.md`；文档和 prompt 草稿统一留在 `drafts/` 目录，不放进 `docs/`。
+> 本页只负责索引 `docs/` 子目录内的文档，不承担全仓入口导航；如果你要了解仓库怎么用，先看根目录 `README.md`。
 
 ---
 
-## 先看什么
+## 进入方式
 
-- 首次接触本仓库：看 [`README.md`](../README.md)
-- 想理解开发范式：看 [`PLAYBOOK.md`](../PLAYBOOK.md)
-- 想理解设计取舍：看 [`WHY.md`](../WHY.md)
-- 想维护这套模板：看 [`MAINTAINING.md`](../MAINTAINING.md)
-- 想维护运行层资产：看 [`RUNTIME-MAINTAINING.md`](../RUNTIME-MAINTAINING.md)
-
-补充：
-- 想先理解“人类层 vs Claude 层”的边界，先看 [`README.md`](../README.md) 对应小节
+- 想从仓库入口开始理解：回到 [`README.md`](../README.md)
+- 已经进入 `docs/`，想知道先读哪篇：看下面这份索引
 
 ---
 
@@ -68,3 +62,4 @@
 补充：
 - 当前只做**逻辑分级**，不做 `core/`、`support/` 这类物理目录拆分
 - 只有当 `docs/` 数量明显增长、阅读导航开始拥挤时，才考虑物理分级
+- 根目录元文档如 `README.md`、`PLAYBOOK.md`、`WHY.md`、`MAINTAINING.md` 不在本页重复维护
