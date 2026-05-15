@@ -30,7 +30,7 @@
 │
 ├── rules/                           # 【官方支持】全局模块化指令目录；
 │   ├── preferences.md               # 按主题拆分 CLAUDE.md；支持递归子目录；
-│   └── workflows.md                 # 无 paths frontmatter 则全局加载；有 paths 则按路径条件加载
+│   └── workflows.md                 # 无 paths frontmatter 则全局适用；有 paths 则只在匹配路径时执行
 │
 ├── commands/                        # 【官方标准】全局自定义斜杠命令；
 │   └── my-command.md                # 文件名（去掉.md）即命令名 → /my-command
