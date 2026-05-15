@@ -158,51 +158,15 @@
 
 ### 草稿何时升格
 
-草稿箱治理已拆到 `DRAFTS-MAINTAINING.md`。
-
-这里只保留摘要：
-
-- 草稿箱按“资产类型 × 生命周期”管理
-- 生命周期是主线，主题只是阶段内的辅助检索入口
-- 当前推荐只在高密度阶段按主题补一层目录，例如 `drafts/prompts/wip/`
-- 草稿稳定后，应尽快迁入正式文档、正式 prompt、少量真正必要的 `skills/` 或 `commands/`
-
-需要判断：
-
-- 该内容现在属于哪个阶段
-- 是否值得继续投入
-- 该升格到哪个正式资产
-- 是否还需要继续保留在草稿箱
-
-详细规则、心智模型和整理流程，统一看 `DRAFTS-MAINTAINING.md`。
+草稿箱治理、升格路径和阶段判断，统一看 `DRAFTS-MAINTAINING.md`。
 
 ### 草稿整理流程
 
-草稿整理的完整流程已拆到 `DRAFTS-MAINTAINING.md`。
-
-这里的要求只有两条：
-
-- `drafts/` 积累较多文件时，要定期整理，不要长期堆积
-- 提交较大改动前，优先先整理一遍相关草稿
+草稿整理流程、归档判断和阶段迁移，统一看 `DRAFTS-MAINTAINING.md`。
 
 ### Prompt 与 Skill 的边界
 
-当前仓库默认立场：
-
-- 自写方法论、模板、检查清单、提示词母版，优先放 `drafts/prompts/`
-- 只有成熟、稳定、边界清晰、确实像“运行时操作手册”的能力，才考虑放 `skills/`
-- 不确定是否值得进入运行层时，先放 `drafts/prompts/wip/`
-
-判断标准：
-
-- 更像一次任务可直接复制使用的内容 → `drafts/prompts/`
-- 更像长期说明或边界解释 → `docs/` 或 `drafts/docs/`
-- 更像运行时需要按意图加载的稳定能力 → `skills/`
-
-补充：
-
-- 文件命名风格属于独立的系统级约束，不并入 `rules/writing.md`
-- 这类约束优先单独写成 rule，例如 `rules/file-naming.md`
+Prompt、Skill 与运行层资产归属判断，统一看 `RUNTIME-MAINTAINING.md`。
 
 ### 新增或修改 skill
 运行层资产维护规则已移到 `RUNTIME-MAINTAINING.md`。
