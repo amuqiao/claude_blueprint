@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 新用户完整指南</title>
+<style>
+:root {
+  --bg:#0c0e14;--bg2:#13161f;--bg3:#1a1e2b;--bg4:#212636;--bg5:#272d3e;
+  --border:#272d3e;--border2:#323a52;
+  --text:#c9d1f0;--text2:#8b95b8;--text3:#555f7a;
+  --blue:#7eaeff;--blue-d:#1a2845;--blue-b:#253870;
+  --green:#7dd8a0;--green-d:#162a1e;--green-b:#1f3f2c;
+  --amber:#f5c76a;--amber-d:#2a2010;--amber-b:#3d3018;
+  --red:#f07878;--red-d:#2a1414;--red-b:#3d1f1f;
+  --purple:#b89cf5;--purple-d:#1e1830;--purple-b:#2c2448;
+  --teal:#5ed4c8;--teal-d:#122624;--teal-b:#1a3734;
+  --orange:#f09060;--orange-d:#2a1a10;--orange-b:#3d2818;
+  --pink:#f0a0c8;--pink-d:#2a1422;--pink-b:#3d1f33;
+  --mono:'JetBrains Mono','Fira Code',monospace;
+  --sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.65;min-height:100vh}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:216px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.main{flex:1;padding:40px 40px 100px;max-width:860px}
+@media(max-width:700px){.sidebar{display:none}.main{padding:24px 16px 80px}}
+.nav-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:0 18px;margin-bottom:6px;margin-top:16px}
+.nav-title:first-child{margin-top:0}
+.nav-item{display:block;padding:5px 18px;font-size:12.5px;color:var(--text2);text-decoration:none;border-left:2px solid transparent;transition:all .12s}
+.nav-item:hover{color:var(--text);background:var(--bg3);border-left-color:var(--border2)}
+.nav-item.active{color:var(--blue);border-left-color:var(--blue);background:var(--blue-d)}
+.nav-sep{height:1px;background:var(--border);margin:10px 18px}
+.ph{margin-bottom:48px}
+.ph h1{font-size:24px;font-weight:700;color:#fff;letter-spacing:-.4px;margin-bottom:8px}
+.ph p{font-size:13.5px;color:var(--text2);line-height:1.65}
+.sec{margin-bottom:52px}
+.sec-title{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.sec-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+h3{font-size:13.5px;font-weight:600;color:var(--text);margin:22px 0 8px}
+p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:10px}
+.card-head{padding:9px 15px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:11.5px;color:var(--text3);font-family:var(--mono);display:flex;align-items:center;gap:8px}
+.card-body{padding:16px 18px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:580px){.two-col{grid-template-columns:1fr}}
+.model-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:580px){.model-grid{grid-template-columns:1fr}}
+.model-cell{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:13px 14px;position:relative;overflow:hidden}
+.model-cell::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.mc-cfg::before{background:var(--blue)}.mc-skl::before{background:var(--purple)}.mc-dlg::before{background:var(--green)}
+.model-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+.model-name{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px}
+.model-desc{font-size:11.5px;color:var(--text3);line-height:1.5}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+@media(max-width:580px){.compare{grid-template-columns:1fr}}
+.compare-cell{border-radius:8px;padding:13px 14px}
+.compare-label{font-size:11px;font-weight:700;margin-bottom:5px}
+.compare-body{font-size:12px;color:var(--text2);line-height:1.55}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+.tbl th{text-align:left;padding:7px 12px;background:var(--bg3);color:var(--text2);font-weight:600;font-size:11.5px;border-bottom:1px solid var(--border)}
+.tbl td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg3)}
+.tree{background:var(--bg3);border-radius:8px;padding:13px 15px;font-family:var(--mono);font-size:12px;line-height:1.9}
+.tr{display:flex;align-items:baseline}
+.tp{color:var(--border2);white-space:pre;user-select:none}
+.td{color:var(--teal);font-weight:600}
+.tm{color:var(--blue)}
+.tj{color:var(--amber)}
+.tc{font-size:11px;color:var(--text3);margin-left:8px;font-family:var(--sans)}
+.ts{font-size:10px;padding:1px 5px;border-radius:3px;margin-left:5px;font-family:var(--mono);flex-shrink:0}
+.ts-g{background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b)}
+.ts-p{background:var(--green-d);color:var(--green);border:1px solid var(--green-b)}
+.ts-dim{background:var(--bg5);color:var(--text3);border:1px solid var(--border2)}
+.load-stack{display:flex;flex-direction:column;gap:3px}
+.load-row{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 12px}
+.load-idx{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;font-family:var(--mono)}
+.load-path{font-family:var(--mono);font-size:12px;color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.load-note{font-size:11px;color:var(--text3);flex-shrink:0}
+.load-sep{text-align:center;color:var(--text3);font-size:10px;padding:1px 0 1px 24px}
+.load-extra{background:var(--purple-d);border:1px solid var(--purple-b);border-radius:7px;padding:8px 12px;font-size:12px;color:var(--text2);margin-top:4px}
+.amap{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:13px 16px;font-size:12px;line-height:2;margin:10px 0}
+.am-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.am-cat{color:var(--text3);min-width:88px;flex-shrink:0;font-family:var(--mono)}
+.am-items{display:flex;flex-wrap:wrap;gap:5px}
+.am-chip{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;padding:2px 8px;border-radius:4px}
+.am-plugin{background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b)}
+.am-skill{background:var(--purple-d);color:var(--purple);border:1px solid var(--purple-b)}
+.am-badge{font-size:9.5px;padding:1px 4px;border-radius:2px;font-family:var(--mono);opacity:.75}
+.iblock{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.iblock-head{padding:10px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--border)}
+.iblock-title{min-width:0}
+.iblock-name{font-size:13.5px;font-weight:600;color:#fff}
+.iblock-sub{font-size:11px;color:var(--text3);line-height:1.45;margin-top:2px}
+.iblock-meta{display:flex;align-items:center;gap:6px}
+.iblock-type{font-size:10px;padding:2px 7px;border-radius:3px;font-family:var(--mono);font-weight:600}
+.it-plugin{background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b)}
+.it-skill{background:var(--purple-d);color:var(--purple);border:1px solid var(--purple-b)}
+.iblock-src{font-size:10px;padding:2px 7px;border-radius:3px;font-family:var(--mono)}
+.src-official{background:var(--green-d);color:var(--green);border:1px solid var(--green-b)}
+.src-3p{background:var(--amber-d);color:var(--amber);border:1px solid var(--amber-b)}
+.iblock-body{padding:12px 15px}
+.iblock-desc{font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:10px}
+pre{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:10px 13px;font-family:var(--mono);font-size:12px;color:var(--text2);overflow-x:auto;line-height:1.7;white-space:pre-wrap;word-break:break-all}
+pre .cmt{color:var(--text3)}pre .cmd{color:var(--blue)}pre .str{color:var(--green)}pre .wrn{color:var(--amber)}
+code{font-family:var(--mono);font-size:12px;background:var(--bg4);padding:1px 5px;border-radius:3px;color:var(--text2)}
+.rcard{background:var(--bg3);border:1px solid var(--border);border-radius:9px;margin-bottom:8px;overflow:hidden}
+.rcard-head{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.rcard-fn{font-family:var(--mono);font-size:12px;color:var(--blue)}
+.rcard-scope{font-size:10px;padding:1px 6px;border-radius:3px;font-family:var(--mono)}
+.sc-g{background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b)}
+.tl{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:0}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:38px;flex-shrink:0}
+.tl-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;margin-top:2px;border:2px solid var(--bg);z-index:1}
+.tl-line{width:2px;background:var(--border);flex:1;min-height:14px}
+.tl-item:last-child .tl-line{display:none}
+.tl-content{flex:1;padding-bottom:26px;padding-left:4px;min-width:0}
+.tl-who{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.tl-title{font-size:13.5px;font-weight:600;color:#fff;margin-bottom:6px;line-height:1.4}
+.tl-body{font-size:12.5px;color:var(--text2);line-height:1.65}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.chip{font-size:11.5px;padding:3px 9px;border-radius:20px}
+.chip-cfg{background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b)}
+.chip-plugin{background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b)}
+.chip-skill{background:var(--purple-d);color:var(--purple);border:1px solid var(--purple-b)}
+.chip-ok{background:var(--green-d);color:var(--green);border:1px solid var(--green-b)}
+.chip-warn{background:var(--amber-d);color:var(--amber);border:1px solid var(--amber-b)}
+.prereq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:580px){.prereq-grid{grid-template-columns:1fr 1fr}}
+.pcard{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:11px 13px}
+.pcard-num{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--text3);margin-bottom:4px}
+.pcard-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:5px}
+.pcard-cmd{font-family:var(--mono);font-size:11px;color:var(--teal);background:var(--bg);padding:4px 8px;border-radius:5px}
+.loop-wrap{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:center;margin:10px 0}
+.loop-col{display:flex;flex-direction:column;gap:5px}
+.loop-step{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 11px;font-size:12px;color:var(--text2)}
+.loop-step b{color:#fff;display:block;margin-bottom:2px;font-size:12px}
+.loop-mid{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--text3)}
+.note{background:var(--amber-d);border:1px solid var(--amber-b);border-radius:7px;padding:9px 13px;font-size:12.5px;color:var(--amber);line-height:1.6;margin:8px 0}
+.info{background:var(--blue-d);border:1px solid var(--blue-b);border-radius:7px;padding:9px 13px;font-size:12.5px;color:var(--blue);line-height:1.6;margin:8px 0}
+.myth{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:11px 14px;margin-bottom:6px}
+.myth-q{font-size:12.5px;color:var(--red);margin-bottom:5px;display:flex;gap:7px}
+.myth-a{font-size:12.5px;color:var(--green);display:flex;gap:7px}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="sidebar">
+  <div class="nav-title">基础</div>
+  <a class="nav-item" href="#model">心智模型</a>
+  <a class="nav-item" href="#levels">配置层级</a>
+  <a class="nav-item" href="#mechanisms">五种机制</a>
+  <a class="nav-item" href="#prereq">前置条件</a>
+  <div class="nav-sep"></div>
+  <div class="nav-title">能力地图</div>
+  <a class="nav-item" href="#skills-map">总览</a>
+  <a class="nav-item" href="#flow">流程增强</a>
+  <a class="nav-item" href="#quality">质量保障</a>
+  <a class="nav-item" href="#output">产出增强</a>
+  <a class="nav-item" href="#extend">能力扩展</a>
+  <div class="nav-sep"></div>
+  <div class="nav-title">配置与实践</div>
+  <a class="nav-item" href="#rules">推荐 Rules</a>
+  <a class="nav-item" href="#workflow">完整任务流</a>
+  <a class="nav-item" href="#trigger">触发汇总</a>
+  <a class="nav-item" href="#myths">常见误解</a>
+</nav>
+<main class="main">
+<div class="ph">
+  <h1>Claude Code 新用户完整指南</h1>
+  <p>一个新用户，一个新项目，从安装到交付的完整路径。每个概念在第一次出现时都会先解释清楚再往下走。</p>
+</div>
+
+<section class="sec" id="model">
+  <div class="sec-title"><div class="sec-num" style="background:var(--blue-d);color:var(--blue)">1</div>先建心智模型</div>
+  <p>Claude Code 是运行在终端的 AI 编程助手。它的能力来自三个来源，每次 session 启动时按顺序叠加：</p>
+  <div class="model-grid" style="margin:14px 0">
+    <div class="model-cell mc-cfg">
+      <div class="model-label" style="color:var(--blue)">① 配置层</div>
+      <div class="model-name">CLAUDE.md + rules/</div>
+      <div class="model-desc">session 启动时<strong style="color:#fff">全量加载</strong>，始终在后台约束行为</div>
+    </div>
+    <div class="model-cell mc-skl">
+      <div class="model-label" style="color:var(--purple)">② 能力层</div>
+      <div class="model-name">Skills + Plugins</div>
+      <div class="model-desc">按需激活：意图匹配或显式调用</div>
+    </div>
+    <div class="model-cell mc-dlg">
+      <div class="model-label" style="color:var(--green)">③ 对话层</div>
+      <div class="model-name">你说的话</div>
+      <div class="model-desc">实时注入，优先级最高</div>
+    </div>
+  </div>
+  <p>能力层有两种形态，是本文档里最重要的一对概念：</p>
+  <div class="compare">
+    <div class="compare-cell" style="background:var(--purple-d);border:1px solid var(--purple-b)">
+      <div class="compare-label" style="color:var(--purple)">Skill — 操作手册</div>
+      <div class="compare-body">一个 <code>SKILL.md</code> 文件。手动放进 <code>~/.claude/skills/</code> 即可使用。<br><br>触发：意图匹配 或 显式调用<br>加载：session 启动时只加载索引，匹配到意图时才加载正文</div>
+    </div>
+    <div class="compare-cell" style="background:var(--blue-d);border:1px solid var(--blue-b)">
+      <div class="compare-label" style="color:var(--blue)">Plugin — 分发包，含 hook</div>
+      <div class="compare-body">可安装的包，可打包 skills、hooks、agents、MCP servers。通过插件市场安装。<br><br>触发：Hook 按<strong style="color:#fff">事件自动触发</strong>（推送型），安装即生效<br>安装：<code>/plugin install name@marketplace</code></div>
+    </div>
+  </div>
+  <div class="info"><strong>关键区别：</strong>Plugin 里的 hook 是推送型的——按 session 启动、工具调用、session 退出等事件自动触发，不依赖意图匹配，安装即生效。Superpowers、Ralph Loop、Code Simplifier 是 Plugin，因为它们依赖 hook 实现自动化行为。</div>
+  <table class="tbl" style="margin-top:12px">
+    <tr><th></th><th>Skill</th><th>Plugin</th></tr>
+    <tr><td style="color:var(--text3)">形态</td><td>单个 SKILL.md 文件</td><td>含 skills + hooks + agents 的分发包</td></tr>
+    <tr><td style="color:var(--text3)">安装</td><td>手动放入 <code>~/.claude/skills/</code></td><td><code>/plugin install name@marketplace</code></td></tr>
+    <tr><td style="color:var(--text3)">触发</td><td>意图匹配或显式调用</td><td>Hook 按事件自动触发；skill 部分按意图触发</td></tr>
+    <tr><td style="color:var(--text3)">适合</td><td>自定义工作流、操作手册</td><td>需要 hook 自动化或打包分发的场景</td></tr>
+  </table>
+</section>
+
+<section class="sec" id="levels">
+  <div class="sec-title"><div class="sec-num" style="background:var(--teal-d);color:var(--teal)">2</div>配置的两个层级</div>
+  <p>Claude Code 有系统级和项目级两套配置：</p>
+  <div class="two-col" style="margin:12px 0">
+    <div class="card">
+      <div class="card-head">~/.claude/ <span class="ts ts-g">系统级</span></div>
+      <div class="card-body">
+        <p style="margin-bottom:10px">对<strong style="color:#fff">所有项目</strong>生效。个人私有，不提交 git。</p>
+        <div class="tree">
+          <div class="tr"><span class="tp">├── </span><span class="tm">CLAUDE.md</span><span class="tc">全局核心约束 &lt;100行</span></div>
+          <div class="tr"><span class="tp">├── </span><span class="tj">settings.json</span></div>
+          <div class="tr"><span class="tp">├── </span><span class="td">rules/</span><span class="tc">主题化约束</span></div>
+          <div class="tr"><span class="tp">│   ├── </span><span class="tm">git.md</span></div>
+          <div class="tr"><span class="tp">│   └── </span><span class="tm">testing.md</span></div>
+          <div class="tr"><span class="tp">├── </span><span class="td">skills/</span><span class="tc">手动安装的 Skill</span></div>
+          <div class="tr"><span class="tp">│   ├── </span><span class="td">planning-with-files/</span></div>
+          <div class="tr"><span class="tp">│   └── </span><span class="td">code-review-skill/</span></div>
+          <div class="tr"><span class="tp">├── </span><span class="td">plugins/</span><span class="tc">Plugin 数据（自动管理）</span></div>
+          <div class="tr"><span class="tp">│   └── </span><span class="tj">installed_plugins.json</span></div>
+          <div class="tr"><span class="tp">├── </span><span class="td">agents/</span></div>
+          <div class="tr"><span class="tp">└── </span><span class="td">commands/</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">your-project/.claude/ <span class="ts ts-p">项目级</span></div>
+      <div class="card-body">
+        <p style="margin-bottom:10px">只对<strong style="color:#fff">当前项目</strong>生效。提交 git，团队共享。</p>
+        <div class="tree">
+          <div class="tr"><span class="tp">├── </span><span class="tm">CLAUDE.md</span><span class="tc">项目专属约束</span></div>
+          <div class="tr"><span class="tp">├── </span><span class="tj">settings.json</span></div>
+          <div class="tr"><span class="tp">├── </span><span class="td">rules/</span><span class="tc">项目专属规则</span></div>
+          <div class="tr"><span class="tp">│   ├── </span><span class="tm">api.md</span></div>
+          <div class="tr"><span class="tp">│   └── </span><span class="td">frontend/</span></div>
+          <div class="tr"><span class="tp">│       └── </span><span class="tm">react.md</span></div>
+          <div class="tr"><span class="tp">├── </span><span class="td">skills/</span><span class="tc">项目专属 Skill</span></div>
+          <div class="tr"><span class="tp">├── </span><span class="td">agents/</span></div>
+          <div class="tr"><span class="tp">└── </span><span class="td">commands/</span></div>
+        </div>
+        <div style="margin-top:10px;font-size:11.5px;color:var(--text3)">Plugin 只有系统级，无项目级 plugins/ 目录</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="mechanisms">
+  <div class="sec-title"><div class="sec-num" style="background:var(--purple-d);color:var(--purple)">3</div>能力层的五种机制</div>
+  <p>知道每种东西是什么，才知道装了之后会发生什么。</p>
+  <h3>CLAUDE.md — 最高优先级约束</h3>
+  <p>session 启动时自动全量读入，无条件生效。只放核心规则，控制在 100 行内。超过后 Claude 开始静默忽略，具体规范拆进 <code>rules/</code>。</p>
+  <h3>rules/ — 主题化约束</h3>
+  <p>CLAUDE.md 的模块化拆分。session 启动时全部 <code>.md</code> 文件全量读入，始终在后台约束行为。</p>
+  <div class="note">frontmatter 里可写 <code>paths</code> 字段，告诉 Claude「只对匹配路径的文件执行」——但<strong>内容始终全量加载</strong>，paths 不控制是否加载，只是推理时的执行条件。<code>paths: []</code>（空数组）会导致规则从不执行，应删掉该字段。</div>
+  <h3>Skills — 任务型操作手册</h3>
+  <p>每个 skill 是一个目录，入口文件 <code>SKILL.md</code>。session 启动时只加载索引（name + description，约 30-50 token/个）。Claude 识别到任务意图匹配时才完整加载正文。也可显式调用：<code>/skill-name</code> 或自然语言点名。</p>
+  <h3>Plugins — 分发包，含 hook 自动化</h3>
+  <p>通过 <code>/plugin install</code> 安装。Plugin 可打包 skills、hooks、agents、MCP servers。其中 <strong style="color:#fff">hook 是推送型的</strong>——按事件自动触发，安装即生效，不需要意图匹配。</p>
+  <pre><span class="cmt"># 浏览已安装的 Plugin</span>
+<span class="cmd">/plugin</span>
+<span class="cmt"># 官方市场安装</span>
+<span class="cmd">/plugin install name@claude-plugins-official</span>
+<span class="cmt"># 添加第三方市场后安装</span>
+<span class="cmd">/plugin marketplace add author/repo
+/plugin install name@repo</span></pre>
+  <h3>agents/ — 独立子智能体</h3>
+  <p>有独立上下文窗口和工具权限的子任务执行者，由主 session 委托启动，不污染主上下文。</p>
+</section>
+
+<section class="sec" id="prereq">
+  <div class="sec-title"><div class="sec-num" style="background:var(--green-d);color:var(--green)">4</div>前置条件</div>
+  <div class="prereq-grid">
+    <div class="pcard"><div class="pcard-num">① 必须</div><div class="pcard-title">Node.js 18+</div><div class="pcard-cmd">node --version</div></div>
+    <div class="pcard"><div class="pcard-num">② 必须</div><div class="pcard-title">安装 Claude Code</div><div class="pcard-cmd">npm install -g @anthropic-ai/claude-code</div></div>
+    <div class="pcard"><div class="pcard-num">③ 必须</div><div class="pcard-title">登录</div><div class="pcard-cmd">claude（按提示完成 OAuth）</div></div>
+    <div class="pcard" style="border-color:var(--amber-b)"><div class="pcard-num" style="color:var(--amber)">④ 推荐</div><div class="pcard-title">GitHub CLI</div><div class="pcard-cmd">brew install gh &amp;&amp; gh auth login</div></div>
+    <div class="pcard" style="border-color:var(--amber-b)"><div class="pcard-num" style="color:var(--amber)">⑤ 推荐</div><div class="pcard-title">Playwright</div><div class="pcard-cmd">npx playwright install chromium</div></div>
+  </div>
+</section>
+
+<section class="sec" id="skills-map">
+  <div class="sec-title"><div class="sec-num" style="background:var(--purple-d);color:var(--purple)">5</div>能力地图与安装</div>
+  <p>10 个推荐工具覆盖开发全流程，3 个是 Plugin（含 hook），7 个是 Skill（操作手册）：</p>
+  <div class="amap">
+    <div class="am-row"><span class="am-cat">流程增强</span><div class="am-items"><span class="am-chip am-plugin">Superpowers <span class="am-badge">Plugin</span></span><span class="am-chip am-skill">Planning with Files <span class="am-badge">Skill</span></span><span class="am-chip am-plugin">Ralph Loop <span class="am-badge">Plugin</span></span></div></div>
+    <div class="am-row"><span class="am-cat">质量保障</span><div class="am-items"><span class="am-chip am-skill">Code Review <span class="am-badge">Skill</span></span><span class="am-chip am-plugin">Code Simplifier <span class="am-badge">Plugin</span></span><span class="am-chip am-skill">Webapp Testing <span class="am-badge">Skill</span></span></div></div>
+    <div class="am-row"><span class="am-cat">产出增强</span><div class="am-items"><span class="am-chip am-skill">UI UX Pro Max <span class="am-badge">Skill</span></span><span class="am-chip am-skill">PPTX <span class="am-badge">Skill</span></span></div></div>
+    <div class="am-row"><span class="am-cat">能力扩展</span><div class="am-items"><span class="am-chip am-skill">MCP Builder <span class="am-badge">Skill</span></span><span class="am-chip am-skill">Skill Creator <span class="am-badge">Skill</span></span></div></div>
+  </div>
+  <p>安装建议：先装流程类（Superpowers → Planning with Files → Ralph Loop），再按需补充其余。</p>
+</section>
+
+<section class="sec" id="flow">
+  <div class="sec-title"><div class="sec-num" style="background:var(--blue-d);color:var(--blue)">5a</div>流程增强</div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">Superpowers</div><div class="iblock-sub">AI 编程工作流总控插件</div></div><div class="iblock-meta"><span class="iblock-type it-plugin">Plugin</span><span class="iblock-src src-official">官方市场</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">完整的 AI 编程工作方法论。打包了 skills + hooks。Hook 在 session 启动时自动注册，识别到「实现功能」意图时自动介入——先引导澄清需求再执行，全程无需手动触发。</div>
+      <pre><span class="cmt"># 在 Claude Code session 内运行：</span>
+<span class="cmd">/plugin install superpowers@claude-plugins-official</span></pre>
+      <div class="chip-row"><span class="chip chip-plugin">Hook 自动注册</span><span class="chip chip-ok">意图匹配自动触发</span><span class="chip chip-ok">无需手动调用</span></div>
+    </div>
+  </div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">Planning with Files</div><div class="iblock-sub">把任务进度持久化到文件</div></div><div class="iblock-meta"><span class="iblock-type it-skill">Skill</span><span class="iblock-src src-3p">第三方</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">把任务状态写入文件（task_plan.md · findings.md · progress.md），让 /compact 或 session 重启后任务可以无缝恢复。核心价值：把「记忆」从对话上下文搬到文件系统。</div>
+      <pre><span class="cmd">npx skills add https://github.com/OthmanAdi/planning-with-files \
+  --skill planning-with-files --global</span></pre>
+      <div class="chip-row"><span class="chip chip-skill">显式触发</span><span class="chip chip-ok">产出：task_plan.md · findings.md · progress.md</span></div>
+    </div>
+  </div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">Ralph Loop</div><div class="iblock-sub">强制任务持续推进的循环插件</div></div><div class="iblock-meta"><span class="iblock-type it-plugin">Plugin</span><span class="iblock-src src-3p">第三方</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">通过 Stop Hook 阻止 Claude 中途退出，强制任务闭环。打包了 hook 脚本，安装即生效。Claude 完成一步试图退出时，hook 自动拦截并重新喂入 prompt，继续下一步。</div>
+      <pre><span class="cmt"># 在 Claude Code session 内运行：</span>
+<span class="cmd">/plugin marketplace add MarioGiancini/ralph-loop-setup
+/plugin install ralph-loop-setup</span></pre>
+      <div class="note" style="margin-top:8px"><strong>使用：</strong><code>/ralph-loop "按 task_plan.md 逐项完成，完成后输出 &lt;promise&gt;DONE&lt;/promise&gt;" --max-iterations 30</code></div>
+      <div class="chip-row"><span class="chip chip-plugin">Stop Hook 自动拦截</span><span class="chip chip-warn">显式启动循环</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="quality">
+  <div class="sec-title"><div class="sec-num" style="background:var(--green-d);color:var(--green)">5b</div>质量保障</div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">Code Review</div><div class="iblock-sub">多智能体并行代码审查</div></div><div class="iblock-meta"><span class="iblock-type it-skill">Skill</span><span class="iblock-src src-3p">社区</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">多智能体并行代码审查，覆盖 17+ 语言，渐进式加载（核心 ~190 行，语言指南按需加载）。输出分级结论：blocking / important / nit / suggestion。</div>
+      <pre><span class="cmd">git clone https://github.com/awesome-skills/code-review-skill.git \
+  ~/.claude/skills/code-review-skill</span></pre>
+      <div class="chip-row"><span class="chip chip-warn">显式触发</span><span class="chip chip-ok">「用 code-review-skill 审查这次改动」</span></div>
+    </div>
+  </div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">Code Simplifier</div><div class="iblock-sub">不改行为的代码整理代理</div></div><div class="iblock-meta"><span class="iblock-type it-plugin">Plugin</span><span class="iblock-src src-official">Anthropic 官方</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">Anthropic 官方开源 Agent。对已完成代码做二次整理，以独立子智能体身份运行（不污染主上下文），不改变任何外部行为。</div>
+      <pre><span class="cmt"># 在 Claude Code session 内运行：</span>
+<span class="cmd">/plugin marketplace update claude-plugins-official
+/plugin install code-simplifier</span></pre>
+      <div class="chip-row"><span class="chip chip-warn">显式触发</span><span class="chip chip-ok">「用 code-simplifier agent 整理今天的改动」</span></div>
+    </div>
+  </div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">Webapp Testing</div><div class="iblock-sub">基于 Playwright 的网页测试</div></div><div class="iblock-meta"><span class="iblock-type it-skill">Skill</span><span class="iblock-src src-official">Anthropic 官方</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">基于 Playwright 的 Web 自动化测试，支持服务器生命周期管理、截图。需要 Playwright 已安装。</div>
+      <pre><span class="cmd">npx skills add https://github.com/anthropics/skills \
+  --skill webapp-testing --global
+npx playwright install chromium</span></pre>
+      <div class="chip-row"><span class="chip chip-warn">显式触发</span><span class="chip chip-ok"><code>/webapp-testing 访问 http://localhost:3000，测试登录流程，截图</code></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="output">
+  <div class="sec-title"><div class="sec-num" style="background:var(--amber-d);color:var(--amber)">5c</div>产出增强</div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">UI UX Pro Max</div><div class="iblock-sub">高密度 UI 设计参考库</div></div><div class="iblock-meta"><span class="iblock-type it-skill">Skill</span><span class="iblock-src src-3p">第三方</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">设计数据库驱动的 UI 建议：67 种 UI 风格、161 个配色方案、57 个字体搭配、99 条 UX 指南，覆盖 16 个技术栈。</div>
+      <pre><span class="cmd">npx skills add https://github.com/nextlevelbuilder/ui-ux-pro-max-skill \
+  --skill ui-ux-pro-max
+cp -r ~/.agents/skills/ui-ux-pro-max ~/.claude/skills/ui-ux-pro-max</span>
+<span class="wrn">rm -rf ~/.claude/skills/ui-ux-pro-max/scripts  # 可选：删除高风险脚本</span></pre>
+    </div>
+  </div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">PPTX</div><div class="iblock-sub">直接生成原生演示文稿</div></div><div class="iblock-meta"><span class="iblock-type it-skill">Skill</span><span class="iblock-src src-official">Anthropic 官方</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">直接生成原生 .pptx 文件，减少手工排版负担。</div>
+      <pre><span class="cmd">npx skills add https://github.com/anthropics/skills --skill pptx --global</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="extend">
+  <div class="sec-title"><div class="sec-num" style="background:var(--teal-d);color:var(--teal)">5d</div>能力扩展</div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">MCP Builder</div><div class="iblock-sub">MCP Server 开发脚手架</div></div><div class="iblock-meta"><span class="iblock-type it-skill">Skill</span><span class="iblock-src src-official">Anthropic 官方</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">四阶段框架引导开发高质量 MCP Server（Python 或 TypeScript）。</div>
+      <pre><span class="cmd">npx skills add https://github.com/anthropics/skills --skill mcp-builder --global</span></pre>
+    </div>
+  </div>
+  <div class="iblock">
+    <div class="iblock-head"><div class="iblock-title"><div class="iblock-name">Skill Creator</div><div class="iblock-sub">创建和维护自定义 Skill</div></div><div class="iblock-meta"><span class="iblock-type it-skill">Skill</span><span class="iblock-src src-official">Anthropic 官方</span></div></div>
+    <div class="iblock-body">
+      <div class="iblock-desc">官方元技能，用于创建、修改、测试新 Skill。当现有工具不满足需求时，用它沉淀可复用能力。</div>
+      <pre><span class="cmd">npx skills add https://github.com/anthropics/skills --skill skill-creator --global</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="rules">
+  <div class="sec-title"><div class="sec-num" style="background:var(--blue-d);color:var(--blue)">6</div>推荐 Rules 配置</div>
+  <p>新项目起手四条，放系统级 <code>~/.claude/rules/</code>，所有项目共享：</p>
+  <div class="rcard"><div class="rcard-head"><span class="rcard-fn">~/.claude/rules/git.md</span><span class="rcard-scope sc-g">全局</span></div>
+  <pre style="border-radius:0;border:none;border-top:1px solid var(--border)">---
+description: Git 提交规范
+---
+提交信息必须符合 Conventional Commits 格式：&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;
+type: feat / fix / docs / refactor / test / chore
+每个提交只做一件事，功能完成后立即提交，不积攒大提交。</pre></div>
+  <div class="rcard"><div class="rcard-head"><span class="rcard-fn">~/.claude/rules/testing.md</span><span class="rcard-scope sc-g">全局</span></div>
+  <pre style="border-radius:0;border:none;border-top:1px solid var(--border)">---
+description: 测试要求
+---
+声明"测试通过"前必须展示实际运行输出，不接受假设性声明。
+提交前必须跑完整测试套件。单元测试中外部服务必须 mock。</pre></div>
+  <div class="rcard"><div class="rcard-head"><span class="rcard-fn">~/.claude/rules/workflow.md</span><span class="rcard-scope sc-g">全局</span></div>
+  <pre style="border-radius:0;border:none;border-top:1px solid var(--border)">---
+description: 工作流约束
+---
+新功能开始前先澄清需求，不做猜测性实现。
+声明任何状态前必须提供新鲜验证证据。
+发现超出范围的问题，记录到 TODO，不立即扩展。</pre></div>
+  <div class="rcard"><div class="rcard-head"><span class="rcard-fn">~/.claude/rules/security.md</span><span class="rcard-scope sc-g">全局</span></div>
+  <pre style="border-radius:0;border:none;border-top:1px solid var(--border)">---
+description: 安全编码规范
+---
+禁止硬编码密钥、token、密码，只从环境变量读取。
+所有用户输入必须校验，SQL 查询必须参数化。
+不读取或修改 ~/.ssh、~/.aws 等敏感目录。</pre></div>
+</section>
+
+<section class="sec" id="workflow">
+  <div class="sec-title"><div class="sec-num" style="background:var(--green-d);color:var(--green)">7</div>完整任务流示例</div>
+  <p>场景：新项目，实现用户登录功能（React + FastAPI）。</p>
+  <div class="tl">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--text3)"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--text3)">初始化</div>
+        <div class="tl-title">cd your-project &amp;&amp; claude → /init</div>
+        <div class="tl-body">Claude 扫描项目，生成 CLAUDE.md 草稿，删减至 100 行内。</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--blue)"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--blue)">自动发生 — 配置层全量加载</div>
+        <div class="tl-title">Session 启动</div>
+        <div class="tl-body">
+          <div class="load-stack" style="margin:8px 0">
+            <div class="load-row"><div class="load-idx" style="background:var(--bg5);color:var(--text3);border:1px solid var(--border2)">1</div><div class="load-path">~/.claude/CLAUDE.md</div><div class="load-note">全局核心约束</div></div>
+            <div class="load-sep">↓ 优先级递增</div>
+            <div class="load-row"><div class="load-idx" style="background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b)">2</div><div class="load-path">~/.claude/rules/*.md</div><div class="load-note">全局规则，全部读入</div></div>
+            <div class="load-sep">↓</div>
+            <div class="load-row"><div class="load-idx" style="background:var(--bg5);color:var(--text3);border:1px solid var(--border2)">3</div><div class="load-path">your-project/CLAUDE.md</div><div class="load-note">项目约束</div></div>
+            <div class="load-sep">↓</div>
+            <div class="load-row"><div class="load-idx" style="background:var(--green-d);color:var(--green);border:1px solid var(--green-b)">4</div><div class="load-path">.claude/rules/*.md</div><div class="load-note">项目规则，全部读入</div></div>
+          </div>
+          <div class="load-extra">同时完成：<br>· <span style="color:var(--purple)">Skill 索引加载</span>（name + description，正文不加载）<br>· <span style="color:var(--blue)">Plugin hook 注册</span>（Superpowers、Ralph Stop Hook 等按事件类型注册完毕）</div>
+          <div class="chip-row" style="margin-top:8px"><span class="chip chip-cfg">git.md 已加载</span><span class="chip chip-cfg">testing.md 已加载</span><span class="chip chip-cfg">security.md 已加载</span><span class="chip chip-skill">Skill 索引就绪</span><span class="chip chip-plugin">Plugin hook 已注册</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--blue)"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--blue)">Superpowers Plugin hook 自动触发</div>
+        <div class="tl-title">你：帮我实现用户登录功能，email + 密码方式</div>
+        <div class="tl-body">Hook 识别到「实现功能」意图，自动介入：引导澄清密码加密、JWT、失败次数等，不直接写代码。<div class="chip-row"><span class="chip chip-cfg">workflow.md → 先澄清需求</span><span class="chip chip-cfg">security.md → 密码不能明文</span></div></div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--purple)"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--purple)">Planning with Files Skill 显式触发</div>
+        <div class="tl-title">你：把规划写到文件里</div>
+        <div class="tl-body">Skill 正文完整加载，生成三个持久化文件。跨 session 的状态存储。<div class="chip-row"><span class="chip chip-ok">task_plan.md</span><span class="chip chip-ok">findings.md</span><span class="chip chip-ok">progress.md</span></div></div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--amber)"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--amber)">Ralph Loop Plugin 显式启动 → Stop Hook 自动运转</div>
+        <div class="tl-title">你：/ralph-loop "按 task_plan.md 逐项完成…" --max-iterations 30</div>
+        <div class="tl-body">
+          <div class="loop-wrap">
+            <div class="loop-col">
+              <div class="loop-step"><b>① 读 task_plan.md</b>找第一个 <code>[ ]</code> 任务</div>
+              <div class="loop-step"><b>② 实现该任务</b>写代码</div>
+              <div class="loop-step"><b>③ 运行测试</b><span style="font-size:10.5px;background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b);padding:1px 5px;border-radius:3px;margin-left:4px">testing.md</span></div>
+            </div>
+            <div class="loop-mid"><span style="font-size:22px">⟳</span><span style="font-size:10px;text-transform:uppercase;letter-spacing:.06em">循环</span></div>
+            <div class="loop-col">
+              <div class="loop-step"><b>④ git commit</b><span style="font-size:10.5px;background:var(--blue-d);color:var(--blue);border:1px solid var(--blue-b);padding:1px 5px;border-radius:3px;margin-left:4px">git.md</span></div>
+              <div class="loop-step"><b>⑤ 更新 progress.md</b>勾选 <code>[x]</code></div>
+              <div class="loop-step" style="border-color:var(--blue-b)"><b>⑥ Stop Hook 拦截退出</b>重新喂入 prompt</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--red)"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--red)">上下文压缩恢复</div>
+        <div class="tl-title">/compact → 读文件恢复</div>
+        <div class="tl-body"><pre><span class="str">你：读取 task_plan.md 和 progress.md，从中断处继续</span></pre>Claude 读文件，重建任务状态，无缝继续。</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--blue)"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--blue)">Code Simplifier Plugin 显式触发</div>
+        <div class="tl-title">你：用 code-simplifier agent 整理今天的改动</div>
+        <div class="tl-body">以独立子智能体运行，不污染主上下文，不改变外部行为。</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--green)">Code Review Skill 显式触发</div>
+        <div class="tl-title">你：用 code-review-skill 审查登录功能的改动</div>
+        <div class="tl-body"><div class="chip-row"><span class="chip chip-warn">blocking（必须修复）</span><span class="chip chip-warn">important</span><span class="chip chip-skill">nit</span><span class="chip chip-ok">suggestion</span></div></div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--pink)"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--pink)">UI UX Pro Max Skill 显式触发</div>
+        <div class="tl-title">你：/ui-ux-pro-max 帮登录页选配色和字体，科技感风格</div>
+        <div class="tl-body">从设计数据库推荐配色 + 字体 + CSS 变量，具体可落地。</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" style="background:var(--orange)"></div></div>
+      <div class="tl-content">
+        <div class="tl-who" style="color:var(--orange)">Webapp Testing Skill 显式触发</div>
+        <div class="tl-title">你：/webapp-testing 测试登录页，正确密码 / 错误密码 / 空字段，截图</div>
+        <div class="tl-body">Playwright 自动运行，截图，输出测试报告。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="trigger">
+  <div class="sec-title"><div class="sec-num" style="background:var(--bg3);color:var(--text2)">8</div>触发方式汇总</div>
+  <table class="tbl">
+    <tr><th>工具</th><th>类型</th><th>触发方式</th></tr>
+    <tr><td>CLAUDE.md</td><td style="color:var(--blue)">配置</td><td>session 启动自动全量加载</td></tr>
+    <tr><td>rules/</td><td style="color:var(--blue)">配置</td><td>session 启动自动全量加载</td></tr>
+    <tr><td>Superpowers</td><td style="color:var(--blue)">Plugin</td><td>Hook 已注册，意图匹配自动触发</td></tr>
+    <tr><td>Planning with Files</td><td style="color:var(--purple)">Skill</td><td>显式：「把规划写到文件里」</td></tr>
+    <tr><td>Ralph Loop</td><td style="color:var(--blue)">Plugin</td><td>显式启动循环；Stop Hook 自动拦截退出</td></tr>
+    <tr><td>Code Review</td><td style="color:var(--purple)">Skill</td><td>显式：「用 code-review-skill 审查」</td></tr>
+    <tr><td>Code Simplifier</td><td style="color:var(--blue)">Plugin</td><td>显式：「用 code-simplifier agent 整理」</td></tr>
+    <tr><td>Webapp Testing</td><td style="color:var(--purple)">Skill</td><td>显式：<code>/webapp-testing</code></td></tr>
+    <tr><td>UI UX Pro Max</td><td style="color:var(--purple)">Skill</td><td>显式或意图匹配</td></tr>
+    <tr><td>PPTX</td><td style="color:var(--purple)">Skill</td><td>显式：「用 pptx skill 生成」</td></tr>
+    <tr><td>MCP Builder</td><td style="color:var(--purple)">Skill</td><td>显式</td></tr>
+    <tr><td>Skill Creator</td><td style="color:var(--purple)">Skill</td><td>显式</td></tr>
+  </table>
+</section>
+
+<section class="sec" id="myths">
+  <div class="sec-title"><div class="sec-num" style="background:var(--red-d);color:var(--red)">9</div>常见误解</div>
+  <div class="myth"><div class="myth-q"><span>✗</span>Skill 和 Plugin 是同一回事</div><div class="myth-a"><span>✓</span>Skill 是操作手册（意图触发），Plugin 是分发包（含 hook 自动触发）。Superpowers 是 Plugin，不是因为能力强，而是因为它有 hook，装好就自动生效，不依赖你调用。</div></div>
+  <div class="myth"><div class="myth-q"><span>✗</span>paths 控制规则是否加载进上下文</div><div class="myth-a"><span>✓</span>加载永远全量。paths 只告诉 Claude「这条规则只对匹配路径的文件执行」。<code>paths: []</code> 应删掉。</div></div>
+  <div class="myth"><div class="myth-q"><span>✗</span>CLAUDE.md 越详细越好</div><div class="myth-a"><span>✓</span>超过 100 行后 Claude 开始静默忽略。核心约束留 CLAUDE.md，细节拆进 rules/。</div></div>
+  <div class="myth"><div class="myth-q"><span>✗</span>上下文压缩后任务就断了</div><div class="myth-a"><span>✓</span>Planning with Files 把状态写进文件，压缩后读文件恢复，无缝继续。</div></div>
+  <div class="myth"><div class="myth-q"><span>✗</span>Rules 和 Skills 功能重复</div><div class="myth-a"><span>✓</span>Rules 是约束（始终在后台），Skills 是执行手册（按需激活）。前者说「什么不能做」，后者说「怎么做某件事」。</div></div>
+</section>
+
+</main>
+</div>
+<script>
+const secs=document.querySelectorAll('section[id]');
+const navs=document.querySelectorAll('.nav-item');
+secs.forEach(s=>new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){navs.forEach(n=>n.classList.remove('active'));const a=document.querySelector('.nav-item[href="#'+e.target.id+'"]');if(a)a.classList.add('active')}})},{threshold:0.25}).observe(s));
+</script>
+</body>
+</html>
