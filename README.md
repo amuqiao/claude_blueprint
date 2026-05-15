@@ -1,6 +1,6 @@
 # Claude Blueprint
 
-一套面向独立全栈开发者的 Claude Code 个人开发 OS，基于真实项目经验提炼，包含分层架构约束、规范 skill 库、保护 hook 和部署脚本。
+一套面向独立全栈开发者的 Claude Code 个人开发 OS，基于真实项目经验提炼，包含最小运行约束、成熟外部 skill、保护 hook 和部署脚本。
 
 将《独立全栈开发者_OS_完整方案_v3》拆成可直接作为 `~/.claude/` 使用的仓库结构。
 
@@ -78,7 +78,7 @@ claude_blueprint/
 │
 ├── hooks/                 # Hook 脚本：保护配置、提醒变更、阻止 git push
 ├── rules/                 # 最小启用的可选规则层：当前仅保留 writing 示例
-├── skills/                # 按任务类型拆分的规范库
+├── skills/                # 运行层 skill（默认只保留成熟、稳定的能力）
 ├── agents/                # 子代理定义：arch / rev
 ├── commands/              # 自定义斜杠命令
 ├── templates/             # 项目初始化模板
@@ -101,7 +101,8 @@ claude_blueprint/
 ## 当前状态
 
 - 已按 v3 文档落地全部明确给出的文件内容。
-- 四个补充 skill 已从 `~/.claude/规范/` 同步正文：`python-script`、`python-ops-cli`、`shell-service`、`code-explain`。
+- 自写方法论型 skill 已退出运行层，优先沉淀到 `drafts/prompts/wip/`。
+- 当前 `skills/` 只保留成熟、稳定、真正像运行时操作手册的能力。
 
 ## 继续阅读
 
@@ -164,7 +165,9 @@ cd ~/code/claude_blueprint
 也就是说，你平时维护和更新的是这个仓库；真正写入 `~/.claude` 时，使用部署脚本同步过去。
 
 补充：
-- `skills/` 由本仓库直接维护，并通过 `deploy-to-claude.sh` 同步到 `~/.claude/skills/`
+- `skills/` 仍会随部署脚本同步到 `~/.claude/skills/`
+- 但本仓库默认不再把“方法论 / 模板 / 检查清单”直接升成运行层 skill
+- 这类内容优先沉淀到 `drafts/prompts/wip/`
 - Plugin 不直接镜像 `~/.claude/plugins/`
 - Plugin 的安装计划记录在 [`plugin-install-plan.md`](/Users/admin/Downloads/Code/claude_blueprint/plugin-install-plan.md)，再由 `show-plugin-install-commands.sh` 展示安装命令
 - 默认主线只装 `Core` Plugin；`Extended / Experimental` 按需追加
@@ -571,10 +574,10 @@ Plugin 分层策略：
 
 部署完成后，建议重启 Claude Code，然后做两步验证：
 
-1. 输入：`我想写一份设计文档`
-   观察是否自动加载 `design-doc` skill，并按设计文档规范响应。
+1. 输入一个简单请求，例如：`请先总结这套仓库的使用边界`
+   观察是否仍按精简后的 `CLAUDE.md` 最小约束响应。
 2. 在 Claude Code 里运行：`/doctor`
-   检查 skill 描述预算是否正常，确认没有加载异常或描述溢出。
+   检查配置、hooks 和运行层加载是否正常。
 
 ## 运行时目录
 

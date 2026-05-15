@@ -3,16 +3,17 @@
 > **文档职责**：说明蓝图运行层资产如何维护、联动更新与验证。
 > **适用范围**：`CLAUDE.md`、`settings.json`、`rules/`、`hooks/`、`skills/`、`agents/`、`commands/`、`templates/`
 > **目标读者**：维护这套 `~/.claude` 蓝图的人。
+> **当前立场**：运行层尽量保持最小；自写方法论、模板、检查清单优先沉淀到 `drafts/prompts/`，不要默认升成 skill。
 
 ---
 
 ## 1. 运行层资产各管什么
 
-- `CLAUDE.md`：全局轻量入口、总约束、skill/rule 指针
+- `CLAUDE.md`：全局轻量入口、总约束
 - `settings.json`：Claude Code 官方 JSON 配置，控制 model / permissions / hooks / env
 - `rules/`：轻量、稳定、跨任务复用的总原则；当前仅保留最小验证示例
 - `hooks/`：关键动作的自动拦截或提醒
-- `skills/`：某一类任务的完整工作方式
+- `skills/`：少量成熟、稳定、真正适合运行时加载的能力
 - `agents/`：带角色的分析或审查助手
 - `commands/`：显式进入某个工作流阶段
 - `templates/`：项目初始化或文档生成时的稳定骨架
@@ -22,7 +23,7 @@
 - 需要官方配置字段、权限、hooks 注册 → 改 `settings.json`
 - 需要轻量总原则 → 改 `rules/`
 - 需要自动触发的强制或提醒 → 改 `hooks/`
-- 需要一类任务的完整方法 → 改 `skills/`
+- 需要一类任务的完整方法，且已经高度稳定 → 改 `skills/`
 - 需要带角色的分析或审查 → 改 `agents/`
 - 需要显式流程入口 → 改 `commands/`
 - 需要稳定初稿或结构骨架 → 改 `templates/`
@@ -45,11 +46,11 @@
 要点：
 - 保持轻量，优先做总约束与入口指针
 - 不把完整工作流、长规则表、技术栈细节直接堆进 `CLAUDE.md`
-- 当某类规则明显增长时，优先下沉到 `skills/` 或 `rules/`
+- 当某类规则明显增长时，优先下沉到 `drafts/prompts/` 或 `rules/`
 
 改完至少验证：
 - 行数仍然可控
-- skill / rule 指针仍然准确
+- 运行层入口是否仍然准确
 - 部署后 Claude 能按入口正确路由
 
 ---
@@ -111,6 +112,11 @@
 - 如有新目录需要部署，检查 `deploy-manifest.txt`
 - 如触发方式或用途变化，更新 `README.md`
 - 如能力边界变化，更新 `docs/能力地图.md`
+
+新增前先判断：
+- 这是不是方法论 / 模板 / 检查清单
+- 如果是，优先放 `drafts/prompts/`
+- 只有触发场景稳定、输出稳定、边界清晰时，才进入 `skills/`
 
 改完至少验证：
 - `bash scripts/deploy-to-claude.sh --dry-run`
