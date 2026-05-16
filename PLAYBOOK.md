@@ -285,7 +285,7 @@
 
 ## 6. 当前标准范式没有默认引入的能力
 
-`drafts/Claude Code 目录结构完整参考(文字版).md` 列的是 Claude Code 的完整能力版图，不等于这套 blueprint 当前必须全部采用。
+`docs/claude/Claude Code 目录结构参考（文字版）.md` 列的是 Claude Code 的完整能力版图，不等于这套 blueprint 当前必须全部采用。
 
 当前标准范式默认不把 `rules/` 和 `plugins/` 纳入主路线。
 

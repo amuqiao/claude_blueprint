@@ -1,6 +1,6 @@
 你的疑惑点是对的，而且本质上不是“漏了两个目录”，而是：
 
-**`drafts/Claude Code 目录结构完整参考(文字版).md` 是“能力全集”，但 `claude_blueprint` 目前只落了其中一条子集。**  
+**`docs/claude/Claude Code 目录结构参考（文字版）.md` 是“能力全集”，但 `claude_blueprint` 目前只落了其中一条子集。**  
 如果不把“为什么没用 `rules` / `plugins`、什么时候才该用”讲清楚，就会让人误以为现在这套模板不完整。
 
 ## 先给结论
@@ -164,7 +164,7 @@
 
 你现在最稳的做法是：
 
-1. **承认 `drafts/Claude Code 目录结构完整参考(文字版).md` 是“全集参考”**
+1. **承认 `docs/claude/Claude Code 目录结构参考（文字版）.md` 是“全集参考”**
 2. **承认 `claude_blueprint` 当前只采用其中一部分**
 3. **明确写清：`rules` 和 `plugins` 是“按需引入能力”，不是当前标准范式的默认组成部分**
 
