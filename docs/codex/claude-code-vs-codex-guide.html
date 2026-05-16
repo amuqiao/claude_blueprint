@@ -1,0 +1,2553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code CLI vs Codex CLI — 完整心智模型指南</title>
+<style>
+/* ── 设计主题：技术手册 × 精工排版 ── */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap');
+
+:root {
+  --claude: #7C3AED;
+  --claude-light: #EDE9FE;
+  --claude-mid: #C4B5FD;
+  --claude-dark: #4C1D95;
+  --codex: #059669;
+  --codex-light: #D1FAE5;
+  --codex-mid: #6EE7B7;
+  --codex-dark: #064E3B;
+  --bg: #0F0F11;
+  --bg2: #18181C;
+  --bg3: #222228;
+  --bg4: #2C2C35;
+  --border: #2E2E38;
+  --border2: #3D3D4A;
+  --text: #E8E8F0;
+  --text2: #9999B0;
+  --text3: #5A5A72;
+  --yellow: #F59E0B;
+  --yellow-light: #FEF3C7;
+  --red: #EF4444;
+  --red-light: #FEE2E2;
+  --blue: #3B82F6;
+  --blue-light: #DBEAFE;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+  --cond: 'IBM Plex Sans Condensed', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── 顶部导航 ── */
+.top-nav {
+  display: flex;
+  align-items: center;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 52px;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.nav-logo {
+  font-family: var(--cond);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-right: 16px;
+  white-space: nowrap;
+}
+
+.nav-logo span { color: var(--text3); margin: 0 4px; }
+
+.nav-tab {
+  padding: 0 14px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--text); border-bottom-color: var(--claude); }
+
+/* ── 主体布局 ── */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── 左侧边栏 ── */
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.sidebar-section {
+  padding: 4px 12px 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.12s;
+  border-left: 2px solid transparent;
+}
+
+.sidebar-item:hover { color: var(--text); background: var(--bg3); }
+.sidebar-item.active { color: var(--text); background: var(--bg3); border-left-color: var(--claude); }
+
+.sidebar-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── 内容区 ── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── 内容区通用组件 ── */
+.content-header {
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.content-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.content-header p {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.content-body { padding: 24px 32px; }
+
+/* ── 双列对比布局 ── */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.compare-col {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.compare-col-header {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+
+.claude-header { background: rgba(124,58,237,0.15); color: var(--claude-mid); }
+.codex-header  { background: rgba(5,150,105,0.15);  color: var(--codex-mid); }
+
+.compare-col-body { padding: 16px; }
+
+/* ── 代码块 ── */
+.code-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.code-block pre {
+  padding: 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.code-block .cm  { color: var(--text3); }  /* 注释 */
+.code-block .ck  { color: #93C5FD; }       /* 键名 */
+.code-block .cv  { color: #86EFAC; }       /* 值/字符串 */
+.code-block .cn  { color: #FCA5A5; }       /* 数字/布尔 */
+.code-block .cs  { color: var(--claude-mid); } /* 特殊 */
+
+/* ── 信息卡片 ── */
+.info-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin: 10px 0;
+}
+
+.info-card.tip    { border-left: 3px solid var(--yellow); }
+.info-card.warn   { border-left: 3px solid var(--red); }
+.info-card.note   { border-left: 3px solid var(--blue); }
+.info-card.claude { border-left: 3px solid var(--claude); }
+.info-card.codex  { border-left: 3px solid var(--codex); }
+
+.info-card-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.tip .info-card-title    { color: var(--yellow); }
+.warn .info-card-title   { color: var(--red); }
+.note .info-card-title   { color: var(--blue); }
+.claude .info-card-title { color: var(--claude-mid); }
+.codex .info-card-title  { color: var(--codex-mid); }
+
+.info-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+/* ── 标签 ── */
+.tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--mono);
+  letter-spacing: 0.03em;
+}
+
+.tag-claude  { background: rgba(124,58,237,0.2); color: var(--claude-mid); }
+.tag-codex   { background: rgba(5,150,105,0.2); color: var(--codex-mid); }
+.tag-both    { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+.tag-only    { background: rgba(245,158,11,0.15); color: var(--yellow); }
+
+/* ── 概念映射表 ── */
+.concept-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.concept-table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+
+.concept-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.concept-table tr:last-child td { border-bottom: none; }
+.concept-table tr:hover td { background: var(--bg3); }
+
+/* ── 层级图 ── */
+.scope-diagram {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 16px 0;
+}
+
+/* ── 决策树 ── */
+.decision-tree { margin: 16px 0; }
+
+.dt-node {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dt-node:hover { border-color: var(--border2); }
+.dt-node.question { border-left: 3px solid var(--yellow); }
+.dt-node.answer-claude { border-left: 3px solid var(--claude); background: rgba(124,58,237,0.08); }
+.dt-node.answer-codex  { border-left: 3px solid var(--codex);  background: rgba(5,150,105,0.08); }
+.dt-node.answer-both   { border-left: 3px solid var(--blue); }
+
+.dt-indent { margin-left: 24px; }
+.dt-label { font-size: 11px; color: var(--text3); margin-bottom: 3px; }
+
+/* ── 标题系统 ── */
+h3 { font-size: 15px; font-weight: 600; color: var(--text); margin: 20px 0 10px; }
+h4 { font-size: 13px; font-weight: 600; color: var(--text2); margin: 16px 0 8px; }
+
+p { color: var(--text2); margin-bottom: 10px; font-size: 13px; }
+
+ul, ol { padding-left: 18px; color: var(--text2); font-size: 13px; }
+li { margin-bottom: 4px; }
+
+hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+/* ── 文件路径 inline ── */
+code {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  background: var(--bg3);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #93C5FD;
+}
+
+/* ── 对比 badge ── */
+.badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+
+/* ── 能力详解页的 section ── */
+.cap-section {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.cap-section-header {
+  padding: 12px 16px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cap-section-header h3 { margin: 0; font-size: 14px; }
+.cap-section-body { padding: 16px; }
+
+/* ── 滚动条 ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* ── 内联强调 ── */
+strong { color: var(--text); font-weight: 600; }
+
+/* ── 分隔线文字 ── */
+.divider-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.divider-text::before, .divider-text::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── 文件树 ── */
+.file-tree {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--text2);
+  background: var(--bg);
+  padding: 14px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.file-tree .dir  { color: #93C5FD; }
+.file-tree .file { color: #86EFAC; }
+.file-tree .desc { color: var(--text3); }
+
+/* ── 优先级图 ── */
+.priority-stack { margin: 16px 0; }
+.priority-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+.priority-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.p1 { background: rgba(239,68,68,0.2); }   .p1 .priority-num { background: var(--red); color: white; }
+.p2 { background: rgba(245,158,11,0.15); } .p2 .priority-num { background: var(--yellow); color: #1a1a1a; }
+.p3 { background: rgba(59,130,246,0.12); } .p3 .priority-num { background: var(--blue); color: white; }
+.p4 { background: rgba(124,58,237,0.1); }  .p4 .priority-num { background: var(--claude); color: white; }
+.p5 { background: var(--bg3); }            .p5 .priority-num { background: var(--border2); color: var(--text); }
+
+.priority-arrow {
+  text-align: center;
+  color: var(--text3);
+  font-size: 16px;
+  margin: 2px 14px;
+  line-height: 1;
+}
+
+/* ── Tabs 内切换（能力详解页） ── */
+.inner-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+.inner-tab {
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.12s;
+  margin-bottom: -1px;
+}
+.inner-tab:hover { color: var(--text); }
+.inner-tab.active { color: var(--text); border-bottom-color: var(--claude); }
+
+.inner-panel { display: none; }
+.inner-panel.active { display: block; }
+
+/* ── 警告框 ── */
+.alert {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin: 10px 0;
+  display: flex;
+  gap: 8px;
+}
+.alert-icon { flex-shrink: 0; font-size: 14px; }
+.alert-warn  { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #FDE68A; }
+.alert-error { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.3);  color: #FCA5A5; }
+.alert-info  { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: #93C5FD; }
+.alert-ok    { background: rgba(5,150,105,0.1);  border: 1px solid rgba(5,150,105,0.3);  color: var(--codex-mid); }
+</style>
+</head>
+<body>
+
+<!-- ── 顶部导航 ── -->
+<div class="top-nav">
+  <div class="nav-logo">CLI 心智模型 <span>/</span> 新成员指南</div>
+  <div class="nav-tab active" onclick="showPage('map',this)">概念地图</div>
+  <div class="nav-tab" onclick="showPage('scope',this)">作用域 & 优先级</div>
+  <div class="nav-tab" onclick="showPage('caps',this)">能力详解</div>
+  <div class="nav-tab" onclick="showPage('templates',this)">配置模板</div>
+  <div class="nav-tab" onclick="showPage('decision',this)">决策工具</div>
+  <div class="nav-tab" onclick="showPage('debug',this)">排错指南</div>
+</div>
+
+<div class="main">
+
+<!-- ── 侧边栏（能力详解页用） ── -->
+<div class="sidebar" id="sidebar" style="display:none">
+  <div class="sidebar-section">基础概念</div>
+  <div class="sidebar-item active" onclick="showCap('instructions',this)">
+    <div class="sidebar-dot" style="background:#93C5FD"></div> Instructions
+  </div>
+  <div class="sidebar-item" onclick="showCap('rule',this)">
+    <div class="sidebar-dot" style="background:#FCA5A5"></div> Rule
+  </div>
+  <div class="sidebar-item" onclick="showCap('hook',this)">
+    <div class="sidebar-dot" style="background:#FDE68A"></div> Hook
+  </div>
+  <div class="sidebar-section">扩展能力</div>
+  <div class="sidebar-item" onclick="showCap('skill',this)">
+    <div class="sidebar-dot" style="background:var(--claude-mid)"></div> Skill
+  </div>
+  <div class="sidebar-item" onclick="showCap('command',this)">
+    <div class="sidebar-dot" style="background:var(--codex-mid)"></div> Command
+  </div>
+  <div class="sidebar-item" onclick="showCap('plugin',this)">
+    <div class="sidebar-dot" style="background:#F9A8D4"></div> Plugin
+  </div>
+  <div class="sidebar-section">集成与代理</div>
+  <div class="sidebar-item" onclick="showCap('mcp',this)">
+    <div class="sidebar-dot" style="background:#67E8F9"></div> MCP
+  </div>
+  <div class="sidebar-item" onclick="showCap('agent',this)">
+    <div class="sidebar-dot" style="background:#A5F3FC"></div> Agent / Subagent
+  </div>
+  <div class="sidebar-section">仅某一工具</div>
+  <div class="sidebar-item" onclick="showCap('profile',this)">
+    <div class="sidebar-dot" style="background:var(--codex-mid)"></div> Profile <span class="tag tag-codex" style="font-size:9px;padding:1px 4px;margin-left:4px">Codex</span>
+  </div>
+  <div class="sidebar-item" onclick="showCap('memory',this)">
+    <div class="sidebar-dot" style="background:var(--claude-mid)"></div> Memory <span class="tag tag-claude" style="font-size:9px;padding:1px 4px;margin-left:4px">Claude</span>
+  </div>
+</div>
+
+<!-- ── 内容区 ── -->
+<div class="content">
+
+<!-- ════════════════════════════════
+     PAGE 1：概念地图
+════════════════════════════════ -->
+<div class="page active" id="page-map">
+  <div class="content-header">
+    <h2>概念地图</h2>
+    <p>新用户快速定位：我脑子里的概念，在两个工具里叫什么、分别放在哪里。</p>
+  </div>
+  <div class="content-body">
+
+    <h3>两个工具是什么？</h3>
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-col-header claude-header">
+          <span>●</span> Claude Code CLI — Anthropic 出品
+        </div>
+        <div class="compare-col-body">
+          <p><strong>定位：</strong>Anthropic 官方 AI 编程助手，运行在终端，可读写代码、执行命令、理解项目结构。</p>
+          <p><strong>底层模型：</strong>Claude（Sonnet 4.6 为默认）</p>
+          <p><strong>安装：</strong><code>npm install -g @anthropic-ai/claude-code</code></p>
+          <p><strong>配置格式：</strong>JSON（settings.json）+ Markdown（CLAUDE.md）</p>
+          <div class="badge-row">
+            <span class="tag tag-claude">JSON 配置</span>
+            <span class="tag tag-claude">CLAUDE.md</span>
+            <span class="tag tag-claude">Memory 系统</span>
+          </div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-col-header codex-header">
+          <span>●</span> Codex CLI — OpenAI 出品
+        </div>
+        <div class="compare-col-body">
+          <p><strong>定位：</strong>OpenAI 官方 AI 编程助手，同样运行在终端，功能定位高度相似。</p>
+          <p><strong>底层模型：</strong>GPT 系列（gpt-5.3-codex 等）</p>
+          <p><strong>安装：</strong><code>npm install -g @openai/codex</code></p>
+          <p><strong>配置格式：</strong>TOML（config.toml）+ Markdown（AGENTS.md）</p>
+          <div class="badge-row">
+            <span class="tag tag-codex">TOML 配置</span>
+            <span class="tag tag-codex">AGENTS.md</span>
+            <span class="tag tag-codex">Profile 系统</span>
+            <span class="tag tag-codex">Trust 机制</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>统一概念词 → 两边的对应关系</h3>
+    <p>用户通常先有一个模糊的"我想做 X"需求，再去找对应的配置方式。下表从"用户词"出发做映射。</p>
+
+    <table class="concept-table">
+      <thead>
+        <tr>
+          <th>你脑子里的概念</th>
+          <th>统一含义</th>
+          <th>Claude Code 里的对应</th>
+          <th>Codex 里的对应</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Instructions</strong></td>
+          <td>给 AI 的持久化背景知识和行为指令</td>
+          <td><code>CLAUDE.md</code></td>
+          <td><code>AGENTS.md</code></td>
+        </tr>
+        <tr>
+          <td><strong>Rule</strong></td>
+          <td>控制 AI 能用哪些工具、能做什么操作</td>
+          <td><code>settings.json</code> → <code>permissions</code></td>
+          <td><code>config.toml</code> → <code>approval_policy</code> + <code>.rules</code> 文件</td>
+        </tr>
+        <tr>
+          <td><strong>Hook</strong></td>
+          <td>特定事件发生时自动触发的脚本</td>
+          <td><code>settings.json</code> → <code>hooks</code></td>
+          <td><code>hooks.json</code> 或 <code>config.toml</code> → <code>[hooks]</code></td>
+        </tr>
+        <tr>
+          <td><strong>Skill</strong></td>
+          <td>教会 AI 一种可复用的工作方法（AI 自动发现）</td>
+          <td><code>.agents/skills/*/SKILL.md</code></td>
+          <td><code>.agents/skills/*/SKILL.md</code>（同格式）</td>
+        </tr>
+        <tr>
+          <td><strong>Command</strong></td>
+          <td>用户主动召唤的快捷指令（用 / 触发）</td>
+          <td><code>.claude/commands/*.md</code></td>
+          <td>内置 <code>/</code> 命令；自定义靠 Skill + Agent</td>
+        </tr>
+        <tr>
+          <td><strong>Plugin</strong></td>
+          <td>将 Skill/MCP/Agent 打包分发的容器</td>
+          <td><code>settings.json</code> → <code>enabledPlugins</code></td>
+          <td><code>codex marketplace add &lt;repo&gt;</code></td>
+        </tr>
+        <tr>
+          <td><strong>MCP</strong></td>
+          <td>给 AI 接上外部工具/数据库/服务</td>
+          <td><code>~/.claude.json</code> / <code>.mcp.json</code></td>
+          <td><code>config.toml</code> → <code>[mcp_servers]</code></td>
+        </tr>
+        <tr>
+          <td><strong>Agent / Subagent</strong></td>
+          <td>有专属角色和限制的 AI 子实例</td>
+          <td><code>.claude/agents/*.md</code>（Markdown）</td>
+          <td><code>.codex/agents/*.toml</code>（TOML）</td>
+        </tr>
+        <tr>
+          <td><strong>Profile</strong></td>
+          <td>一套可快速切换的配置预设</td>
+          <td>❌ 无原生支持（用 Output Style 代替）</td>
+          <td><code>config.toml</code> → <code>[profiles.xxx]</code></td>
+        </tr>
+        <tr>
+          <td><strong>Memory</strong></td>
+          <td>AI 跨会话记住的内容</td>
+          <td>✅ 原生支持，自动写入 <code>CLAUDE.md</code></td>
+          <td>❌ 无原生支持（靠 AGENTS.md 手动维护）</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h3>关键分工：Instructions 文件 vs 配置文件</h3>
+    <p>这是新用户最常混淆的点。两类文件的职责完全不同：</p>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-col-header" style="background:rgba(59,130,246,0.15);color:#93C5FD;">CLAUDE.md / AGENTS.md — 告诉 AI"应该知道什么"</div>
+        <div class="compare-col-body">
+          <ul>
+            <li>项目架构、技术栈背景</li>
+            <li>团队编码规范和约定</li>
+            <li>常用命令（<code>npm test</code> 等）</li>
+            <li>AI 的行为偏好（语气、输出格式）</li>
+            <li>业务领域知识</li>
+          </ul>
+          <div class="alert alert-info" style="margin-top:12px">
+            <span class="alert-icon">ℹ</span>
+            <span>这是"上下文注入"，每次会话开始时 AI 会读取它，形成背景知识。</span>
+          </div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-col-header" style="background:rgba(245,158,11,0.15);color:#FDE68A;">settings.json / config.toml — 告诉工具"可以做什么"</div>
+        <div class="compare-col-body">
+          <ul>
+            <li>允许/拒绝哪些 bash 命令</li>
+            <li>使用哪个模型</li>
+            <li>沙盒模式（文件读写范围）</li>
+            <li>MCP 服务器连接</li>
+            <li>Hooks 配置</li>
+          </ul>
+          <div class="alert alert-warn" style="margin-top:12px">
+            <span class="alert-icon">⚠</span>
+            <span>这是"行为控制"，决定工具本身的能力边界，与 AI 理解的内容无关。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>Codex 独有：Trust 机制（必读）</h3>
+    <div class="info-card warn">
+      <div class="info-card-title">⚠ 踩坑高发区</div>
+      <p>Codex 的项目级配置（<code>.codex/</code> 目录下的所有内容）<strong>默认不生效</strong>，必须显式信任该项目才能加载。</p>
+    </div>
+    <p><strong>为什么？</strong> 因为 <code>.codex/config.toml</code> 可能来自 git clone 的陌生仓库，里面可能包含恶意 Hook 或危险的 <code>approval_policy = "never"</code>。信任机制防止你 clone 一个项目后 AI 自动执行不安全的操作。</p>
+    <p><strong>怎么信任？</strong> 在项目根目录运行 Codex 时，它会提示你是否信任该项目，确认后写入信任记录。或在 <code>config.toml</code> 中设置 <code>trust = "trusted"</code>。</p>
+    <div class="alert alert-ok">
+      <span class="alert-icon">✓</span>
+      <span>Claude Code 没有信任机制，项目配置始终自动加载。两边行为不同，不要混淆。</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     PAGE 2：作用域 & 优先级
+════════════════════════════════ -->
+<div class="page" id="page-scope">
+  <div class="content-header">
+    <h2>作用域 & 优先级</h2>
+    <p>我写的配置影响哪些项目？多层配置冲突时谁赢？</p>
+  </div>
+  <div class="content-body">
+
+    <h3>作用域层级模型</h3>
+    <p>两个工具都采用"由外到内"的层级结构，内层可以覆盖外层（或合并）。</p>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-col-header claude-header">● Claude Code — 文件树</div>
+        <div class="compare-col-body">
+          <div class="file-tree">
+<span class="cm"># 第1层：企业管理员（最高权限）</span>
+<span class="dir">managed-settings.json</span>    <span class="desc"># IT 强制策略</span>
+<span class="dir">managed-mcp.json</span>         <span class="desc"># 强制 MCP 配置</span>
+
+<span class="cm"># 第2层：用户全局（影响所有项目）</span>
+<span class="dir">~/.claude/</span>
+├── <span class="file">settings.json</span>         <span class="desc"># 全局行为配置</span>
+├── <span class="file">CLAUDE.md</span>             <span class="desc"># 全局 AI 指令</span>
+├── <span class="file">commands/</span>             <span class="desc"># 全局自定义命令</span>
+│   └── <span class="file">review.md</span>
+└── <span class="file">agents/</span>               <span class="desc"># 全局 Agent</span>
+<span class="dir">~/.claude.json</span>            <span class="desc"># 用户级 MCP</span>
+
+<span class="cm"># 第3层：项目（仅当前 repo）</span>
+<span class="dir">.claude/</span>
+├── <span class="file">settings.json</span>         <span class="desc"># 项目行为配置</span>
+├── <span class="file">settings.local.json</span>   <span class="desc"># 本地覆盖，不提交</span>
+├── <span class="file">commands/</span>             <span class="desc"># 项目自定义命令</span>
+└── <span class="file">agents/</span>               <span class="desc"># 项目 Agent</span>
+<span class="dir">CLAUDE.md</span>                 <span class="desc"># 项目 AI 指令</span>
+<span class="dir">.mcp.json</span>                 <span class="desc"># 项目 MCP</span>
+
+<span class="cm"># 第4层：子目录（精细化控制）</span>
+<span class="dir">src/CLAUDE.md</span>             <span class="desc"># 仅对 src/ 生效</span>
+          </div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-col-header codex-header">● Codex — 文件树</div>
+        <div class="compare-col-body">
+          <div class="file-tree">
+<span class="cm"># 第1层：组织管理员（最高权限）</span>
+<span class="dir">requirements.toml</span>         <span class="desc"># 强制约束条件</span>
+
+<span class="cm"># 第2层：用户全局（影响所有项目）</span>
+<span class="dir">~/.codex/</span>
+├── <span class="file">config.toml</span>           <span class="desc"># 全局行为配置</span>
+├── <span class="file">AGENTS.md</span>             <span class="desc"># 全局 AI 指令</span>
+├── <span class="file">agents/</span>               <span class="desc"># 全局 Agent</span>
+│   └── <span class="file">reviewer.toml</span>
+└── <span class="file">hooks.json</span>            <span class="desc"># 全局 Hooks</span>
+
+<span class="cm"># 第3层：项目（需信任才加载！）</span>
+<span class="dir">.codex/</span>
+├── <span class="file">config.toml</span>           <span class="desc"># 项目配置</span>
+├── <span class="file">hooks.json</span>            <span class="desc"># 项目 Hooks</span>
+└── <span class="file">agents/</span>               <span class="desc"># 项目 Agent</span>
+    └── <span class="file">security.toml</span>
+<span class="dir">AGENTS.md</span>                 <span class="desc"># 项目 AI 指令</span>
+<span class="dir">AGENTS.override.md</span>        <span class="desc"># 最高优先指令</span>
+
+<span class="cm"># 第4层：子目录</span>
+<span class="dir">src/AGENTS.md</span>             <span class="desc"># 仅对 src/ 生效</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>优先级规则</h3>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-col-header claude-header">● Claude Code — 优先级（高→低）</div>
+        <div class="compare-col-body">
+          <div class="priority-stack">
+            <div class="priority-item p1">
+              <div class="priority-num">1</div>
+              <div>
+                <strong>管理员策略</strong>（managed-settings.json）<br>
+                <span style="font-size:12px;color:var(--text3)">用户无法覆盖，IT 强制执行</span>
+              </div>
+            </div>
+            <div class="priority-arrow">↓</div>
+            <div class="priority-item p2">
+              <div class="priority-num">2</div>
+              <div>
+                <strong>本地覆盖</strong>（.claude/settings.local.json）<br>
+                <span style="font-size:12px;color:var(--text3)">个人偏好，不提交 git</span>
+              </div>
+            </div>
+            <div class="priority-arrow">↓</div>
+            <div class="priority-item p3">
+              <div class="priority-num">3</div>
+              <div>
+                <strong>项目配置</strong>（.claude/settings.json）<br>
+                <span style="font-size:12px;color:var(--text3)">团队共享，提交 git</span>
+              </div>
+            </div>
+            <div class="priority-arrow">↓</div>
+            <div class="priority-item p4">
+              <div class="priority-num">4</div>
+              <div>
+                <strong>用户全局</strong>（~/.claude/settings.json）<br>
+                <span style="font-size:12px;color:var(--text3)">个人全局偏好</span>
+              </div>
+            </div>
+            <div class="priority-arrow">↓</div>
+            <div class="priority-item p5">
+              <div class="priority-num">5</div>
+              <div>
+                <strong>内置默认值</strong><br>
+                <span style="font-size:12px;color:var(--text3)">工具出厂设置</span>
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-info">
+            <span class="alert-icon">ℹ</span>
+            <span><strong>权限数组合并（重要）：</strong>permissions.allow/deny 数组在多层之间是<strong>合并</strong>而非覆盖。用户级允许 <code>git status</code>，项目级允许 <code>npm lint</code>，两者同时有效。</span>
+          </div>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-col-header codex-header">● Codex — 优先级（高→低）</div>
+        <div class="compare-col-body">
+          <div class="priority-stack">
+            <div class="priority-item p1">
+              <div class="priority-num">1</div>
+              <div>
+                <strong>CLI 标志</strong>（<code>-c key=value</code> / <code>--profile</code>）<br>
+                <span style="font-size:12px;color:var(--text3)">单次运行，最高优先</span>
+              </div>
+            </div>
+            <div class="priority-arrow">↓</div>
+            <div class="priority-item p2">
+              <div class="priority-num">2</div>
+              <div>
+                <strong>Profile 选中值</strong>（config.toml [profiles.xxx]）<br>
+                <span style="font-size:12px;color:var(--text3)">当前激活的 profile</span>
+              </div>
+            </div>
+            <div class="priority-arrow">↓</div>
+            <div class="priority-item p3">
+              <div class="priority-num">3</div>
+              <div>
+                <strong>项目配置</strong>（.codex/config.toml）<br>
+                <span style="font-size:12px;color:var(--text3)">仅信任项目才加载</span>
+              </div>
+            </div>
+            <div class="priority-arrow">↓</div>
+            <div class="priority-item p4">
+              <div class="priority-num">4</div>
+              <div>
+                <strong>用户全局</strong>（~/.codex/config.toml）<br>
+                <span style="font-size:12px;color:var(--text3)">个人全局偏好</span>
+              </div>
+            </div>
+            <div class="priority-arrow">↓</div>
+            <div class="priority-item p5">
+              <div class="priority-num">5</div>
+              <div>
+                <strong>内置默认值</strong><br>
+                <span style="font-size:12px;color:var(--text3)">工具出厂设置</span>
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-warn">
+            <span class="alert-icon">⚠</span>
+            <span><strong>同级先找到者优先：</strong>同一层级内，先匹配到的配置生效，不做合并。这和 Claude Code 的数组合并行为不同。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>Instructions 文件的叠加行为</h3>
+    <p>CLAUDE.md 和 AGENTS.md 在多层之间的行为与配置文件不同——它们是<strong>叠加</strong>（全部读取，拼接到上下文），而不是覆盖。</p>
+
+    <div class="info-card note">
+      <div class="info-card-title">叠加顺序</div>
+      <p>Claude Code：<code>~/.claude/CLAUDE.md</code> → <code>CLAUDE.md</code>（项目根）→ <code>src/CLAUDE.md</code>（子目录）— 从外到内依次读取，全部注入。</p>
+      <p style="margin-top:8px">Codex：优先读取 <code>AGENTS.override.md</code>（如存在）→ <code>AGENTS.md</code> → 子目录 <code>AGENTS.md</code>，有 <code>project_doc_max_bytes</code>（默认 32KB）上限。</p>
+    </div>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠</span>
+      <span><strong>Codex 32KB 限制：</strong>所有层的 AGENTS.md 合计超过 32KB 时，内容被截断。最重要的指令要放在文件<strong>最前面</strong>。</span>
+    </div>
+
+    <hr>
+
+    <h3>管理员视角：我能控制什么？</h3>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-col-header claude-header">● Claude Code — 管理员能力</div>
+        <div class="compare-col-body">
+          <p><strong>个人开发者作为自己的管理员：</strong></p>
+          <ul>
+            <li>全局 <code>~/.claude/settings.json</code> 设置默认行为</li>
+            <li>全局 <code>CLAUDE.md</code> 注入跨项目通用指令</li>
+          </ul>
+          <p style="margin-top:10px"><strong>Tech Lead（项目级规范）：</strong></p>
+          <ul>
+            <li><code>.claude/settings.json</code> 提交 git，团队继承</li>
+            <li>项目 <code>CLAUDE.md</code> 定义团队约定</li>
+            <li><code>.mcp.json</code> 统一 MCP 服务器</li>
+          </ul>
+          <p style="margin-top:10px"><strong>managed-settings.json（企业 IT）：</strong></p>
+          <ul>
+            <li>强制禁止某些 bash 命令</li>
+            <li>锁定模型选择</li>
+            <li>用户无法覆盖</li>
+          </ul>
+        </div>
+      </div>
+      <div class="compare-col">
+        <div class="compare-col-header codex-header">● Codex — 管理员能力</div>
+        <div class="compare-col-body">
+          <p><strong>个人开发者作为自己的管理员：</strong></p>
+          <ul>
+            <li>全局 <code>~/.codex/config.toml</code> 设置默认行为</li>
+            <li>全局 <code>AGENTS.md</code> 注入跨项目指令</li>
+            <li>定义 Profile 实现场景切换</li>
+          </ul>
+          <p style="margin-top:10px"><strong>Tech Lead（项目级规范）：</strong></p>
+          <ul>
+            <li><code>.codex/config.toml</code> 提交 git，信任后生效</li>
+            <li>项目 <code>AGENTS.md</code> 定义团队约定</li>
+            <li>项目 <code>hooks.json</code> 统一自动化</li>
+          </ul>
+          <p style="margin-top:10px"><strong>requirements.toml：</strong></p>
+          <ul>
+            <li>禁止 <code>approval_policy = "never"</code></li>
+            <li>锁定沙盒模式</li>
+            <li>限制允许的 MCP 来源</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     PAGE 3：能力详解
+════════════════════════════════ -->
+<div class="page" id="page-caps">
+  <div class="content-header">
+    <h2>能力详解</h2>
+    <p>选择左侧能力，查看两个工具的完整对比、格式示例和操作路径。</p>
+  </div>
+  <div class="content-body">
+
+    <!-- INSTRUCTIONS -->
+    <div class="cap-panel active" id="cap-instructions">
+      <div class="divider-text">Instructions — CLAUDE.md vs AGENTS.md</div>
+
+      <p>这是给 AI 注入"背景知识"的核心文件。每次会话开始，AI 都会读取它，形成对项目的认知。</p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-col-header claude-header">● Claude Code</div>
+          <div class="compare-col-body">
+            <p><strong>文件名：</strong><code>CLAUDE.md</code></p>
+            <p><strong>格式：</strong>标准 Markdown，无特殊 frontmatter 要求</p>
+            <p><strong>全局路径：</strong><code>~/.claude/CLAUDE.md</code></p>
+            <p><strong>项目路径：</strong><code>CLAUDE.md</code>（项目根）</p>
+            <p><strong>子目录：</strong><code>src/CLAUDE.md</code> 等，自动叠加</p>
+            <p><strong>大小限制：</strong>无硬性限制（建议 &lt;50KB）</p>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-col-header codex-header">● Codex</div>
+          <div class="compare-col-body">
+            <p><strong>文件名：</strong><code>AGENTS.md</code>（主要），<code>AGENTS.override.md</code>（最高优先）</p>
+            <p><strong>格式：</strong>标准 Markdown</p>
+            <p><strong>全局路径：</strong><code>~/.codex/AGENTS.md</code></p>
+            <p><strong>项目路径：</strong><code>AGENTS.md</code>（项目根）</p>
+            <p><strong>子目录：</strong>支持，自动叠加</p>
+            <p><strong>大小限制：</strong>⚠ 32KB（<code>project_doc_max_bytes</code>），超出截断</p>
+          </div>
+        </div>
+      </div>
+
+      <h4>CLAUDE.md 完整模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>CLAUDE.md — 项目级模板（可直接 fork）</span></div>
+        <pre><span class="cm"># 项目名称：MyApp</span>
+<span class="cm">## 项目概述</span>
+MyApp 是一个 TypeScript + React 全栈应用，
+后端使用 Node.js + Express，数据库为 PostgreSQL。
+
+<span class="cm">## 技术栈</span>
+- 前端：React 18, TypeScript, Tailwind CSS
+- 后端：Node.js 20, Express, Prisma ORM
+- 数据库：PostgreSQL 15
+- 测试：Jest + React Testing Library
+
+<span class="cm">## 目录结构</span>
+packages/
+├── ui/          <span class="cm"># React 前端</span>
+├── api/         <span class="cm"># Node.js 后端</span>
+└── shared/      <span class="cm"># 共享类型定义</span>
+
+<span class="cm">## 常用命令</span>
+- `npm test`          — 运行全部测试
+- `npm run lint`      — ESLint 检查
+- `npm run build`     — 生产构建
+- `npm run dev`       — 启动开发服务器
+- `npm run db:migrate`— 执行数据库迁移
+
+<span class="cm">## 编码规范</span>
+- 使用 TypeScript 严格模式，禁止 `any`
+- 所有公共函数必须有 JSDoc 注释
+- 新功能必须附带单元测试
+- 禁止默认导出（使用命名导出）
+- API 端点使用 Zod 做请求/响应校验
+
+<span class="cm">## 架构约定</span>
+- API 路由放在 packages/api/src/routes/
+- React 组件放在 packages/ui/src/components/
+- 数据库 Schema 在 packages/api/prisma/schema.prisma
+- 禁止在组件中直接调用 fetch，统一通过 React Query
+
+<span class="cm">## AI 行为偏好</span>
+- 修改前先解释你的思路
+- 代码注释使用中文
+- 遇到不确定的需求，先问清楚再动手</pre>
+      </div>
+
+      <h4>AGENTS.md 完整模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>AGENTS.md — 项目级模板（Codex 专用格式）</span></div>
+        <pre><span class="cm"># MyApp — Codex 项目指南</span>
+<span class="cm">## 最重要的内容放最前面（防截断）</span>
+
+<span class="cm">## 关键约束（必须遵守）</span>
+- 不要直接推送到 main 分支
+- 数据库迁移必须经过人工审查后才能执行
+- 生产环境变量永远不要写入代码
+
+<span class="cm">## 项目技术栈</span>
+TypeScript + React 前端，Node.js + Express 后端，PostgreSQL 数据库。
+
+<span class="cm">## 常用命令</span>
+- `npm test`           — 运行测试
+- `npm run lint:fix`   — 自动修复 lint 问题
+- `npm run db:migrate` — 执行迁移
+
+<span class="cm">## 编码规范</span>
+- TypeScript 严格模式
+- 使用命名导出
+- API 层用 Zod 校验
+
+<span class="cm">## 目录约定</span>
+- 路由：packages/api/src/routes/
+- 组件：packages/ui/src/components/</pre>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-icon">💡</span>
+        <span>两个文件的内容本质相同，格式也相同（都是 Markdown）。主要区别是文件名、大小限制和工具的读取行为。如果团队同时使用两个工具，可以考虑内容一致、各自命名。</span>
+      </div>
+    </div>
+
+    <!-- RULE -->
+    <div class="cap-panel" id="cap-rule">
+      <div class="divider-text">Rule — 权限与行为控制</div>
+      <p>Rule 控制"AI 被允许做什么操作"。这和 Instructions 不同——Instructions 是 AI 读的知识，Rule 是工具本身的执行策略。</p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-col-header claude-header">● Claude Code — permissions</div>
+          <div class="compare-col-body">
+            <p><strong>配置位置：</strong><code>settings.json</code> 的 <code>permissions</code> 字段</p>
+            <p><strong>三种动作：</strong></p>
+            <ul>
+              <li><code>allow</code>：直接允许，无需确认</li>
+              <li><code>deny</code>：直接拒绝</li>
+              <li><code>ask</code>：每次询问用户</li>
+            </ul>
+            <p style="margin-top:8px"><strong>支持通配符：</strong><code>Bash(git *)</code> 匹配所有 git 命令</p>
+            <p><strong>跨层合并：</strong>allow/deny 数组在所有层合并，不互相覆盖</p>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-col-header codex-header">● Codex — approval_policy + sandbox</div>
+          <div class="compare-col-body">
+            <p><strong>配置位置：</strong><code>config.toml</code></p>
+            <p><strong>审批策略（approval_policy）：</strong></p>
+            <ul>
+              <li><code>on-request</code>：每次询问（默认）</li>
+              <li><code>never</code>：全部自动批准</li>
+              <li><code>untrusted</code>：最严格，每步确认</li>
+            </ul>
+            <p style="margin-top:8px"><strong>沙盒模式（sandbox_mode）：</strong></p>
+            <ul>
+              <li><code>workspace-write</code>：只能写工作目录</li>
+              <li><code>read-only</code>：只读</li>
+              <li><code>danger-full-access</code>：无限制</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h4>Claude Code — settings.json permissions 完整模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>.claude/settings.json — 权限配置模板</span></div>
+        <pre>{
+  <span class="ck">"permissions"</span>: {
+    <span class="ck">"allow"</span>: [
+      <span class="cm">// Git 操作：允许常用 git 命令，无需确认</span>
+      <span class="cv">"Bash(git status:*)"</span>,
+      <span class="cv">"Bash(git add:*)"</span>,
+      <span class="cv">"Bash(git diff:*)"</span>,
+      <span class="cv">"Bash(git log:*)"</span>,
+      <span class="cv">"Bash(git branch:*)"</span>,
+      <span class="cv">"Bash(git checkout:*)"</span>,
+
+      <span class="cm">// 包管理：允许安装和构建</span>
+      <span class="cv">"Bash(npm install:*)"</span>,
+      <span class="cv">"Bash(npm run:*)"</span>,
+      <span class="cv">"Bash(npm test:*)"</span>,
+
+      <span class="cm">// 文件读写：允许常规操作</span>
+      <span class="cv">"Read"</span>,
+      <span class="cv">"Write"</span>,
+      <span class="cv">"Edit"</span>
+    ],
+    <span class="ck">"deny"</span>: [
+      <span class="cm">// 严格禁止：危险操作</span>
+      <span class="cv">"Bash(rm -rf:*)"</span>,
+      <span class="cv">"Bash(sudo:*)"</span>,
+      <span class="cv">"Bash(curl * | bash:*)"</span>,
+
+      <span class="cm">// 禁止直接推送到 main</span>
+      <span class="cv">"Bash(git push * main:*)"</span>
+    ],
+    <span class="ck">"ask"</span>: [
+      <span class="cm">// 每次询问：git commit 需要人工确认</span>
+      <span class="cv">"Bash(git commit:*)"</span>,
+      <span class="cv">"Bash(git push:*)"</span>
+    ]
+  }
+}</pre>
+      </div>
+
+      <h4>Codex — config.toml 权限模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>.codex/config.toml — 权限配置模板</span></div>
+        <pre><span class="cm"># 审批策略：每次询问（推荐团队项目使用）</span>
+<span class="ck">approval_policy</span> = <span class="cv">"on-request"</span>
+
+<span class="cm"># 沙盒模式：只允许写工作目录</span>
+<span class="ck">sandbox_mode</span> = <span class="cv">"workspace-write"</span>
+
+<span class="cm"># 禁止写入 /tmp（防止临时文件滥用）</span>
+<span class="ck">sandbox_tmp_dir_excluded</span> = <span class="cn">true</span>
+
+<span class="cm"># CI 环境专用 Profile（全自动，不询问）</span>
+<span class="cs">[profiles.ci]</span>
+<span class="ck">approval_policy</span> = <span class="cv">"never"</span>
+<span class="ck">sandbox_mode</span>    = <span class="cv">"workspace-write"</span>
+
+<span class="cm"># 安全审查专用 Profile（只读，非常严格）</span>
+<span class="cs">[profiles.audit]</span>
+<span class="ck">approval_policy</span> = <span class="cv">"untrusted"</span>
+<span class="ck">sandbox_mode</span>    = <span class="cv">"read-only"</span></pre>
+      </div>
+
+      <div class="info-card tip">
+        <div class="info-card-title">💡 Rule vs Hook 的区别</div>
+        <p><strong>Rule（permissions）</strong>是静态声明——在工具启动前就确定"能做什么"，是能力边界的静态配置。<br>
+        <strong>Hook</strong>是动态响应——在特定事件发生时执行脚本，是行为自动化。两者不互斥，常配合使用。</p>
+      </div>
+    </div>
+
+    <!-- HOOK -->
+    <div class="cap-panel" id="cap-hook">
+      <div class="divider-text">Hook — 事件驱动自动化</div>
+      <p>Hook 是"当某件事发生时，自动执行某段脚本"。常见用途：命令执行前检查、执行后通知、会话结束时清理。</p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-col-header claude-header">● Claude Code — hooks 事件</div>
+          <div class="compare-col-body">
+            <ul>
+              <li><code>PreToolUse</code>：工具调用前（可阻止）</li>
+              <li><code>PostToolUse</code>：工具调用后</li>
+              <li><code>Stop</code>：AI 停止响应后</li>
+              <li><code>Notification</code>：通知事件</li>
+              <li><code>SessionEnd</code>：会话结束</li>
+            </ul>
+            <p style="margin-top:8px"><strong>配置位置：</strong><code>settings.json</code> 的 <code>hooks</code> 字段</p>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-col-header codex-header">● Codex — hooks 事件</div>
+          <div class="compare-col-body">
+            <ul>
+              <li><code>PreToolUse</code>：工具调用前</li>
+              <li><code>PostToolUse</code>：工具调用后</li>
+              <li>（事件体系与 Claude Code 基本一致）</li>
+            </ul>
+            <p style="margin-top:8px"><strong>配置位置：</strong><code>hooks.json</code> 独立文件，或 <code>config.toml</code> 的 <code>[hooks]</code> 表</p>
+            <p><strong>注意：</strong>项目级 hooks 只在信任状态下加载</p>
+          </div>
+        </div>
+      </div>
+
+      <h4>Claude Code — hooks 完整模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>.claude/settings.json — hooks 配置</span></div>
+        <pre>{
+  <span class="ck">"hooks"</span>: {
+    <span class="ck">"PreToolUse"</span>: [
+      {
+        <span class="cm">// 在执行任何 bash 命令前，运行安全检查脚本</span>
+        <span class="ck">"matcher"</span>: <span class="cv">"Bash"</span>,
+        <span class="ck">"hooks"</span>: [
+          {
+            <span class="ck">"type"</span>: <span class="cv">"command"</span>,
+            <span class="ck">"command"</span>: <span class="cv">".claude/hooks/pre_bash_check.sh"</span>,
+            <span class="ck">"timeout"</span>: <span class="cn">10</span>
+          }
+        ]
+      }
+    ],
+    <span class="ck">"PostToolUse"</span>: [
+      {
+        <span class="cm">// 每次 Write 文件后，自动运行 lint</span>
+        <span class="ck">"matcher"</span>: <span class="cv">"Write"</span>,
+        <span class="ck">"hooks"</span>: [
+          {
+            <span class="ck">"type"</span>: <span class="cv">"command"</span>,
+            <span class="ck">"command"</span>: <span class="cv">"npm run lint --silent"</span>,
+            <span class="ck">"timeout"</span>: <span class="cn">30</span>
+          }
+        ]
+      }
+    ],
+    <span class="ck">"Stop"</span>: [
+      {
+        <span class="cm">// AI 完成任务后，发送桌面通知</span>
+        <span class="ck">"hooks"</span>: [
+          {
+            <span class="ck">"type"</span>: <span class="cv">"command"</span>,
+            <span class="ck">"command"</span>: <span class="cv">"osascript -e 'display notification \"Claude 完成任务\" with title \"Claude Code\"'"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+      </div>
+
+      <h4>Codex — hooks.json 完整模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>.codex/hooks.json — hooks 配置</span></div>
+        <pre>{
+  <span class="ck">"PreToolUse"</span>: [
+    {
+      <span class="cm">// 匹配 Bash 工具，执行前检查</span>
+      <span class="ck">"matcher"</span>: <span class="cv">"^Bash$"</span>,
+      <span class="ck">"hooks"</span>: [
+        {
+          <span class="ck">"type"</span>: <span class="cv">"command"</span>,
+          <span class="ck">"command"</span>: <span class="cv">".codex/hooks/pre_tool_check.py"</span>,
+          <span class="ck">"timeout"</span>: <span class="cn">15</span>,
+          <span class="ck">"statusMessage"</span>: <span class="cv">"正在检查命令安全性..."</span>
+        }
+      ]
+    }
+  ],
+  <span class="ck">"PostToolUse"</span>: [
+    {
+      <span class="ck">"matcher"</span>: <span class="cv">"^Write$"</span>,
+      <span class="ck">"hooks"</span>: [
+        {
+          <span class="ck">"type"</span>: <span class="cv">"command"</span>,
+          <span class="ck">"command"</span>: <span class="cv">"npm run lint --silent"</span>,
+          <span class="ck">"timeout"</span>: <span class="cn">30</span>
+        }
+      ]
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+
+    <!-- SKILL -->
+    <div class="cap-panel" id="cap-skill">
+      <div class="divider-text">Skill — 可复用工作方法</div>
+      <p>Skill 是"教会 AI 一种工作方法"的能力包。AI 根据任务描述<strong>自动发现并调用</strong>合适的 Skill，无需用户主动触发。</p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-col-header claude-header">● Claude Code — Skill</div>
+          <div class="compare-col-body">
+            <p><strong>发现路径（优先级高→低）：</strong></p>
+            <ol>
+              <li><code>.agents/skills/</code>（当前目录）</li>
+              <li><code>../.agents/skills/</code>（父目录）</li>
+              <li><code>$REPO_ROOT/.agents/skills/</code></li>
+              <li><code>~/.agents/skills/</code>（全局）</li>
+              <li>内置 Skill</li>
+            </ol>
+            <p style="margin-top:8px"><strong>触发方式：</strong>AI 自动发现（自然语言匹配 description）</p>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-col-header codex-header">● Codex — Skill</div>
+          <div class="compare-col-body">
+            <p><strong>发现路径（优先级高→低）：</strong></p>
+            <ol>
+              <li><code>.agents/skills/</code>（当前目录）</li>
+              <li>父目录 <code>.agents/skills/</code></li>
+              <li><code>~/.agents/skills/</code>（全局）</li>
+              <li><code>/etc/codex/skills/</code>（系统级）</li>
+              <li>内置 Skill</li>
+            </ol>
+            <p style="margin-top:8px"><strong>触发方式：</strong>AI 自动发现，也可 <code>$skill-name</code> 显式引用</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card tip">
+        <div class="info-card-title">💡 Skill vs Command 的核心区别</div>
+        <p><strong>Skill</strong>：AI 主动发现，自然语言触发，适合"教 AI 怎么做某类工作"。比如"生成 API endpoint 时，按照我们项目的模板来"。<br>
+        <strong>Command</strong>：用户主动召唤（用 <code>/commandname</code>），适合"我要触发一个固定操作"。比如 <code>/commit</code> 生成一个规范的 commit message。</p>
+      </div>
+
+      <h4>SKILL.md 完整模板（两个工具通用格式）</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>.agents/skills/api-scaffold/SKILL.md</span></div>
+        <pre><span class="cm">---
+name: api-scaffold
+description: >
+  当用户要求创建新的 API 端点时，按照项目规范
+  自动生成路由、Controller、Zod schema 和测试文件。
+  触发词：create endpoint、新增接口、添加路由。
+---</span>
+
+<span class="cm"># API 脚手架 Skill</span>
+
+<span class="cm">## 使用场景</span>
+用户请求创建新的 REST API 端点时自动激活。
+
+<span class="cm">## 执行步骤</span>
+
+<span class="cm">### 1. 理解需求</span>
+- 确认端点路径（如 `/api/users/:id`）
+- 确认 HTTP 方法（GET/POST/PUT/DELETE）
+- 确认请求/响应数据结构
+
+<span class="cm">### 2. 生成文件</span>
+按以下顺序生成文件：
+
+**路由文件**（packages/api/src/routes/）：
+```typescript
+import { Router } from 'express';
+import { handler } from '../controllers/xxxController';
+
+const router = Router();
+router.get('/xxx', handler);
+export default router;
+```
+
+**Zod Schema**（packages/api/src/schemas/）：
+```typescript
+import { z } from 'zod';
+
+export const XxxRequestSchema = z.object({
+  // 根据需求填写
+});
+```
+
+**测试文件**（packages/api/src/tests/）：
+```typescript
+describe('XXX endpoint', () => {
+  it('should return 200', async () => {
+    // 测试代码
+  });
+});
+```
+
+<span class="cm">### 3. 验证</span>
+生成后运行 `npm run lint` 和 `npm test` 确认无报错。</pre>
+      </div>
+    </div>
+
+    <!-- COMMAND -->
+    <div class="cap-panel" id="cap-command">
+      <div class="divider-text">Command — 用户主动召唤的快捷指令</div>
+      <p>Command 是用 <code>/commandname</code> 触发的固定操作。用户主动发起，适合高频重复的工作流。</p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-col-header claude-header">● Claude Code — 自定义 Command</div>
+          <div class="compare-col-body">
+            <p><strong>项目级：</strong><code>.claude/commands/*.md</code>（提交 git，团队共享）</p>
+            <p><strong>全局级：</strong><code>~/.claude/commands/*.md</code>（个人专用）</p>
+            <p><strong>调用方式：</strong><code>/commandname</code></p>
+            <p><strong>参数传递：</strong>用 <code>$ARGUMENTS</code> 占位符</p>
+            <p><strong>Frontmatter 字段：</strong></p>
+            <ul>
+              <li><code>description</code>：显示在 /help 中</li>
+              <li><code>allowed-tools</code>：限制该命令可用工具</li>
+              <li><code>model</code>：指定模型</li>
+              <li><code>argument-hint</code>：参数提示</li>
+            </ul>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-col-header codex-header">● Codex — 命令体系</div>
+          <div class="compare-col-body">
+            <p>Codex 没有独立的"自定义 command 文件"体系。自定义工作流通过以下方式实现：</p>
+            <ul>
+              <li><strong>Skill</strong>：AI 自动发现的工作方法</li>
+              <li><strong>Agent</strong>：专属角色 AI 实例</li>
+              <li><strong>codex exec "..."</strong>：非交互式执行</li>
+            </ul>
+            <p style="margin-top:8px">内置斜杠命令（<code>/review</code>、<code>/fork</code>、<code>/compact</code> 等）不可自定义。</p>
+            <div class="alert alert-warn" style="margin-top:8px">
+              <span class="alert-icon">⚠</span>
+              <span>如果你从 Claude Code 迁移到 Codex，Command 文件需要改写为 Skill。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h4>Claude Code — Command 完整模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>.claude/commands/commit.md — 规范 commit message 命令</span></div>
+        <pre><span class="cm">---
+description: "生成规范的 Git commit message（遵循 Conventional Commits）"
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*)
+argument-hint: "[可选：额外说明]"
+model: claude-sonnet-4-6
+---</span>
+
+<span class="cm">## 当前状态</span>
+- 当前分支：!`git branch --show-current`
+- 改动文件：!`git status --short`
+- 详细 diff：!`git diff HEAD`
+
+<span class="cm">## 任务</span>
+根据以上改动，生成一个符合 Conventional Commits 规范的 commit message：
+- 格式：`type(scope): description`
+- type 可选：feat / fix / docs / style / refactor / test / chore
+- description 使用中文，简洁明了
+- 如有额外说明：$ARGUMENTS
+
+生成后询问用户是否确认，确认后执行 `git commit -m "生成的message"`。</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span>.claude/commands/review.md — 代码审查命令</span></div>
+        <pre><span class="cm">---
+description: "对当前改动进行代码审查，重点检查安全和性能"
+allowed-tools: Read, Bash(git diff:*), Bash(git log:*)
+model: claude-opus-4-6
+---</span>
+
+请对以下改动进行代码审查：
+
+**改动内容：**
+!`git diff HEAD`
+
+**审查重点：**
+1. 安全漏洞（SQL 注入、XSS、不安全的依赖）
+2. 性能问题（N+1 查询、不必要的循环）
+3. 错误处理是否完整
+4. 是否符合项目编码规范
+
+按严重程度（🔴 高 / 🟡 中 / 🟢 低）列出问题，并给出改进建议。</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span>.claude/commands/fix-issue.md — 修复 GitHub Issue 命令</span></div>
+        <pre><span class="cm">---
+description: "根据 Issue 编号修复问题"
+argument-hint: "[issue-number]"
+allowed-tools: Read, Write, Edit, Bash(npm test:*)
+---</span>
+
+<span class="cm"># 修复 Issue #$ARGUMENTS</span>
+
+请根据以下步骤修复 Issue：
+1. 分析问题根因
+2. 制定修复方案（先说明，再动手）
+3. 实现修复代码
+4. 运行 `npm test` 验证修复
+5. 提供改动摘要</pre>
+      </div>
+    </div>
+
+    <!-- PLUGIN -->
+    <div class="cap-panel" id="cap-plugin">
+      <div class="divider-text">Plugin — 打包与分发</div>
+      <p>Plugin 是将 Skill、MCP、Agent、Hook 打包在一起进行分发的容器，方便团队复用或对外发布。</p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-col-header claude-header">● Claude Code — Plugin</div>
+          <div class="compare-col-body">
+            <p><strong>配置位置：</strong><code>settings.json</code> → <code>enabledPlugins</code> 数组</p>
+            <p><strong>可打包内容：</strong>Skills + MCP 配置</p>
+            <p><strong>来源控制：</strong>管理员可通过 <code>strictKnownMarketplaces</code> 限制可信来源</p>
+            <p><strong>当前状态：</strong>功能相对基础，仍在发展中</p>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-col-header codex-header">● Codex — Plugin（更完整）</div>
+          <div class="compare-col-body">
+            <p><strong>安装命令：</strong><code>codex marketplace add &lt;git-repo&gt;</code></p>
+            <p><strong>可打包内容：</strong>Skills + MCP servers + Agents + Hooks</p>
+            <p><strong>三种安装策略：</strong></p>
+            <ul>
+              <li><code>INSTALLED_BY_DEFAULT</code>：安装后立即激活</li>
+              <li><code>AVAILABLE</code>：安装后手动启用</li>
+              <li><code>INSTALLED</code>：受管理，用户可关闭</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h4>Codex — Plugin manifest 模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>plugin.json — Codex Plugin 声明文件</span></div>
+        <pre>{
+  <span class="ck">"name"</span>: <span class="cv">"my-team-toolkit"</span>,
+  <span class="ck">"version"</span>: <span class="cv">"1.0.0"</span>,
+  <span class="ck">"description"</span>: <span class="cv">"团队专用工具包：API 脚手架、代码审查、MCP 配置"</span>,
+  <span class="ck">"components"</span>: {
+    <span class="cm">// 包含的 Skills</span>
+    <span class="ck">"skills"</span>: [
+      <span class="cv">"skills/api-scaffold"</span>,
+      <span class="cv">"skills/code-review"</span>
+    ],
+    <span class="cm">// 包含的 MCP 服务器配置</span>
+    <span class="ck">"mcp_servers"</span>: [
+      <span class="cv">"mcp/github-server.json"</span>,
+      <span class="cv">"mcp/jira-server.json"</span>
+    ],
+    <span class="cm">// 包含的 Agent 定义</span>
+    <span class="ck">"agents"</span>: [
+      <span class="cv">"agents/security-reviewer.toml"</span>
+    ]
+  },
+  <span class="cm">// 安装策略：安装后立即可用，但不自动激活</span>
+  <span class="ck">"install_policy"</span>: <span class="cv">"AVAILABLE"</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- MCP -->
+    <div class="cap-panel" id="cap-mcp">
+      <div class="divider-text">MCP — 外部工具接入</div>
+      <p>MCP（Model Context Protocol）是 AI 接入外部服务的标准协议。通过 MCP，AI 可以查询数据库、操作 GitHub、发送 Slack 消息等。</p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-col-header claude-header">● Claude Code — MCP 配置</div>
+          <div class="compare-col-body">
+            <p><strong>用户级：</strong><code>~/.claude.json</code>（注意：不在 <code>~/.claude/</code> 目录内！）</p>
+            <p><strong>项目级：</strong><code>.mcp.json</code>（项目根，提交 git）</p>
+            <p><strong>加载方式：</strong>两个文件同时加载，项目补充用户级，不替换</p>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-col-header codex-header">● Codex — MCP 配置</div>
+          <div class="compare-col-body">
+            <p><strong>用户级：</strong><code>~/.codex/config.toml</code> 的 <code>[mcp_servers.xxx]</code> 表</p>
+            <p><strong>项目级：</strong><code>.codex/config.toml</code> 的 <code>[mcp_servers.xxx]</code> 表</p>
+            <p><strong>管理命令：</strong><code>codex mcp add/remove/list</code></p>
+          </div>
+        </div>
+      </div>
+
+      <h4>Claude Code — .mcp.json 模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>.mcp.json — 项目级 MCP 配置</span></div>
+        <pre>{
+  <span class="ck">"mcpServers"</span>: {
+    <span class="cm">// GitHub MCP：操作 Issues、PR</span>
+    <span class="ck">"github"</span>: {
+      <span class="ck">"type"</span>: <span class="cv">"http"</span>,
+      <span class="ck">"url"</span>: <span class="cv">"https://api.githubcopilot.com/mcp/"</span>
+    },
+
+    <span class="cm">// 本地文件系统 MCP</span>
+    <span class="ck">"filesystem"</span>: {
+      <span class="ck">"command"</span>: <span class="cv">"npx"</span>,
+      <span class="ck">"args"</span>: [
+        <span class="cv">"-y"</span>,
+        <span class="cv">"@modelcontextprotocol/server-filesystem"</span>,
+        <span class="cv">"/Users/me/projects"</span>
+      ]
+    },
+
+    <span class="cm">// PostgreSQL 数据库 MCP</span>
+    <span class="ck">"database"</span>: {
+      <span class="ck">"command"</span>: <span class="cv">"npx"</span>,
+      <span class="ck">"args"</span>: [<span class="cv">"-y"</span>, <span class="cv">"@modelcontextprotocol/server-postgres"</span>],
+      <span class="ck">"env"</span>: {
+        <span class="cm">// 使用环境变量，不要把密码写死在文件里</span>
+        <span class="ck">"DATABASE_URL"</span>: <span class="cv">"${DATABASE_URL}"</span>
+      }
+    }
+  }
+}</pre>
+      </div>
+
+      <h4>Codex — config.toml MCP 配置模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>.codex/config.toml — MCP 配置段</span></div>
+        <pre><span class="cm"># GitHub MCP 服务器</span>
+<span class="cs">[mcp_servers.github]</span>
+<span class="ck">command</span> = <span class="cv">"npx"</span>
+<span class="ck">args</span>    = [<span class="cv">"-y"</span>, <span class="cv">"@github/mcp-server"</span>]
+<span class="ck">env</span>     = { <span class="ck">GITHUB_TOKEN</span> = <span class="cv">"env:GITHUB_TOKEN"</span> }
+<span class="cm"># env:GITHUB_TOKEN 表示从环境变量读取，不硬编码</span>
+
+<span class="cm"># PostgreSQL MCP 服务器</span>
+<span class="cs">[mcp_servers.database]</span>
+<span class="ck">command</span>      = <span class="cv">"npx"</span>
+<span class="ck">args</span>         = [<span class="cv">"-y"</span>, <span class="cv">"@modelcontextprotocol/server-postgres"</span>]
+<span class="ck">env</span>          = { <span class="ck">DATABASE_URL</span> = <span class="cv">"env:DATABASE_URL"</span> }
+<span class="ck">timeout_secs</span> = <span class="cn">30</span></pre>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠</span>
+        <span>Claude Code 的用户级 MCP 文件是 <code>~/.claude.json</code>，<strong>不是</strong> <code>~/.claude/config.json</code>。这是高频踩坑点，注意路径。</span>
+      </div>
+    </div>
+
+    <!-- AGENT -->
+    <div class="cap-panel" id="cap-agent">
+      <div class="divider-text">Agent / Subagent — 专属角色 AI</div>
+      <p>Agent 是有专属身份、专属工具权限和专属指令的子 AI 实例。适合需要并行处理、角色隔离的复杂任务。</p>
+
+      <div class="compare-grid">
+        <div class="compare-col">
+          <div class="compare-col-header claude-header">● Claude Code — Agent（Markdown）</div>
+          <div class="compare-col-body">
+            <p><strong>格式：</strong>Markdown 文件</p>
+            <p><strong>全局：</strong><code>~/.claude/agents/*.md</code></p>
+            <p><strong>项目：</strong><code>.claude/agents/*.md</code></p>
+          </div>
+        </div>
+        <div class="compare-col">
+          <div class="compare-col-header codex-header">● Codex — Agent（TOML）</div>
+          <div class="compare-col-body">
+            <p><strong>格式：</strong>TOML 文件（更结构化）</p>
+            <p><strong>全局：</strong><code>~/.codex/agents/*.toml</code></p>
+            <p><strong>项目：</strong><code>.codex/agents/*.toml</code></p>
+            <p><strong>内置角色：</strong>default / worker / explorer</p>
+          </div>
+        </div>
+      </div>
+
+      <h4>Codex — Agent TOML 完整模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>.codex/agents/security-reviewer.toml</span></div>
+        <pre><span class="cm"># Agent 基本信息</span>
+<span class="ck">name</span>        = <span class="cv">"security-reviewer"</span>
+<span class="ck">description</span> = <span class="cv">"专注安全漏洞审查的 AI 实例，只读模式，不修改代码"</span>
+
+<span class="cm"># AI 行为指令</span>
+<span class="ck">developer_instructions</span> = <span class="cv">"""
+你是一名资深安全工程师，专注代码安全审查。
+审查范围：
+- SQL 注入、XSS、CSRF 漏洞
+- 敏感数据暴露（密钥、密码）
+- 不安全的依赖项
+- 缺失的输入校验
+
+输出格式：按严重程度（高/中/低）列出问题，每条给出：
+1. 问题描述
+2. 受影响的文件和行号
+3. 修复建议
+"""</span>
+
+<span class="cm"># 模型选择（安全审查需要更强的推理能力）</span>
+<span class="ck">model</span>                  = <span class="cv">"gpt-5.4"</span>
+<span class="ck">model_reasoning_effort</span> = <span class="cv">"high"</span>
+
+<span class="cm"># 只读沙盒：禁止修改任何文件</span>
+<span class="ck">sandbox_mode</span> = <span class="cv">"read-only"</span>
+
+<span class="cm"># 可选：为这个 Agent 起几个昵称</span>
+<span class="ck">nickname_candidates</span> = [<span class="cv">"SecBot"</span>, <span class="cv">"Guardian"</span>]</pre>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="cap-panel" id="cap-profile">
+      <div class="divider-text">Profile — 配置预设切换（Codex 独有）</div>
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <span>Profile 是 Codex 独有功能。Claude Code 没有原生对应，需要手动切换配置文件或使用 CLI 标志模拟。</span>
+      </div>
+      <p>Profile 是一套命名的配置预设，用于快速切换不同工作场景（开发 / CI / 安全审查 / 快速探索）。</p>
+
+      <h4>Codex — Profile 完整模板</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>~/.codex/config.toml — Profile 配置</span></div>
+        <pre><span class="cm"># 全局默认设置</span>
+<span class="ck">model</span>             = <span class="cv">"gpt-5.3-codex"</span>
+<span class="ck">approval_policy</span>   = <span class="cv">"on-request"</span>
+<span class="ck">sandbox_mode</span>      = <span class="cv">"workspace-write"</span>
+<span class="ck">model_verbosity</span>   = <span class="cv">"medium"</span>
+
+<span class="cm"># 默认加载的 Profile（不指定 --profile 时使用）</span>
+<span class="ck">profile</span> = <span class="cv">"dev"</span>
+
+<span class="cm"># 日常开发 Profile</span>
+<span class="cs">[profiles.dev]</span>
+<span class="ck">model</span>                  = <span class="cv">"gpt-5.3-codex"</span>
+<span class="ck">approval_policy</span>        = <span class="cv">"on-request"</span>
+<span class="ck">sandbox_mode</span>           = <span class="cv">"workspace-write"</span>
+<span class="ck">model_reasoning_effort</span> = <span class="cv">"medium"</span>
+
+<span class="cm"># CI/CD 自动化 Profile（完全自动，不交互）</span>
+<span class="cs">[profiles.ci]</span>
+<span class="ck">approval_policy</span>        = <span class="cv">"never"</span>
+<span class="ck">sandbox_mode</span>           = <span class="cv">"workspace-write"</span>
+<span class="ck">model_reasoning_effort</span> = <span class="cv">"low"</span>
+<span class="ck">model_verbosity</span>        = <span class="cv">"low"</span>
+
+<span class="cm"># 深度调试 Profile（强推理，高详细度）</span>
+<span class="cs">[profiles.debug]</span>
+<span class="ck">model</span>                  = <span class="cv">"gpt-5.4"</span>
+<span class="ck">approval_policy</span>        = <span class="cv">"on-request"</span>
+<span class="ck">model_reasoning_effort</span> = <span class="cv">"high"</span>
+<span class="ck">model_verbosity</span>        = <span class="cv">"high"</span>
+
+<span class="cm"># 只读安全审查 Profile</span>
+<span class="cs">[profiles.audit]</span>
+<span class="ck">approval_policy</span> = <span class="cv">"untrusted"</span>
+<span class="ck">sandbox_mode</span>    = <span class="cv">"read-only"</span>
+
+<span class="cm"># 快速探索 Profile（便宜模型，自动执行）</span>
+<span class="cs">[profiles.explore]</span>
+<span class="ck">model</span>           = <span class="cv">"gpt-4.1-mini"</span>
+<span class="ck">approval_policy</span> = <span class="cv">"never"</span>
+<span class="ck">sandbox_mode</span>    = <span class="cv">"workspace-write"</span></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span>使用 Profile 的命令示例</span></div>
+        <pre><span class="cm"># 使用 CI Profile 运行</span>
+codex --profile ci "运行所有测试并生成报告"
+
+<span class="cm"># 使用 debug Profile 分析问题</span>
+codex --profile debug "这个并发问题是什么原因"
+
+<span class="cm"># 使用 audit Profile 做安全检查</span>
+codex --profile audit "检查这个 PR 的安全漏洞"
+
+<span class="cm"># 临时覆盖单个配置（不切换整个 Profile）</span>
+codex -c approval_policy=never "快速生成测试数据"</pre>
+      </div>
+
+      <div class="info-card claude">
+        <div class="info-card-title">Claude Code 的替代方案</div>
+        <p>Claude Code 没有 Profile，但可以通过以下方式模拟：</p>
+        <ul>
+          <li>维护多份 <code>settings.local.json</code>，需要时手动复制</li>
+          <li>使用 CLI 标志临时覆盖：<code>claude --model claude-opus-4-6 "..."</code></li>
+          <li>使用 <code>--system-prompt</code> 替换系统提示</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- MEMORY -->
+    <div class="cap-panel" id="cap-memory">
+      <div class="divider-text">Memory — 跨会话记忆（Claude Code 独有）</div>
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <span>Memory 系统是 Claude Code 独有功能。Codex 没有原生记忆，需要手动维护 AGENTS.md。</span>
+      </div>
+      <p>Claude Code 可以将会话中学到的信息自动写入 CLAUDE.md，实现跨会话持久化记忆。</p>
+
+      <h4>Memory 的工作方式</h4>
+      <div class="info-card claude">
+        <div class="info-card-title">工作原理</div>
+        <p>在对话中，你可以告诉 Claude："记住这个偏好"或"把这条规则保存下来"。Claude 会将信息写入对应层级的 CLAUDE.md：</p>
+        <ul style="margin-top:8px">
+          <li>全局记忆 → <code>~/.claude/CLAUDE.md</code></li>
+          <li>项目记忆 → <code>CLAUDE.md</code>（项目根）</li>
+        </ul>
+      </div>
+
+      <h4>在 CLAUDE.md 中管理记忆的推荐格式</h4>
+      <div class="code-block">
+        <div class="code-block-header"><span>CLAUDE.md — 记忆管理示例</span></div>
+        <pre><span class="cm">## 用户偏好（Claude 自动写入）</span>
+
+<span class="cm">### 代码风格</span>
+- 变量命名使用 camelCase
+- 注释使用中文
+- 函数体超过 20 行必须拆分
+
+<span class="cm">### 工作流偏好</span>
+- 修改前先说明方案，等确认再动手
+- 每次 commit 前运行测试
+- 不要自动安装新的 npm 包，先询问
+
+<span class="cm">### 已知的项目特殊情况</span>
+- legacy/ 目录下的代码不要改，只读
+- 数据库迁移必须手动执行，AI 不要自动运行
+- config/prod.json 不要触碰</pre>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     PAGE 4：配置模板
+════════════════════════════════ -->
+<div class="page" id="page-templates">
+  <div class="content-header">
+    <h2>配置模板</h2>
+    <p>可直接 fork 的完整配置模板，含注释。区分个人全局配置和团队项目配置。</p>
+  </div>
+  <div class="content-body">
+
+    <div class="inner-tabs">
+      <div class="inner-tab active" onclick="showInner('tmpl','cc-global',this)">Claude Code — 全局</div>
+      <div class="inner-tab" onclick="showInner('tmpl','cc-project',this)">Claude Code — 项目</div>
+      <div class="inner-tab" onclick="showInner('tmpl','codex-global',this)">Codex — 全局</div>
+      <div class="inner-tab" onclick="showInner('tmpl','codex-project',this)">Codex — 项目</div>
+    </div>
+
+    <div class="inner-panel active" id="tmpl-cc-global">
+      <h4>Claude Code 全局配置（个人开发者视角）</h4>
+      <div class="file-tree" style="margin-bottom:16px">
+<span class="dir">~/.claude/</span>
+├── <span class="file">settings.json</span>      ← 全局行为配置（本页模板）
+├── <span class="file">CLAUDE.md</span>          ← 全局 AI 指令（见"能力详解 → Instructions"）
+├── <span class="file">commands/</span>
+│   └── <span class="file">security.md</span>    ← 全局自定义命令
+└── <span class="file">agents/</span>
+    └── <span class="file">debugger.md</span>    ← 全局 Agent
+<span class="dir">~/.claude.json</span>          ← 全局 MCP 配置（注意：在 ~/.claude/ 外面！）
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span>~/.claude/settings.json — 完整全局配置模板</span></div>
+        <pre>{
+  <span class="cm">// ── 模型设置 ──────────────────────────────────</span>
+  <span class="ck">"model"</span>: <span class="cv">"claude-sonnet-4-6"</span>,
+  <span class="cm">// 可选：claude-opus-4-6（更强），claude-haiku-4-5（更快）</span>
+
+  <span class="cm">// ── 权限控制 ───────────────────────────────────</span>
+  <span class="ck">"permissions"</span>: {
+    <span class="ck">"allow"</span>: [
+      <span class="cm">// Git 常用命令：允许查看，不允许自动 push</span>
+      <span class="cv">"Bash(git status:*)"</span>,
+      <span class="cv">"Bash(git diff:*)"</span>,
+      <span class="cv">"Bash(git log:*)"</span>,
+      <span class="cv">"Bash(git add:*)"</span>,
+      <span class="cv">"Bash(git branch:*)"</span>,
+      <span class="cv">"Bash(git checkout:*)"</span>,
+      <span class="cv">"Bash(git stash:*)"</span>,
+
+      <span class="cm">// 包管理：允许常用操作</span>
+      <span class="cv">"Bash(npm install:*)"</span>,
+      <span class="cv">"Bash(npm run:*)"</span>,
+      <span class="cv">"Bash(npm test:*)"</span>,
+      <span class="cv">"Bash(npx:*)"</span>,
+
+      <span class="cm">// 文件操作：允许全部</span>
+      <span class="cv">"Read"</span>,
+      <span class="cv">"Write"</span>,
+      <span class="cv">"Edit"</span>
+    ],
+    <span class="ck">"deny"</span>: [
+      <span class="cm">// 严格禁止危险操作</span>
+      <span class="cv">"Bash(rm -rf:*)"</span>,
+      <span class="cv">"Bash(sudo:*)"</span>,
+      <span class="cv">"Bash(curl * | bash:*)"</span>,
+      <span class="cv">"Bash(wget * | sh:*)"</span>
+    ],
+    <span class="ck">"ask"</span>: [
+      <span class="cm">// 需要人工确认：commit 和 push</span>
+      <span class="cv">"Bash(git commit:*)"</span>,
+      <span class="cv">"Bash(git push:*)"</span>,
+      <span class="cv">"Bash(git merge:*)"</span>
+    ]
+  },
+
+  <span class="cm">// ── Hooks ──────────────────────────────────────</span>
+  <span class="ck">"hooks"</span>: {
+    <span class="ck">"Stop"</span>: [
+      {
+        <span class="cm">// 任务完成后发桌面通知（macOS）</span>
+        <span class="ck">"hooks"</span>: [{
+          <span class="ck">"type"</span>: <span class="cv">"command"</span>,
+          <span class="ck">"command"</span>: <span class="cv">"osascript -e 'display notification \"任务完成\" with title \"Claude Code\"'"</span>
+        }]
+      }
+    ]
+  },
+
+  <span class="cm">// ── 环境变量 ───────────────────────────────────</span>
+  <span class="ck">"env"</span>: {
+    <span class="cm">// 禁用遥测（可选）</span>
+    <span class="ck">"CLAUDE_CODE_DISABLE_TELEMETRY"</span>: <span class="cv">"1"</span>
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="inner-panel" id="tmpl-cc-project">
+      <h4>Claude Code 项目配置（团队共享）</h4>
+      <div class="file-tree" style="margin-bottom:16px">
+<span class="dir">项目根目录/</span>
+├── <span class="file">CLAUDE.md</span>               ← 项目 AI 指令（提交 git）
+├── <span class="file">.mcp.json</span>               ← 项目 MCP（提交 git）
+└── <span class="dir">.claude/</span>
+    ├── <span class="file">settings.json</span>       ← 项目行为配置（提交 git）
+    ├── <span class="file">settings.local.json</span> ← 个人覆盖（加入 .gitignore）
+    ├── <span class="dir">commands/</span>
+    │   ├── <span class="file">commit.md</span>
+    │   └── <span class="file">review.md</span>
+    └── <span class="dir">agents/</span>
+        └── <span class="file">test-runner.md</span>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span>.claude/settings.json — 团队项目配置模板</span></div>
+        <pre>{
+  <span class="cm">// ── 模型：项目统一使用 Sonnet，复杂任务用 Opus ─</span>
+  <span class="ck">"model"</span>: <span class="cv">"claude-sonnet-4-6"</span>,
+
+  <span class="cm">// ── 权限：比全局更严格 ─────────────────────────</span>
+  <span class="ck">"permissions"</span>: {
+    <span class="ck">"allow"</span>: [
+      <span class="cv">"Bash(npm run test:*)"</span>,
+      <span class="cv">"Bash(npm run lint:*)"</span>,
+      <span class="cv">"Bash(npm run build:*)"</span>
+    ],
+    <span class="ck">"deny"</span>: [
+      <span class="cm">// 禁止直接操作 main 分支</span>
+      <span class="cv">"Bash(git push * main:*)"</span>,
+      <span class="cv">"Bash(git push --force:*)"</span>,
+      <span class="cm">// 禁止操作生产配置</span>
+      <span class="cv">"Write(config/prod.*)"</span>
+    ]
+  },
+
+  <span class="cm">// ── Hooks：写文件后自动 lint ────────────────────</span>
+  <span class="ck">"hooks"</span>: {
+    <span class="ck">"PostToolUse"</span>: [
+      {
+        <span class="ck">"matcher"</span>: <span class="cv">"Write"</span>,
+        <span class="ck">"hooks"</span>: [{
+          <span class="ck">"type"</span>: <span class="cv">"command"</span>,
+          <span class="ck">"command"</span>: <span class="cv">"npm run lint --silent 2>&1 | head -20"</span>,
+          <span class="ck">"timeout"</span>: <span class="cn">30</span>
+        }]
+      }
+    ]
+  }
+}</pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span>.claude/settings.local.json — 个人本地覆盖（加入 .gitignore）</span></div>
+        <pre>{
+  <span class="cm">// 个人使用 Opus（比团队默认的 Sonnet 更强）</span>
+  <span class="ck">"model"</span>: <span class="cv">"claude-opus-4-6"</span>,
+
+  <span class="cm">// 个人允许更多操作（全局 + 项目的合并）</span>
+  <span class="ck">"permissions"</span>: {
+    <span class="ck">"allow"</span>: [
+      <span class="cv">"Bash(git commit:*)"</span>
+      <span class="cm">// 在 settings.local 里允许，覆盖项目级的 ask</span>
+    ]
+  }
+}</pre>
+      </div>
+    </div>
+
+    <div class="inner-panel" id="tmpl-codex-global">
+      <h4>Codex 全局配置（个人开发者视角）</h4>
+      <div class="file-tree" style="margin-bottom:16px">
+<span class="dir">~/.codex/</span>
+├── <span class="file">config.toml</span>        ← 全局配置（本页模板）
+├── <span class="file">AGENTS.md</span>          ← 全局 AI 指令
+├── <span class="dir">agents/</span>
+│   └── <span class="file">reviewer.toml</span>  ← 全局 Agent
+└── <span class="file">hooks.json</span>         ← 全局 Hooks
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span>~/.codex/config.toml — 完整全局配置模板</span></div>
+        <pre><span class="cm"># ── 基础设置 ────────────────────────────────────</span>
+<span class="ck">model</span>                  = <span class="cv">"gpt-5.3-codex"</span>
+<span class="ck">model_reasoning_effort</span> = <span class="cv">"medium"</span>
+<span class="cm"># 可选：high（慢但更准）/ low（快但简单）</span>
+
+<span class="ck">model_verbosity</span>        = <span class="cv">"medium"</span>
+<span class="cm"># 可选：high（详细解释）/ low（只输出代码）</span>
+
+<span class="cm"># ── 安全设置 ────────────────────────────────────</span>
+<span class="ck">approval_policy</span>        = <span class="cv">"on-request"</span>
+<span class="cm"># 推荐：on-request（每次询问）</span>
+<span class="cm"># 危险：never（全自动，谨慎使用）</span>
+
+<span class="ck">sandbox_mode</span>           = <span class="cv">"workspace-write"</span>
+<span class="cm"># 只允许写工作目录，不允许写系统文件</span>
+
+<span class="cm"># ── 网络搜索 ────────────────────────────────────</span>
+<span class="ck">web_search</span> = <span class="cv">"cached"</span>
+<span class="cm"># cached（默认，速度快）/ live（实时搜索）/ disabled</span>
+
+<span class="cm"># ── 默认 Profile ─────────────────────────────────</span>
+<span class="ck">profile</span> = <span class="cv">"dev"</span>
+
+<span class="cm"># ── Profile 定义 ─────────────────────────────────</span>
+<span class="cs">[profiles.dev]</span>
+<span class="ck">approval_policy</span>        = <span class="cv">"on-request"</span>
+<span class="ck">sandbox_mode</span>           = <span class="cv">"workspace-write"</span>
+<span class="ck">model_reasoning_effort</span> = <span class="cv">"medium"</span>
+
+<span class="cs">[profiles.ci]</span>
+<span class="ck">approval_policy</span>        = <span class="cv">"never"</span>
+<span class="ck">sandbox_mode</span>           = <span class="cv">"workspace-write"</span>
+<span class="ck">model_reasoning_effort</span> = <span class="cv">"low"</span>
+<span class="ck">model_verbosity</span>        = <span class="cv">"low"</span>
+
+<span class="cs">[profiles.debug]</span>
+<span class="ck">model</span>                  = <span class="cv">"gpt-5.4"</span>
+<span class="ck">approval_policy</span>        = <span class="cv">"on-request"</span>
+<span class="ck">model_reasoning_effort</span> = <span class="cv">"high"</span>
+<span class="ck">model_verbosity</span>        = <span class="cv">"high"</span>
+
+<span class="cm"># ── 功能开关 ─────────────────────────────────────</span>
+<span class="cs">[features]</span>
+<span class="ck">multi_agent</span>   = <span class="cn">true</span>   <span class="cm"># 启用多 Agent 并行</span>
+<span class="ck">shell_tool</span>    = <span class="cn">true</span>   <span class="cm"># 启用 shell 工具</span>
+<span class="ck">shell_snapshot</span> = <span class="cn">true</span>  <span class="cm"># 加速重复命令执行</span>
+
+<span class="cm"># ── 全局 MCP 服务器 ───────────────────────────────</span>
+<span class="cs">[mcp_servers.github]</span>
+<span class="ck">command</span> = <span class="cv">"npx"</span>
+<span class="ck">args</span>    = [<span class="cv">"-y"</span>, <span class="cv">"@github/mcp-server"</span>]
+<span class="ck">env</span>     = { <span class="ck">GITHUB_TOKEN</span> = <span class="cv">"env:GITHUB_TOKEN"</span> }</pre>
+      </div>
+    </div>
+
+    <div class="inner-panel" id="tmpl-codex-project">
+      <h4>Codex 项目配置（团队共享）</h4>
+      <div class="file-tree" style="margin-bottom:16px">
+<span class="dir">项目根目录/</span>
+├── <span class="file">AGENTS.md</span>             ← 项目 AI 指令（提交 git）
+├── <span class="file">AGENTS.override.md</span>    ← 最高优先指令（提交 git，可选）
+└── <span class="dir">.codex/</span>
+    ├── <span class="file">config.toml</span>       ← 项目配置（提交 git）
+    ├── <span class="file">hooks.json</span>        ← 项目 Hooks（提交 git）
+    └── <span class="dir">agents/</span>
+        └── <span class="file">security-reviewer.toml</span>
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header"><span>.codex/config.toml — 团队项目配置模板</span></div>
+        <pre><span class="cm"># ── 项目基础设置 ─────────────────────────────────</span>
+<span class="ck">model</span>           = <span class="cv">"gpt-5.3-codex"</span>
+<span class="ck">approval_policy</span> = <span class="cv">"on-request"</span>
+<span class="ck">sandbox_mode</span>    = <span class="cv">"workspace-write"</span>
+
+<span class="cm"># 项目信任标记（团队成员 clone 后需要手动确认信任）</span>
+<span class="cm"># trust = "trusted"  ← 不要在这里设置，让每个成员自己确认</span>
+
+<span class="cm"># ── 文档设置 ─────────────────────────────────────</span>
+<span class="ck">project_doc_max_bytes</span>          = <span class="cn">32768</span>  <span class="cm"># 32KB，默认值</span>
+<span class="ck">project_doc_fallback_filenames</span> = [<span class="cv">"TEAM_GUIDE.md"</span>]
+<span class="cm"># 当 AGENTS.md 不存在时，尝试读取 TEAM_GUIDE.md</span>
+
+<span class="cm"># ── 项目专用 MCP ──────────────────────────────────</span>
+<span class="cs">[mcp_servers.jira]</span>
+<span class="ck">command</span>      = <span class="cv">"npx"</span>
+<span class="ck">args</span>         = [<span class="cv">"-y"</span>, <span class="cv">"@modelcontextprotocol/jira-server"</span>]
+<span class="ck">env</span>          = {
+  <span class="ck">JIRA_URL</span>   = <span class="cv">"env:JIRA_URL"</span>,
+  <span class="ck">JIRA_TOKEN</span> = <span class="cv">"env:JIRA_TOKEN"</span>
+}
+<span class="ck">timeout_secs</span> = <span class="cn">30</span>
+
+<span class="cm"># ── 项目 Agent 并发控制 ───────────────────────────</span>
+<span class="cs">[agents]</span>
+<span class="ck">max_threads</span>             = <span class="cn">4</span>   <span class="cm"># 最多 4 个并发 Agent</span>
+<span class="ck">max_depth</span>               = <span class="cn">1</span>   <span class="cm"># 最多 1 层 Agent 嵌套</span>
+<span class="ck">job_max_runtime_seconds</span> = <span class="cn">300</span> <span class="cm"># 每个 Agent 最长 5 分钟</span></pre>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     PAGE 5：决策工具
+════════════════════════════════ -->
+<div class="page" id="page-decision">
+  <div class="content-header">
+    <h2>决策工具</h2>
+    <p>带着"我要做 X"的问题来查，找到最合适的工具和方法。</p>
+  </div>
+  <div class="content-body">
+
+    <h3>决策树 1：我要配置什么能力？</h3>
+
+    <div class="decision-tree">
+      <div class="dt-node question">❓ 我想做的是什么？</div>
+
+      <div class="dt-indent">
+        <div class="dt-label">→ 给 AI 注入项目背景、规范、约定</div>
+        <div class="dt-node answer-both">✅ 写 CLAUDE.md / AGENTS.md（Instructions）</div>
+
+        <div class="dt-label">→ 控制 AI 能执行哪些命令</div>
+        <div class="dt-node answer-both">✅ 配置 Rule：Claude Code → permissions，Codex → approval_policy + sandbox_mode</div>
+
+        <div class="dt-label">→ 某件事发生时自动执行脚本（如写文件后 lint）</div>
+        <div class="dt-node answer-both">✅ 配置 Hook：Claude Code → settings.json hooks，Codex → hooks.json</div>
+
+        <div class="dt-label">→ 教会 AI 一种固定的工作方法（AI 自动选用）</div>
+        <div class="dt-node answer-both">✅ 创建 Skill：.agents/skills/xxx/SKILL.md</div>
+
+        <div class="dt-label">→ 我要主动触发一个固定操作（用 / 召唤）</div>
+        <div class="dt-node answer-claude">✅ Claude Code → .claude/commands/xxx.md<br><span style="font-size:12px;color:var(--text3)">Codex → 用 Skill 或 codex exec 替代</span></div>
+
+        <div class="dt-label">→ 接入外部服务（GitHub、数据库、Slack）</div>
+        <div class="dt-node answer-both">✅ 配置 MCP：Claude Code → .mcp.json，Codex → config.toml [mcp_servers]</div>
+
+        <div class="dt-label">→ 创建有专属角色和限制的 AI 助手</div>
+        <div class="dt-node answer-both">✅ 定义 Agent：Claude Code → .claude/agents/*.md，Codex → .codex/agents/*.toml</div>
+
+        <div class="dt-label">→ 快速切换工作场景（开发/CI/审查）</div>
+        <div class="dt-node answer-codex">✅ Codex → Profile（config.toml [profiles.xxx]）<br><span style="font-size:12px;color:var(--text3)">Claude Code → 用 CLI 标志临时覆盖</span></div>
+
+        <div class="dt-label">→ 打包分发上述所有配置给团队</div>
+        <div class="dt-node answer-both">✅ Plugin：Codex 更完整（marketplace add），Claude Code 基础支持</div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>决策树 2：这个配置放哪一层？</h3>
+
+    <div class="decision-tree">
+      <div class="dt-node question">❓ 这个配置影响范围是什么？</div>
+
+      <div class="dt-indent">
+        <div class="dt-label">→ 我所有项目都要用（个人偏好、通用规范）</div>
+        <div class="dt-node answer-both">✅ 用户全局层：~/.claude/ 或 ~/.codex/</div>
+
+        <div class="dt-label">→ 只在这个项目用，团队成员也要共享</div>
+        <div class="dt-node answer-both">✅ 项目层，提交 git：.claude/settings.json 或 .codex/config.toml</div>
+
+        <div class="dt-label">→ 只在这个项目用，但是我的个人覆盖，不提交</div>
+        <div class="dt-node answer-claude">✅ Claude Code → .claude/settings.local.json（加入 .gitignore）<br><span style="font-size:12px;color:var(--text3)">Codex → 用 CLI 标志 -c key=value</span></div>
+
+        <div class="dt-label">→ 只在这次运行生效，不保存</div>
+        <div class="dt-node answer-both">✅ CLI 标志：claude --model xxx 或 codex -c key=value 或 codex --profile xxx</div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>决策树 3：Rule 还是 Hook？</h3>
+
+    <div class="decision-tree">
+      <div class="dt-node question">❓ 我想限制 AI 行为，用 Rule 还是 Hook？</div>
+
+      <div class="dt-indent">
+        <div class="dt-label">→ 我想声明"某类操作永远不允许"（静态边界）</div>
+        <div class="dt-node answer-both">✅ 用 Rule（permissions.deny / approval_policy）</div>
+
+        <div class="dt-label">→ 我想在某个操作发生时，额外执行一段脚本</div>
+        <div class="dt-node answer-both">✅ 用 Hook（PreToolUse / PostToolUse）</div>
+
+        <div class="dt-label">→ 我想在 AI 执行命令前，根据命令内容动态判断是否允许</div>
+        <div class="dt-node answer-both">✅ 用 Hook（PreToolUse + 检查脚本）— Hook 的返回值可以阻止操作</div>
+
+        <div class="dt-label">→ 我想在 AI 写文件后自动跑测试</div>
+        <div class="dt-node answer-both">✅ 用 Hook（PostToolUse，matcher: "Write"）</div>
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>决策树 4：Skill 还是 Command？</h3>
+
+    <div class="decision-tree">
+      <div class="dt-node question">❓ 我要复用一个工作模式，用 Skill 还是 Command？</div>
+
+      <div class="dt-indent">
+        <div class="dt-label">→ 我希望 AI 在合适时机自动用到这个方法，不需要我主动触发</div>
+        <div class="dt-node answer-both">✅ 用 Skill（AI 自动发现，自然语言匹配）</div>
+
+        <div class="dt-label">→ 我要在特定时刻主动触发，每次用 /xxx 召唤</div>
+        <div class="dt-node answer-claude">✅ Claude Code → 用 Command（.claude/commands/xxx.md）<br>Codex → 用 codex exec "xxx" 或 Skill</div>
+
+        <div class="dt-label">→ 这个操作需要动态获取当前 git 状态等上下文</div>
+        <div class="dt-node answer-claude">✅ Claude Code Command（支持 !`shell命令` 嵌入输出）</div>
+
+        <div class="dt-label">→ 这个工作方法要打包给其他团队用</div>
+        <div class="dt-node answer-both">✅ 封装成 Skill，再打包进 Plugin 分发</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     PAGE 6：排错指南
+════════════════════════════════ -->
+<div class="page" id="page-debug">
+  <div class="content-header">
+    <h2>排错指南</h2>
+    <p>配置了但没生效？行为和预期不一致？从这里找原因。</p>
+  </div>
+  <div class="content-body">
+
+    <h3>高频问题 TOP 10</h3>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-codex">Codex</span>
+        <h3>问题 1：项目配置完全没有生效</h3>
+      </div>
+      <div class="cap-section-body">
+        <p><strong>症状：</strong>明明在 <code>.codex/config.toml</code> 里改了配置，运行 Codex 后完全没效果。</p>
+        <p><strong>原因：</strong>Codex 的信任机制——项目未被信任，<code>.codex/</code> 目录被完全跳过。</p>
+        <p><strong>解决：</strong></p>
+        <ol>
+          <li>在项目根目录启动 Codex，看到信任提示时确认</li>
+          <li>或检查 <code>~/.codex/config.toml</code>，确认是否有 <code>trust = "untrusted"</code> 误配置</li>
+        </ol>
+        <div class="alert alert-warn">
+          <span class="alert-icon">⚠</span>
+          <span>用户全局配置（<code>~/.codex/</code>）不受信任机制影响，始终生效。只有项目级 <code>.codex/</code> 需要信任。</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-claude">Claude Code</span>
+        <h3>问题 2：MCP 服务器连接失败</h3>
+      </div>
+      <div class="cap-section-body">
+        <p><strong>症状：</strong>配置了 MCP 服务器，但 Claude 说找不到对应工具。</p>
+        <p><strong>常见原因：</strong></p>
+        <ol>
+          <li><strong>路径错误：</strong>用户级 MCP 是 <code>~/.claude.json</code>（不是 <code>~/.claude/mcp.json</code>）</li>
+          <li><strong>格式错误：</strong>顶级字段是 <code>mcpServers</code>（camelCase），不是 <code>mcp_servers</code></li>
+          <li><strong>环境变量未设置：</strong>MCP 配置里引用了 <code>${GITHUB_TOKEN}</code>，但 shell 里没有这个变量</li>
+        </ol>
+        <div class="code-block">
+          <div class="code-block-header"><span>正确的 ~/.claude.json 格式</span></div>
+          <pre>{
+  <span class="ck">"mcpServers"</span>: {          <span class="cm">← 注意是 mcpServers，不是 mcp_servers</span>
+    <span class="ck">"github"</span>: {
+      <span class="ck">"type"</span>: <span class="cv">"http"</span>,
+      <span class="ck">"url"</span>: <span class="cv">"https://api.githubcopilot.com/mcp/"</span>
+    }
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-both">两者通用</span>
+        <h3>问题 3：AI 不理解我的项目规范</h3>
+      </div>
+      <div class="cap-section-body">
+        <p><strong>症状：</strong>明明在 CLAUDE.md / AGENTS.md 里写了规范，AI 还是不遵守。</p>
+        <p><strong>排查步骤：</strong></p>
+        <ol>
+          <li><strong>确认文件位置：</strong>CLAUDE.md 必须在项目根目录，不是 <code>.claude/</code> 目录里</li>
+          <li><strong>Codex 检查文件大小：</strong>超过 32KB 的内容会被截断，最重要的规范放最前面</li>
+          <li><strong>规范写得太模糊：</strong>AI 更容易理解具体的"做 X"而不是抽象的"遵循规范"</li>
+        </ol>
+        <div class="code-block">
+          <div class="code-block-header"><span>规范写法的好与坏</span></div>
+          <pre><span class="cm">❌ 不好的写法（太模糊）：</span>
+遵循良好的编码实践。
+
+<span class="cm">✅ 好的写法（具体可执行）：</span>
+- 所有函数超过 20 行必须拆分
+- 使用命名导出，禁止 export default
+- API 响应必须用 Zod schema 校验
+- 变量名用 camelCase，常量用 UPPER_SNAKE_CASE</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-claude">Claude Code</span>
+        <h3>问题 4：permissions 配置了 deny 但 AI 还是执行了</h3>
+      </div>
+      <div class="cap-section-body">
+        <p><strong>原因：</strong>多层 permissions 数组合并时，某一层的 <code>allow</code> 覆盖了另一层的 <code>deny</code>。</p>
+        <p><strong>规则：</strong><code>deny</code> 的优先级<strong>高于</strong> <code>allow</code>。如果全局 deny 了 <code>Bash(sudo:*)</code>，项目层 allow 它也没用。但要确认 deny 确实在生效的那一层。</p>
+        <p><strong>调试方法：</strong>用 <code>/permissions</code> 命令（如果支持）查看当前生效的权限组合，或检查各层 settings.json。</p>
+      </div>
+    </div>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-both">两者通用</span>
+        <h3>问题 5：Hook 没有被触发</h3>
+      </div>
+      <div class="cap-section-body">
+        <p><strong>排查清单：</strong></p>
+        <ul>
+          <li>Codex：项目 <code>hooks.json</code> 只在信任状态下加载，先确认项目已信任</li>
+          <li><code>matcher</code> 字段是否正确匹配工具名（大小写敏感）</li>
+          <li>Hook 脚本是否有执行权限：<code>chmod +x .claude/hooks/xxx.sh</code></li>
+          <li>脚本路径是相对路径时，相对的是工作目录还是配置文件所在目录？</li>
+          <li>Codex：检查是否同时有 <code>hooks.json</code> 和 <code>[hooks]</code> 表（只能二选一）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-both">两者通用</span>
+        <h3>问题 6：Skill 没有被 AI 自动调用</h3>
+      </div>
+      <div class="cap-section-body">
+        <p><strong>排查步骤：</strong></p>
+        <ol>
+          <li>检查 <code>SKILL.md</code> 的 <code>description</code> 字段是否足够具体，包含触发词</li>
+          <li>确认文件路径：必须是 <code>.agents/skills/xxx/SKILL.md</code>，目录层级要对</li>
+          <li>description 过于宽泛会导致 AI 不知道该在什么场景用</li>
+        </ol>
+        <div class="code-block">
+          <div class="code-block-header"><span>Skill description 的好与坏</span></div>
+          <pre><span class="cm">❌ 太模糊：</span>
+description: "帮助处理代码相关任务"
+
+<span class="cm">✅ 具体且包含触发词：</span>
+description: >
+  当用户要求创建 API 端点、新增接口、添加路由时，
+  按照项目规范自动生成路由文件、Controller 和测试文件。
+  触发词：create endpoint、新增接口、添加 API。</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-claude">Claude Code</span>
+        <h3>问题 7：Command 调用时上下文命令输出为空</h3>
+      </div>
+      <div class="cap-section-body">
+        <p><strong>症状：</strong>Command 文件里用了 <code>!`git diff HEAD`</code>，但输出是空的。</p>
+        <p><strong>原因：</strong>shell 命令没有在正确的工作目录执行，或命令本身有错误。</p>
+        <p><strong>解决：</strong>在命令里加绝对路径，或确认工作目录是项目根。可以先在终端手动执行确认命令有输出。</p>
+      </div>
+    </div>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-codex">Codex</span>
+        <h3>问题 8：AGENTS.md 内容被截断</h3>
+      </div>
+      <div class="cap-section-body">
+        <p><strong>症状：</strong>AGENTS.md 下半部分的规范 AI 完全不理解，像是没读到。</p>
+        <p><strong>原因：</strong>所有层的 AGENTS.md 合计超过 <code>project_doc_max_bytes</code>（默认 32KB）。</p>
+        <p><strong>解决方案：</strong></p>
+        <ul>
+          <li>将最重要的内容移到文件最前面</li>
+          <li>将详细参考资料移到 Skill 文件中（按需加载，不占 AGENTS.md 额度）</li>
+          <li>在 <code>config.toml</code> 中增大限制：<code>project_doc_max_bytes = 65536</code>（64KB）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-both">两者通用</span>
+        <h3>问题 9：敏感信息（API Key）泄露到配置文件</h3>
+      </div>
+      <div class="cap-section-body">
+        <div class="alert alert-error">
+          <span class="alert-icon">🚨</span>
+          <span><strong>高危：</strong>绝对不要把 API Key、数据库密码等敏感信息写死在配置文件里，特别是要提交 git 的文件。</span>
+        </div>
+        <p><strong>正确做法：使用环境变量引用</strong></p>
+        <div class="code-block">
+          <div class="code-block-header"><span>正确的敏感信息处理方式</span></div>
+          <pre><span class="cm"># Claude Code .mcp.json ── 引用环境变量</span>
+{
+  <span class="ck">"env"</span>: {
+    <span class="ck">"GITHUB_TOKEN"</span>: <span class="cv">"${GITHUB_TOKEN}"</span>  <span class="cm">← 从环境变量读取</span>
+  }
+}
+
+<span class="cm"># Codex config.toml ── 使用 env: 前缀</span>
+[mcp_servers.github]
+env = { GITHUB_TOKEN = <span class="cv">"env:GITHUB_TOKEN"</span> }  <span class="cm">← env: 前缀表示读环境变量</span>
+
+<span class="cm"># 在 shell profile 里设置（~/.zshrc 或 ~/.bashrc）</span>
+export GITHUB_TOKEN="ghp_xxxxxxxxxxxx"
+export DATABASE_URL="postgres://user:pass@host/db"</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="cap-section">
+      <div class="cap-section-header">
+        <span class="tag tag-both">两者通用</span>
+        <h3>问题 10：团队成员配置行为不一致</h3>
+      </div>
+      <div class="cap-section-body">
+        <p><strong>症状：</strong>同一个项目，A 成员的 AI 行为和 B 成员不同。</p>
+        <p><strong>排查：</strong></p>
+        <ul>
+          <li>检查每个人的全局配置（<code>~/.claude/settings.json</code> 或 <code>~/.codex/config.toml</code>）是否有不同的默认值覆盖了项目配置</li>
+          <li>Codex：检查每个人是否都信任了该项目（未信任则项目配置不生效）</li>
+          <li>检查 <code>.claude/settings.local.json</code> 是否被某人误提交了 git</li>
+        </ul>
+        <p><strong>预防措施：</strong></p>
+        <ul>
+          <li>在 <code>.gitignore</code> 里加入 <code>.claude/settings.local.json</code></li>
+          <li>在项目 README 里写清楚：clone 后需要信任项目（Codex）、需要安装哪些依赖</li>
+          <li>在 CLAUDE.md / AGENTS.md 里写明团队约定，用文档而非靠个人记忆</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /.content -->
+</div><!-- /.main -->
+
+<script>
+// ── 页面切换 ──
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  el.classList.add('active');
+
+  // 侧边栏只在能力详解页显示
+  document.getElementById('sidebar').style.display = (name === 'caps') ? 'block' : 'none';
+}
+
+// ── 能力面板切换 ──
+function showCap(name, el) {
+  document.querySelectorAll('.cap-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('cap-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── 内部 Tab 切换 ──
+function showInner(group, name, el) {
+  document.querySelectorAll('#tmpl-' + group.split('-')[0] + '-' + group.split('-')[1] + ', [id^="tmpl-"]').forEach(p => {
+    if (p.closest('.page.active')) p.classList.remove('active');
+  });
+  // 更简单的做法：找当前 tab 容器
+  const parent = el.closest('.content-body') || el.parentElement.parentElement;
+  parent.querySelectorAll('.inner-panel').forEach(p => p.classList.remove('active'));
+  parent.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(group + '-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── 能力详解页初始化 ──
+// 当导航到能力详解页时，确保有一个面板是激活的
+document.addEventListener('DOMContentLoaded', () => {
+  // 确保第一个 cap-panel 激活
+  const firstCap = document.querySelector('.cap-panel');
+  if (firstCap) firstCap.classList.add('active');
+});
+</script>
+
+</body>
+</html>
