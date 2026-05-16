@@ -3,7 +3,7 @@
 > **文档职责**：说明蓝图运行层资产如何维护、联动更新与验证。
 > **适用范围**：`CLAUDE.md`、`settings.json`、`rules/`、`hooks/`、`skills/`、`agents/`、`commands/`、`templates/`
 > **目标读者**：维护这套 `~/.claude` 蓝图的人。
-> **当前立场**：运行层尽量保持最小；自写方法论、模板、检查清单优先沉淀到 `prompts/meta/` 或 `drafts/prompts/`，不要默认升成 skill。只有当路由逻辑已经高度稳定时，才允许升成薄调度 skill。
+> **当前立场**：运行层尽量保持最小；自写方法论、模板、检查清单默认先沉淀到 `prompts/meta/` 或 `drafts/prompts/`。只有当路由逻辑已经高度稳定，且需要运行时长期复用时，才允许收敛为 `skill + references` 形态。
 
 ---
 
@@ -24,7 +24,7 @@
 - 需要轻量总原则 → 改 `rules/`
 - 需要自动触发的强制或提醒 → 改 `hooks/`
 - 需要一类任务的完整方法，且已经高度稳定 → 改 `skills/`
-- 需要在运行层判断“当前该用哪份方法论”，且只做路由不做真源复制 → 可改 `skills/`
+- 需要在运行层判断“当前该用哪份方法论”，并长期复用对应真源 → 可改 `skills/`
 - 需要带角色的分析或审查 → 改 `agents/`
 - 需要显式流程入口 → 改 `commands/`
 - 需要稳定初稿或结构骨架 → 改 `templates/`
@@ -116,8 +116,8 @@
 
 新增前先判断：
 - 这是不是方法论 / 模板 / 检查清单
-- 如果是，优先放 `prompts/meta/` 或 `drafts/prompts/`
-- 只有触发场景稳定、输出稳定、边界清晰，而且 skill 只负责路由或运行时调度时，才进入 `skills/`
+- 如果是，默认先放 `prompts/meta/` 或 `drafts/prompts/`
+- 只有触发场景稳定、输出稳定、边界清晰，而且需要运行时长期复用时，才收敛为 `skills/<name>/references/` 真源，并由 `SKILL.md` 做薄调度
 
 改完至少验证：
 - `bash scripts/deploy-to-claude.sh --dry-run`

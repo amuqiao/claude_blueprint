@@ -1,15 +1,15 @@
 # 项目方法论 Skill 使用说明
 
-> **文档职责**：说明 `skills/project-methodology/` 这个薄调度 skill 是做什么的、什么时候用、怎么和 `prompts/meta/` 搭配。
+> **文档职责**：说明 `skills/project-methodology/` 这个薄调度 skill 是做什么的、什么时候用、以及如何读取自身 references 真源。
 > **适用场景**：复杂项目从 0-1 起盘、模块接入、基础设施升级、需求与版本收敛等场景下，不确定当前应先调用哪份方法论文档时。
 > **目标读者**：维护这套 blueprint 并实际使用 Claude Code 进行复杂项目开发的人。
-> **维护规范**：如果 `prompts/meta/` 的方法论结构发生变化，需要同步更新本说明和 skill 的路由逻辑。
+> **维护规范**：如果 `skills/project-methodology/references/` 的方法论结构发生变化，需要同步更新本说明和 skill 的路由逻辑。
 
 ## 它是什么
 
 这是一个**薄调度 skill**。
 
-它不替代 `prompts/meta/` 里的方法论文档，也不复制它们的完整内容。  
+它不在 `SKILL.md` 正文中重复方法论文档，而是路由到本 skill 的 `references/` 真源。  
 它只负责一件事：
 
 **先判断当前问题属于哪一层，再把你路由到正确的方法论。**
@@ -31,17 +31,17 @@
 - 新需求持续进入，不知道该不该进当前版本
 - 知道自己卡住了，但不知道卡在项目、模块、基础设施，还是版本节奏层
 
-## 它怎么和 `prompts/meta/` 搭配
+## 它怎么和自身 references 搭配
 
 关系是：
 
-- `prompts/meta/`：方法论真源
-- `project-methodology` skill：运行时路由入口
+- `skills/project-methodology/references/`：方法论真源
+- `skills/project-methodology/SKILL.md`：运行时路由入口
 
 也就是说：
 
 - skill 先判断“当前该用哪套方法”
-- 真正的方法论骨架仍在 `prompts/meta/`
+- 真正的方法论骨架在 `references/`
 
 ## 最推荐的使用方式
 

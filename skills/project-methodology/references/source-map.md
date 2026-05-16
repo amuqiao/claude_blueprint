@@ -1,26 +1,26 @@
 # Source Map
 
 这个 skill 只负责路由。  
-方法论真源在当前仓库的 `prompts/meta/`。
+方法论真源在本 skill 的 `references/`。
 
 ## Canonical Source Paths
 
-- `prompts/meta/项目成型方法论_prompt.md`
+- `./项目成型方法论.md`
   适用：项目从想法到起盘、项目骨架建立、首个核心模块选择
 
-- `prompts/meta/功能模块成型方法论_prompt.md`
+- `./功能模块成型方法论.md`
   适用：模块归位、模块接入、模块设计、模块验证与回写
 
-- `prompts/meta/基础设施演进方法论_prompt.md`
+- `./基础设施演进方法论.md`
   适用：当前基础设施是否该保持轻量、是否值得升级、如何留演进缝
 
-- `prompts/meta/需求与版本演进方法论_prompt.md`
+- `./需求与版本演进方法论.md`
   适用：新需求进入系统、当前版本边界、优先级、切片与版本收敛
 
-- `prompts/meta/文档成型规则_prompt.md`
+- `./文档成型规则.md`
   适用：任何输出物的结构、表达、可视化与沉淀方式
 
-- `prompts/meta/README.md`
+- `./README.md`
   适用：需要先建立 5 份方法论文档之间的整体心智模型时
 
 ## 使用规则
@@ -32,7 +32,7 @@
 
 ## 缺失处理
 
-如果当前工作区没有 `prompts/meta/`：
+如果当前工作区没有本 skill 的 `references/`：
 
 - 先明确说明真源缺失
 - 仅保守输出：
