@@ -101,7 +101,7 @@ claude_blueprint/
 ## 当前状态
 
 - 已按 v3 文档落地全部明确给出的文件内容。
-- 自写方法论型 skill 已退出运行层，优先沉淀到 `drafts/prompts/wip/`。
+- 自写方法论默认不直接进入运行层；优先先沉淀为 `prompts/meta/` 的方法论文档，只有在路由逻辑已经稳定时，才允许升成薄调度 skill。
 - 当前 `skills/` 只保留成熟、稳定、真正像运行时操作手册的能力。
 
 ## 继续阅读
@@ -169,6 +169,7 @@ cd ~/code/claude_blueprint
 - `rules/` 也会随部署脚本同步到 `~/.claude/rules/`
 - 当前 `rules/` 只保留少量跨项目稳定的系统级最小规则，不承载完整方法论或项目细则
 - 但本仓库默认不再把“方法论 / 模板 / 检查清单”直接升成运行层 skill
+- 当前允许的例外是：已经稳定的 meta 方法论可以提供**薄调度 skill**，只做阶段判断与路由，不复制方法论真源
 - 这类内容优先沉淀到 `drafts/prompts/wip/`
 - Plugin 不直接镜像 `~/.claude/plugins/`
 - Plugin 的安装计划记录在 [`plugin-install-plan.md`](/Users/admin/Downloads/Code/claude_blueprint/plugin-install-plan.md)，再由 `show-plugin-install-commands.sh` 展示安装命令
