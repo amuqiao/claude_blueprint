@@ -1,0 +1,4 @@
+interface:
+  display_name: "Document Writing"
+  short_description: "Structured writing guide for formal docs, README, indexes, and methodology documents."
+  default_prompt: "Use $document-writing to structure a formal document, reduce cognitive load, and suggest the smallest clear outline before expanding."
