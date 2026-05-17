@@ -1,241 +1,427 @@
 # Codex Skill 安装与本地接入说明
 
-> **文档职责**：说明 Codex 目前可确认的 skill 使用方式，以及本仓库如何把本地方法论落地为可复用 skill。
-> **适用场景**：你想在 Codex 中使用 skill，但不确定“官方安装方式”和“本地仓库接入方式”之间的区别。
-> **目标读者**：维护本仓库、同时使用 Codex CLI / Codex App 的开发者。
-> **维护规范**：如果 Codex 官方文档补充了本地 skill 安装命令，或本仓库的 `skills/` 结构发生变化，需要同步更新本文。
+**文档职责**：说明如何在 Claude Code / Codex CLI 中安装、接入和使用 Skill，覆盖三个作用域层级与三类来源。  
+**适用场景**：首次接入 Skill、团队统一接入规范、自定义 Skill 开发。  
+**目标读者**：使用 Claude Code 或 Codex CLI 的开发者，包括个人开发者和团队管理员。  
+**维护规范**：路径示例以 macOS/Linux 为主，Windows 路径见[附录](#附录路径速查)；内容随官方文档更新同步修订。
 
 ---
 
-## 1. 先说结论
+## 理解 Skill 的心智模型
 
-当前更稳的理解是：
+在看具体操作之前，先建立整体认知。
 
-- Codex 官方已经明确支持 `skill` 这个概念，以及 `SKILL.md` 作为核心文件
-- 官方也明确支持在 Codex / ChatGPT 界面中创建、安装、选择 skill
-- 但截至本文落地时，本仓库没有把“本地目录直接安装为 Codex skill”的某个 CLI 命令当作稳定前提
-- 因此，本仓库采用的是：
-  - `skills/<name>/` 维护 skill 正文与 references 真源
-  - 运行时按 Codex 的 skill 机制显式调用或语义触发
-  - 不依赖一个尚未在本仓库中固化的“本地安装命令”
+**Skill 是什么：** 一个封装在 `SKILL.md` 文件里的指令包，给 AI Agent 提供专项知识或工作流。它和 `CLAUDE.md` 的根本区别是**加载时机**：
 
-一句话：
+```
+CLAUDE.md    → 每次会话启动时全量加载，始终占用上下文
+Skill        → 按需加载，只有被触发时才进入上下文
+```
 
-**本仓库把 skill 当成稳定目录结构来维护，而不是绑定某个未确认长期稳定的本地安装命令。**
+这意味着你可以安装几十个 Skill，但 Claude 的上下文里只会出现当前任务需要的那几个。
+
+**三个核心维度：**
+
+```
+来源维度        官方（Anthropic）→ 第三方市场 → 自定义
+作用域维度      企业全局 → 用户级 → 项目级 → 插件级
+安装方式维度    /plugin 命令 → npx 工具 → git clone → 手动文件
+```
+
+这三个维度相互独立、可以自由组合。比如你可以"用 git clone 安装一个第三方市场的 Skill，并部署在项目级作用域"。
 
 ---
 
-## 2. 官方可确认的部分
+## 作用域层级
 
-目前可以明确确认的官方事实只有这几类：
+作用域决定了 **Skill 对谁生效**，这是安装前最需要想清楚的问题。
 
-### 2.1 Codex CLI 的安装
+```
+优先级（高 → 低）
 
-Codex CLI 官方安装方式是：
+  企业全局（Enterprise）   ← 管理员统一下发，所有用户/所有项目
+       ↓ 被覆盖
+  用户级（Personal）       ← ~/.claude/skills/  所有项目可用
+       ↓ 被覆盖
+  项目级（Project）        ← .claude/skills/    仅当前仓库
+       ↓ 命名空间隔离
+  插件级（Plugin）         ← 插件内置，plugin-name:skill-name 命名，不参与覆盖
+```
+
+**覆盖规则：** 同名 Skill 在多个层级都存在时，高层级覆盖低层级。插件级 Skill 使用 `plugin-name:skill-name` 命名空间，不会与其他层级冲突。
+
+| 层级 | 路径 | 适合放什么 |
+|------|------|-----------|
+| 企业全局 | 管理员 Managed Settings 下发 | 公司代码规范、安全检查、合规流程 |
+| 用户级 | `~/.claude/skills/<skill-name>/` | 个人习惯性工作流，如 commit 模板、代码审查 |
+| 项目级 | `.claude/skills/<skill-name>/` | 项目专属规范，随仓库版本控制共享给团队 |
+| 插件级 | 插件目录内 `skills/` | 插件自带，随插件启用/禁用 |
+
+---
+
+## Skill 来源分类
+
+来源决定了**信任程度**和**获取方式**，分三类。
+
+### 官方 Skill（Anthropic 官方市场）
+
+官方市场 `claude-plugins-official` 在 Claude Code 启动时自动注册，无需手动添加。
 
 ```bash
-npm i -g @openai/codex
-codex
+# 浏览官方插件（交互界面）
+/plugin
+
+# 直接安装官方插件（插件内含 Skill）
+/plugin install github@claude-plugins-official
+/plugin install figma@claude-plugins-official
+/plugin install atlassian@claude-plugins-official
 ```
 
-这解决的是 **Codex CLI 本体安装**，不是某个本地 skill 目录的安装。
+在线目录：[claude.com/plugins](https://claude.com/plugins)
 
-### 2.2 Skill 的官方形态
+官方市场包含三类内容：
 
-官方把 skill 描述为一种可复用工作流，核心通常是一个 `SKILL.md` 文件。  
-`SKILL.md` 被当作技能的 playbook，也是可移植的 Markdown/open standard。
+- **代码智能插件**：接入 LSP，提供跳转定义、类型检查、错误实时反馈（pyright、rust-analyzer、typescript-language-server 等）
+- **外部集成插件**：预配置好的 MCP Server（GitHub、Linear、Notion、Figma、Sentry 等）
+- **工作流插件**：git commit 工作流、PR Review、插件开发工具包等
 
-### 2.3 Skill 的官方使用方式
+### 第三方市场 / 社区 Skill
 
-官方当前更明确的使用方式是：
+来自 GitHub 或其他 Git 仓库的公开 Skill 集合，使用前建议 review 文件内容。
 
-- 在 Codex / ChatGPT 界面中创建或安装 skill
-- 在线程中按 `$` 选择 skill
-- 或直接用 `$skill-name ...` 的方式调用
+**添加市场源（两步流程：先注册市场，再安装插件）：**
 
----
+```bash
+# 添加 GitHub 仓库作为市场源（owner/repo 格式）
+/plugin marketplace add anthropics/claude-code
 
-## 3. 为什么本仓库不把“本地安装命令”写死
+# 添加其他 Git 地址
+/plugin marketplace add https://gitlab.com/company/plugins.git
 
-原因很简单：
+# 添加本地目录
+/plugin marketplace add ./my-marketplace
 
-- 官方文档明确了 Codex CLI 的安装
-- 官方文档明确了 skills 的概念、`SKILL.md` 结构和界面里的使用方式
-- 但在本文编写时，本仓库没有把某个“从本地目录安装到 Codex CLI”的命令当作稳定依赖
-
-所以这里要区分两件事：
-
-### 3.1 官方稳定能力
-
-- Codex 支持 skill
-- skill 以 `SKILL.md` 为核心
-- 可以在 Codex / ChatGPT 界面中使用 skill
-
-### 3.2 本仓库的工程落地
-
-- skill 先作为仓库内稳定目录维护
-- 保证结构、真源、路由逻辑都自洽
-- 后续如果 Codex 官方本地安装路径更明确，再补充“如何装入某个具体运行环境”
-
-也就是说：
-
-**这里优先保证 skill 本身是成立的，其次才是把它接进某个具体入口。**
-
----
-
-## 4. 本仓库采用的落地方式
-
-本仓库当前把 `project-methodology` 作为标准 skill 来维护。
-
-目录位置：
-
-- [../../../skills/project-methodology/SKILL.md](../../../skills/project-methodology/SKILL.md)
-- [../../../skills/project-methodology/agents/openai.yaml](../../../skills/project-methodology/agents/openai.yaml)
-- [../../../skills/project-methodology/references/README.md](../../../skills/project-methodology/references/README.md)
-
-它的结构是：
-
-```text
-skills/project-methodology/
-├── SKILL.md
-├── agents/
-│   └── openai.yaml
-└── references/
-    ├── README.md
-    ├── 项目成型方法论.md
-    ├── 功能模块成型方法论.md
-    ├── 基础设施演进方法论.md
-    ├── 需求与版本演进方法论.md
-    └── 文档成型规则.md
+# 查看已添加的市场源
+/plugin   # → Marketplaces 标签页
 ```
 
-这里的含义是：
+常用社区资源：
 
-- `SKILL.md`：触发说明、边界、最小路由逻辑
-- `references/`：方法论真源
-- `agents/openai.yaml`：面向 OpenAI / Codex UI 的补充元数据
+| 资源 | 地址 | 说明 |
+|------|------|------|
+| Anthropic 官方示例库 | `anthropics/claude-code` | 演示用，含 commit-commands、pr-review-toolkit 等 |
+| agentskills.io | [agentskills.io](https://agentskills.io) | 跨平台 Skill 开放标准与目录 |
+| agensi.io | [agensi.io](https://www.agensi.io) | 付费/免费 Skill 商店，支持 ZIP 下载 |
+| aitmpl.com/skills | [aitmpl.com/skills](https://www.aitmpl.com/skills) | 社区聚合目录 |
 
----
+**通过 npx 批量安装社区 Skill：**
 
-## 5. 为什么这样更稳
+```bash
+# 安装单个 Skill
+npx skills add <github-user>/<repo> --skill <skill-name>
 
-这样设计有 4 个好处：
-
-### 5.1 不依赖单一安装命令
-
-即使未来 Codex 的本地安装入口变化，这份 skill 本身仍然是完整的。
-
-### 5.2 真源和入口在一个 skill 目录内闭环
-
-避免出现：
-
-- `prompts/` 是真源
-- `skills/` 只是外壳
-- 两边长期漂移
-
-### 5.3 更符合标准 skill 结构
-
-当前这份 skill 已经是：
-
-- `SKILL.md`
-- `references/`
-- `agents/openai.yaml`
-
-这种更标准的自包含形态。
-
-### 5.4 便于迁移
-
-如果后续要迁到别的运行环境，你迁的是整个 `skills/project-methodology/`，而不是再拼装多处真源。
-
----
-
-## 6. 实际应如何使用
-
-### 6.1 在本仓库内维护
-
-默认直接维护：
-
-- [../../../skills/project-methodology/SKILL.md](../../../skills/project-methodology/SKILL.md)
-- [../../../skills/project-methodology/references/](../../../skills/project-methodology/references/)
-
-不要再回到 `prompts/meta/` 维护正文。  
-`prompts/meta/` 现在只保留迁移说明：
-
-- [../../../prompts/meta/README.md](../../../prompts/meta/README.md)
-
-### 6.2 在 Codex 中触发
-
-更稳的使用方式是：
-
-- 在支持 skills 的 Codex / ChatGPT 入口中显式调用
-- 用 `$project-methodology` 或明确的技能语义触发
-
-例如：
-
-```text
-$project-methodology
-我现在在做一个 0-1 的复杂项目 POC，请先判断当前层次、当前阶段、最主要问题，以及建议先调用哪份方法论。
+# 查看已安装列表
+npx skills list
 ```
 
-### 6.3 在本地蓝图体系里部署
+### 自定义 Skill
 
-如果你维护的是这套 blueprint，本仓库的 `skills/` 本来就会通过部署脚本同步到运行层。  
-这意味着：
+自己编写，完全掌控。核心是一个 `SKILL.md` 文件，可附带支撑文件。
 
-- skill 目录本身会被部署
-- 但你仍然不需要把一个未明确稳定的“本地安装命令”写进主流程
+创建流程见下一节「[安装方式 → 手动文件部署](#手动文件部署创建自定义-skill)」。
 
 ---
 
-## 7. 什么时候不该把它当“已安装 skill”
+## 安装方式
 
-下面这些情况，不要自欺欺人地说“已经装好了”：
+### 手动文件部署（创建自定义 Skill）
 
-- 你只是写好了仓库内的 `skills/project-methodology/`
-- 但当前使用的 Codex 入口并不会读取这个目录
-- 或者当前环境里并没有把该目录纳入 skill 发现范围
+这是最直接的方式，也是理解 Skill 工作原理的最佳入口。
 
-此时更准确的说法应该是：
+**第一步：确定作用域，创建目录**
 
-- **skill 已经按标准结构落地**
-- **但是否被当前 Codex 入口自动发现，还取决于该入口的加载机制**
+```bash
+# 用户级（推荐用于个人工作流）
+mkdir -p ~/.claude/skills/my-skill
 
-这两件事不能混为一谈。
+# 项目级（推荐用于团队共享）
+mkdir -p .claude/skills/my-skill
+```
+
+**第二步：创建 `SKILL.md`**
+
+```markdown
+---
+description: 用一句话描述这个 Skill 的用途和触发时机，
+             Claude 用这段描述判断何时自动加载。
+---
+
+## 主要指令
+
+在这里写 Claude 应该执行的操作步骤。
+
+## 动态上下文注入（可选）
+
+当前 Git 状态：
+!`git status --short`
+
+## 支撑文件引用（可选）
+
+详细规范见 [规范文档](./spec.md)。
+```
+
+`SKILL.md` 由两部分组成：
+
+- **YAML frontmatter**（`---` 之间）：`description` 字段告诉 Claude 何时自动激活此 Skill
+- **Markdown 正文**：Claude 执行 Skill 时遵循的指令内容
+
+**第三步：可附带支撑文件**
+
+```
+my-skill/
+├── SKILL.md          # 入口（必须）
+├── spec.md           # 规范参考文档
+├── examples/
+│   └── sample.md     # 示例输出
+└── scripts/
+    └── validate.sh   # 可被 Claude 执行的脚本
+```
+
+### 通过 `/plugin` 市场安装
+
+```bash
+# 安装官方插件（默认安装到用户级）
+/plugin install github@claude-plugins-official
+
+# 安装社区市场插件（需先添加市场源）
+/plugin marketplace add anthropics/claude-code
+/plugin install commit-commands@anthropics-claude-code
+
+# 选择安装作用域（交互界面）
+/plugin   # → Discover → 选插件 → 选 User / Project / Local scope
+```
+
+安装作用域说明：
+
+- **User scope**（默认）：安装给自己，所有项目可用
+- **Project scope**：写入 `.claude/settings.json`，团队协作者共享
+- **Local scope**：仅自己在当前仓库可用，不提交到版本控制
+
+### 通过 npx 工具安装
+
+```bash
+# 安装单个 Skill
+npx skills add <user>/<repo> --skill <skill-name>
+
+# 安装到指定平台路径
+npx agent-skills-cli add <user>/<repo> --agent codex
+
+# 试运行（不实际安装）
+npx agent-skills-cli add <user>/<repo> --dry-run
+```
+
+### Git Clone 安装
+
+```bash
+git clone https://github.com/<user>/<repo>.git
+cd <repo>
+
+# 复制到用户级
+cp -r ./skills/my-skill ~/.claude/skills/
+
+# 或复制到项目级
+cp -r ./skills/my-skill ./.claude/skills/
+```
+
+### 符号链接跨平台共享
+
+如果你同时使用 Claude Code 和 Codex CLI，可以用符号链接保持单一来源：
+
+```bash
+# 以 ~/.claude/skills 为主，其他工具指向它
+ln -s ~/.claude/skills ~/.codex/skills
+ln -s ~/.claude/skills ~/.openclaw/skills
+```
 
 ---
 
-## 8. 当前推荐心智模型
+## 使用与调用
 
-不要把“安装 skill”只理解成一个命令。
+Skill 有两种触发方式：
 
-更稳的理解是：
+**自动触发**：Claude 根据 `SKILL.md` 里的 `description` 字段判断当前任务是否匹配，自动加载并应用。
 
-1. **先把 skill 结构维护正确**
-2. **再确认当前 Codex 入口是否能发现 / 使用它**
-3. **最后才讨论是否需要额外安装动作**
+```
+用户：帮我看看我改了什么
+Claude：（自动识别匹配 summarize-changes Skill，加载并执行）
+```
 
-在这个顺序下：
+**手动调用**：用 `/skill-name` 显式调用，目录名即命令名。
 
-- `skill 是否成立`
-- `skill 是否被当前运行环境发现`
-- `skill 是否有额外安装步骤`
+```bash
+/summarize-changes
+/my-skill
+/commit-commands:commit    # 插件级 Skill，需加插件命名空间前缀
+```
 
-是三件不同的事。
+**内置 Bundled Skills**（Claude Code 自带，无需安装）：
+
+| 命令 | 用途 |
+|------|------|
+| `/simplify` | 简化当前代码 |
+| `/debug` | 调试当前问题 |
+| `/batch` | 批量执行操作 |
+| `/loop` | 循环执行直到满足条件 |
+| `/claude-api` | 调用 Claude API |
 
 ---
 
-## 9. 对本仓库的建议
+## 验证与诊断
 
-当前最合理的做法就是继续保持：
+**验证 Skill 已加载：**
 
-- `skills/project-methodology/` 作为 skill 真源
-- `references/` 作为方法论正文
-- `SKILL.md` 作为薄调度入口
-- `prompts/meta/` 不再维护重复正文
+```bash
+# 方式一：直接调用
+/my-skill
 
-如果未来 Codex 官方把“本地目录 skill 安装 / 注册”做得更清楚，再在本文补一节：
+# 方式二：问 Claude
+"你有哪些可用的 Skill？"
 
-- 官方本地安装方式
-- 本仓库对应接入步骤
+# 方式三：运行诊断
+/doctor
+```
 
-在那之前，不要把未确认稳定的命令写成硬规范。
+`/doctor` 会报告：
+
+- 当前已加载的 Skill 列表
+- description 预算是否溢出（Skill 太多时部分 description 会被截断）
+- 哪些 Skill 因使用频率低而被降级
+
+**热更新（无需重启）：**
+
+修改已有 Skill 文件后，Claude Code 在当前会话内自动检测变更并生效。  
+**例外**：如果 `~/.claude/skills/` 目录是本次会话启动后新建的，需要重启 Claude Code 才能被监听。
+
+**手动检查文件：**
+
+```bash
+ls ~/.claude/skills/                         # 查看用户级已安装列表
+ls .claude/skills/                           # 查看项目级已安装列表
+cat ~/.claude/skills/my-skill/SKILL.md       # 确认文件内容
+```
+
+---
+
+## SKILL.md 文件结构参考
+
+```markdown
+---
+description: |
+  一句话描述核心用途。
+  触发条件：当用户询问 X、想做 Y 或提到 Z 时使用。
+---
+
+## 背景 / 上下文（可选）
+
+给 Claude 补充必要的领域背景。
+
+## 动态上下文注入（可选）
+
+当前分支：!`git branch --show-current`
+最近提交：!`git log --oneline -5`
+
+## 操作步骤
+
+1. 第一步做什么
+2. 第二步做什么
+3. 输出格式要求
+
+## 约束 / 禁止行为（可选）
+
+- 不要修改 src/core/ 以外的文件
+- 不要删除测试文件
+```
+
+**`description` 写法建议：**
+
+- 包含触发场景关键词，Claude 靠它做自动匹配
+- 控制在 2–3 句以内，过长会被上下文预算截断
+- 用"当用户…时使用"句式明确触发时机
+
+---
+
+## 多平台兼容说明
+
+Skill 遵循 Agent Skills 开放标准，同一份 `SKILL.md` 可直接跨平台复用。
+
+| 平台 | Skill 路径 | 调用方式 |
+|------|-----------|---------|
+| Claude Code | `~/.claude/skills/<name>/` | `/name` 或自动触发 |
+| Codex CLI | `~/.codex/skills/<name>/` | 通过 `AGENTS.md` 指示 |
+| Gemini CLI | `~/.gemini/skills/<name>/` | `activate_skill(name="name")` |
+| Cursor / Aider | 项目级 `.claude/skills/` | 工具自身触发机制 |
+
+Claude Code 特有功能（invocation control、subagent execution、动态上下文注入 `!`command``）在其他平台可能不支持，自定义 Skill 时注意平台差异。跨平台共享推荐用符号链接方案，见[安装方式 → 符号链接](#符号链接跨平台共享)。
+
+---
+
+## 运维：更新、禁用、删除
+
+```bash
+# 更新（替换文件）
+cp -r new-version/my-skill ~/.claude/skills/my-skill
+
+# 临时禁用（重命名，不删除）
+mv ~/.claude/skills/my-skill ~/.claude/skills/_my-skill
+
+# 恢复
+mv ~/.claude/skills/_my-skill ~/.claude/skills/my-skill
+
+# 删除
+rm -rf ~/.claude/skills/my-skill
+
+# 备份全部用户级 Skill
+tar -czf ~/skills-backup.tar.gz ~/.claude/skills/
+
+# 通过插件管理器更新
+/plugin   # → Installed 标签页 → 选插件 → Update
+```
+
+---
+
+## 常见问题排查
+
+**Skill 没有被自动触发**  
+→ 检查 `description` 字段是否清晰描述了触发场景  
+→ 运行 `/doctor`，确认 description 没有因预算溢出被截断  
+→ 改用手动调用 `/skill-name` 验证 Skill 本身是否正常工作
+
+**`/skill-name` 命令未识别**  
+→ 确认目录名和 `SKILL.md` 存在：`ls ~/.claude/skills/skill-name/`  
+→ 如果是新建的顶级目录，重启 Claude Code
+
+**插件 Skill 报 `Executable not found`**  
+→ 代码智能插件需要系统已安装对应的 language server 二进制文件  
+→ 查看 `/plugin` 的 Errors 标签页，按提示安装缺失的可执行文件
+
+**Skill 在项目中不生效但用户级可以**  
+→ 检查项目 `.claude/skills/` 路径是否拼写正确  
+→ 用户级同名 Skill 会覆盖项目级，确认没有命名冲突
+
+---
+
+## 附录：路径速查
+
+| 层级 | macOS / Linux | Windows |
+|------|--------------|---------|
+| 用户级 | `~/.claude/skills/<name>/SKILL.md` | `%USERPROFILE%\.claude\skills\<name>\SKILL.md` |
+| 项目级 | `.claude/skills/<name>/SKILL.md` | `.claude\skills\<name>\SKILL.md` |
+| Codex 用户级 | `~/.codex/skills/<name>/SKILL.md` | `%USERPROFILE%\.codex\skills\<name>\SKILL.md` |
+| 企业全局 | 由管理员通过 Managed Settings 下发 | 同左 |
+
+**相关文档：**
+
+- [官方 Skills 文档](https://code.claude.com/docs/en/skills)
+- [插件市场文档](https://code.claude.com/docs/en/discover-plugins)
+- [Agent Skills 开放标准](https://agentskills.io)
+- [claude.com/plugins — 官方插件目录](https://claude.com/plugins)
