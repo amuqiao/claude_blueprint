@@ -75,8 +75,3 @@
 - 不调 API
 - 不写文件
 - 打印配置摘要和 job 展开结果
-
-## 当前判断
-
-- 批量 API 调用脚本真源现在收编到 `skills/personal-os/references/python-script.md`
-- archived 的批量脚本 prompt 只保留作历史派生物

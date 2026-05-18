@@ -74,8 +74,3 @@
 - 多服务状态要列对齐
 - running 状态应显示 PID 和 URL
 - 错误信息要明确到服务名和问题点
-
-## 当前判断
-
-- 服务生命周期脚本真源现在收编到 `skills/personal-os/references/shell-service.md`
-- archived 的服务管理脚本 prompt 只保留作历史派生物

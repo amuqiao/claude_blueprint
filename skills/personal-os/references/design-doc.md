@@ -89,8 +89,3 @@
 5. 核心链路是否闭环
 6. 关键契约是否完整
 7. 风险、取舍和演化是否交代
-
-## 当前判断
-
-- 设计文档真源现在收编到 `skills/personal-os/references/design-doc.md`
-- 与设计相关的 prompt 继续保留为使用层入口

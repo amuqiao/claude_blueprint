@@ -78,8 +78,3 @@
 - 每个子命令的输出结构稳定
 - dry-run 与 apply 输出能一眼区分
 - 状态、警告、错误易于扫描
-
-## 当前判断
-
-- 运维诊断 CLI 真源现在收编到 `skills/personal-os/references/python-ops-cli.md`
-- archived 的运维 CLI prompt 只保留作历史派生物

@@ -109,8 +109,3 @@ app/
 - 优先补一个最常见、最能解释接口用途的默认示例
 - 如果确实有多种合法输入，再补多个示例
 - 只补文档示例，不改业务逻辑
-
-## 当前判断
-
-- FastAPI 后端真源现在收编到 `skills/personal-os/references/fastapi-backend.md`
-- FastAPI 相关 prompt 继续保留为使用层入口
