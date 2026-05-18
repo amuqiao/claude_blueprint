@@ -1,0 +1,4 @@
+interface:
+  display_name: "FastAPI Backend"
+  short_description: "Source-of-truth skill for FastAPI backend structure, uv workflow, test supplementation, and post-change validation."
+  default_prompt: "Use $fastapi-backend to structure or review a FastAPI backend, choose the right layering, and decide the minimum testing or validation work after changes."

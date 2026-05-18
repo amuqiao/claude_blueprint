@@ -10,8 +10,8 @@ argument-hint: [模块名称]
 - 检查代码实现与设计文档（`docs/design/模块/$ARGUMENTS/设计_v1.md`）中的接口规范和数据模型是否一致
 - 列出差异项（实现与设计不符的地方）
 
-**Step 2 · 更新设计文档**（主对话 + design-doc skill）
-- 读取 `~/.claude/skills/design-doc/SKILL.md` 获取格式规范
+**Step 2 · 更新设计文档**（主对话 + personal-os 设计文档真源）
+- 读取 `skills/personal-os/references/design-doc.md` 获取格式规范
 - 若 Step 1 发现差异，按实际实现更新设计文档对应章节
 - 将 §8 待定事项中已决策的问题标注决策结果
 
@@ -22,4 +22,3 @@ argument-hint: [模块名称]
 **Step 4 · 模具升级提示**
 - 检查本次实现中是否有新的通用约束（在其他项目里也成立的规则）
 - 如有，提示用户运行 `/add-rule` 将其归档到正确位置
-

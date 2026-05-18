@@ -1,0 +1,4 @@
+interface:
+  display_name: "Python Ops CLI"
+  short_description: "Source-of-truth skill for Python diagnostic CLIs with subcommands, safe writes, and clear terminal output."
+  default_prompt: "Use $python-ops-cli to structure a Python operations CLI, separate read and write commands, and enforce dry-run plus --apply behavior."

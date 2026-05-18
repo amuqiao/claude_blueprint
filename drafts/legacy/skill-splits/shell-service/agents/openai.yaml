@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shell Service"
+  short_description: "Source-of-truth skill for multi-service Bash lifecycle scripts with stable commands, PID handling, and readable output."
+  default_prompt: "Use $shell-service to structure a dev.sh-style service manager, keep commands stable, and define PID, port, log, and status behavior clearly."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Explain"
+  short_description: "Source-of-truth skill for explaining code structure, intent, and key logic without turning docs into line-by-line translation."
+  default_prompt: "Use $code-explain to decide whether this code deserves a standalone explanation, build the right explanation structure, and focus on why the code is designed this way."

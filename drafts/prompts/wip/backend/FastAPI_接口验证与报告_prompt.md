@@ -1,5 +1,7 @@
 # FastAPI 改动后验证与报告 Prompt
 
+> **状态**：派生自 [skills/personal-os/references/fastapi-backend.md](/Users/admin/Downloads/Code/claude_blueprint/skills/personal-os/references/fastapi-backend.md:1) 的日常使用 prompt，当前保留使用，不作为唯一真源维护。
+
 > **文档职责**：沉淀“FastAPI 服务改动后，先判断最合适的验证方式，再输出验证清单与结果报告”的可复用 prompt。
 > **适用场景**：FastAPI 服务改动后，需要检查接口是否正常、是否已有测试资产、是否需要补最小验证方案时。
 > **目标读者**：本仓库维护者。
@@ -61,5 +63,5 @@
 ## 当前判断
 
 - 这类 prompt 的核心不是“立刻补完整单元测试体系”，而是“结合现状找最合适的验证方式”
-- 当前更适合作为 prompt 资产，不急着直接升 skill
-- 后续如果你频繁做 FastAPI 改动后的验证与汇报，可以继续提炼为正式 prompt，或并入更完整的服务质检能力
+- 当前保留为 `personal-os` 下 FastAPI 真源之上的快捷入口，不再承担后端规范本体职责
+- 后续视真实使用频率决定是否继续保留在 `wip/`

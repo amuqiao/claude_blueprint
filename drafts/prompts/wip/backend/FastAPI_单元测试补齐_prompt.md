@@ -1,5 +1,7 @@
 # FastAPI 单元测试补齐 Prompt
 
+> **状态**：派生自 [skills/personal-os/references/fastapi-backend.md](/Users/admin/Downloads/Code/claude_blueprint/skills/personal-os/references/fastapi-backend.md:1) 的日常使用 prompt，当前保留使用，不作为唯一真源维护。
+
 > **文档职责**：沉淀“检查现有单元测试情况，并为 FastAPI 项目补最小可用单元测试”的可复用 prompt。
 > **适用场景**：FastAPI 项目已有代码实现，但缺少或需要补强 `pytest` 单元测试时。
 > **目标读者**：本仓库维护者。
@@ -51,5 +53,5 @@
 ## 当前判断
 
 - 这类 prompt 专门针对“单元测试补齐”，和“改动后验证工作流”是两条不同的线
-- 当前更适合作为 prompt 资产，不急着直接升 skill
-- 后续如果你频繁为 FastAPI 服务补单元测试，可以继续提炼为正式 prompt，或并入更完整的测试能力
+- 当前保留为 `personal-os` 下 FastAPI 真源之上的快捷入口，不再承担后端规范本体职责
+- 后续视真实使用频率决定是否继续保留在 `wip/`

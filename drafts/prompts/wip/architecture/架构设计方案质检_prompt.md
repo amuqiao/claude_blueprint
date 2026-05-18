@@ -1,5 +1,7 @@
 # 架构设计方案质检 Prompt
 
+> **状态**：派生自 [skills/personal-os/references/design-doc.md](/Users/admin/Downloads/Code/claude_blueprint/skills/personal-os/references/design-doc.md:1) 的日常使用 prompt，当前保留使用，不作为唯一真源维护。
+
 > **文档职责**：沉淀“质检架构设计方案”的可复用 prompt。
 > **适用场景**：架构设计文档初稿写完后，想系统检查其完整性、清晰度和可落地性时。
 > **目标读者**：本仓库维护者。
@@ -86,5 +88,5 @@
 ## 当前判断
 
 - 这类 prompt 已具备明显复用价值
-- 当前适合先作为 prompt 使用，不必立即升 skill
-- 后续如果“架构文档质检”的输入输出模式稳定，可以继续提炼成正式 prompt，或与 `design-doc` / `arch` 相关能力进一步整合
+- 当前保留为 `design-doc` 真源之上的快捷入口，不再承担规范本体职责
+- 后续视真实使用频率决定是否继续保留在 `wip/`

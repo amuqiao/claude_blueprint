@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Doc"
+  short_description: "Source-of-truth skill for architecture docs, module design docs, and design-review checks."
+  default_prompt: "Use $design-doc to decide whether this belongs in an architecture doc or module design doc, structure the design correctly, and review it for structural gaps."

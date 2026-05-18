@@ -7,7 +7,12 @@ argument-hint: [用自然语言描述这条新约束]
 收到 /add-rule $ARGUMENTS，引导完成新约束归档：
 
 **Step 1 · 读取维护规范**
-读取 `~/.claude/skills/os-maintenance/SKILL.md`，使用其中的 §2 分类决策树。
+不读取 `personal-os`。直接按下面的最小判断口径处理：
+
+- 稳定、跨项目、你愿意长期维护的方法 -> 进 `skills/personal-os/`
+- 属于项目阶段与方法演进 -> 进 `skills/project-methodology/`
+- 只是日常好用、仍在试验、主要服务复制使用 -> 留在 `drafts/`
+- 属于项目事实、架构决策、业务决策 -> 进 `docs/`
 
 **Step 2 · 分类判断**
 根据决策树，向用户提出以下问题（每次只问一个，得到回答后继续）：
@@ -21,8 +26,8 @@ Q2：这条约束在你的下一个技术栈完全不同的项目里也成立吗
 - 否 → 放项目 `CLAUDE.md` 或对应项目文档
 
 Q3：内容超过 3 行吗？
-- 是 → 放对应 skill（在 CLAUDE.md 保留一行指针）
-- 否 → 直接放 ~/.claude/CLAUDE.md
+- 是 → 放 `skills/personal-os/` 或 `skills/project-methodology/` 的对应真源
+- 否 → 放项目 `CLAUDE.md`、短规则入口，或先留在 drafts
 
 Q4：这是产品/架构决策，还是过程经验/踩坑？
 - 产品/架构决策 → 放 docs/design/ 对应文档
@@ -30,7 +35,7 @@ Q4：这是产品/架构决策，还是过程经验/踩坑？
 
 **Step 3 · 执行归档**
 确认目标位置后：
-- 如果放 skill：在对应 SKILL.md 的合适节追加内容
+- 如果放 skill：优先追加到 `skills/personal-os/references/` 的对应主题文档；只有项目方法例外时才进 `skills/project-methodology/`
 - 如果放 CLAUDE.md：追加到对应节的末尾
 - 如果放设计文档：引导用户定位到项目级架构文档、模块设计文档或专题文档的具体节
 - 如果放专题：创建新的专题文档（如果是新话题）或在已有文档追加

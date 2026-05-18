@@ -60,9 +60,9 @@ description: 初始化项目级最小骨架。补齐项目 CLAUDE、设计索引
 - 关键技术选型
 - 需要写入架构设计方案的核心约束
 
-**Step 4 · 用 design-doc skill 补全架构设计方案**
+**Step 4 · 用 personal-os 下的设计文档真源补全架构设计方案**
 
-- 读取 `~/.claude/skills/design-doc/SKILL.md`
+- 读取 `skills/personal-os/references/design-doc.md`
 - 基于 Step 3 的分析结果，补全 `docs/design/架构设计方案.md`
 - 在“后端分层”部分必须明确填写：
   - 当前选择：默认 4 层 / 升级 5 层

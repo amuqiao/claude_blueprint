@@ -33,8 +33,8 @@ argument-hint: [模块名称]
 - 先输出极简 ASCII 布局草图（用于快速对齐结构认知）
 - 再在 `docs/design/模块/$ARGUMENTS/` 下创建 `页面布局_mock.html`
 
-**Step 4 · 设计文档**（主对话 + design-doc skill）
-- 读取 `~/.claude/skills/design-doc/SKILL.md` 获取格式规范
+**Step 4 · 设计文档**（主对话 + personal-os 设计文档真源）
+- 读取 `skills/personal-os/references/design-doc.md` 获取格式规范
 - 在 `docs/design/模块/$ARGUMENTS/` 下创建 `设计_v1.md`
 - 至少覆盖：§1 问题定义、§2 目标与非目标、§3 方案设计、§4 数据模型、§5 接口规范
 - 如有前端，先吸收 Step 3 的页面 / 交互轮廓，再写 §6 前端集成

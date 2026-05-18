@@ -1,5 +1,7 @@
 # FastAPI 后端 Prompt
 
+> 状态：派生自真源 skill 的日常使用 prompt，不再作为唯一真源维护。
+
 适用场景：
 - 新建一个 FastAPI 后端项目
 - 为现有项目补一套清晰的 FastAPI 工程起盘方案

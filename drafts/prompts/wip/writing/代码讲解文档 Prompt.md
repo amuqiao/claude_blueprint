@@ -1,11 +1,13 @@
 # 代码讲解文档 Prompt
 
+> 状态：派生自 [skills/personal-os/references/code-explain.md](/Users/admin/Downloads/Code/claude_blueprint/skills/personal-os/references/code-explain.md:1) 的日常使用 prompt，不再作为唯一真源维护。
+
 适用场景：
 - 需要为某段代码、某个函数、某个模块写讲解文档
 - 目标读者需要理解“为什么这样写”和“关键逻辑怎么工作”
 
 ```text
-请为下面这段代码整理一篇“代码讲解文档”。
+请使用 code-explain 的真源口径，为下面这段代码整理一篇“代码讲解文档”。
 
 要求：
 1. 只讲难点、混淆点、关键设计；命名已经自解释的简单逻辑不要硬讲。

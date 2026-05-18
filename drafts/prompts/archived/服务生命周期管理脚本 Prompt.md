@@ -1,5 +1,7 @@
 # 服务生命周期管理脚本 Prompt
 
+> 状态：派生自真源 skill 的日常使用 prompt，不再作为唯一真源维护。
+
 适用场景：
 - 需要为项目编写统一的 `dev.sh` / `service.sh` 类服务管理脚本
 - 目标是统一管理多个进程的 start / stop / restart / status / logs

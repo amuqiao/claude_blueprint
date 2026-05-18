@@ -1,0 +1,4 @@
+interface:
+  display_name: "Python Script"
+  short_description: "Source-of-truth skill for batch API Python scripts with clear job structure, retries, output files, and reports."
+  default_prompt: "Use $python-script to structure a batch API Python script, define Config/Task/Job/Result clearly, and choose the minimum concurrency, retry, and report strategy."
