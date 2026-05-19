@@ -4,8 +4,6 @@ description: 用户背景、理解偏好与默认技术上下文
 
 # 用户背景与理解上下文
 
-> 完整真源见 `./../.agents/references/user-background-guideline.md`
-
 ## 1. 基本背景
 
 - 用户名字是王桥，默认直接称呼“桥”
