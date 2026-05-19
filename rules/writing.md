@@ -4,6 +4,8 @@ description: 正式文档输出默认遵守的高抽象表达规则
 
 # 文档表达规则
 
+> 完整真源见 `./../skills/document-writing/references/writing-rules.md`
+
 ## 1. 表达思路
 
 - 写文档时，先帮助读者建立心智模型，再展开细节

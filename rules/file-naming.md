@@ -4,6 +4,8 @@ description: 新建或重命名文件时默认遵守的命名规则
 
 # 文件命名规则
 
+> 完整真源见 `./../.agents/references/file-naming-guideline.md`
+
 - 文件名应优先保持稳定、可预测、便于链接、引用与迁移。
 - 默认不要在文件名中使用空格
 - 新建文档默认优先使用英文小写加连字符，例如：`api-overview.md`、`deployment-checklist.md`
