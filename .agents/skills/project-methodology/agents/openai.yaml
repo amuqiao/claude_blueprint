@@ -1,0 +1,4 @@
+interface:
+  display_name: "project-methodology"
+  short_description: "复杂项目开发的阶段判断、方法分流与下一步建议统一入口"
+  default_prompt: "Use $project-methodology to judge the current stage of a complex project, route to the right methodology, and suggest the next minimal deliverable."

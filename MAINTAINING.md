@@ -137,7 +137,7 @@
 默认情况下，本 blueprint 不把 `rules/` 或 `plugins/` 当成默认大规模主结构层。
 
 当前仓库的例外：
-- 已保留一组系统级最小规则：`writing`、`file-naming`、`workflow`、`testing`、`security`、`git`
+- 已保留一组系统级最小规则：`writing`、`file-naming`、`workflow`、`testing`、`security`、`git`、`user-background`
 - 它们只承载跨项目都较稳定的轻量约束
 - 这不代表本 blueprint 已转向“默认依赖 rules 承载完整方法论或项目细则”
 

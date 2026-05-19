@@ -19,6 +19,17 @@
 - 主题分组只解决“好找”和“好维护”，不要过度细拆
 - `wip/` 根目录尽量只保留说明文件和临时整理笔记
 
+## 与正式 `prompts/` 的关系
+
+- `drafts/prompts/` 存放草稿、候选稿和历史稿
+- `prompts/` 存放已经沉淀、可直接复用的正式 prompt
+- 一个主题如果已经进入 `prompts/`，后续优先在正式目录维护，草稿目录只保留补充材料或迁移过程文件
+
+当前已沉淀示例：
+
+- [Xcode iOS 产品原型设计 Prompt](../../prompts/Xcode/ios-product-prototype-design-prompt.md)
+- [Xcode iOS 产品原型设计指南](../../prompts/Xcode/iOS%20产品原型设计：给%20Python%20后端工程师的完整指南.md)
+
 ## Prompt 文档格式
 
 - 一个文件聚焦一个主题
