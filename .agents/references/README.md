@@ -18,7 +18,8 @@
 - `~/.codex/AGENTS.md`：全局入口与跨项目稳定成立的极短个人习惯。
 - `.agents/references/`：完整真源，负责说明规则的职责、边界、示例与维护方式。
 - `rules/`：给运行时默认加载的最小摘要投影，只保留短规则，不重复长解释。
-- `source-map.md`：记录当前运行时规则对应的真源路径，避免同一主题在多处独立演化。
+- `rules-source-map.md`：记录当前 `rules/` 与真源的对应关系，服务维护与回写。
+- `references-index.md`：按问题域索引可用真源，服务 agent 使用与项目级 `AGENTS.md` 引用。
 
 推荐维护顺序：
 
@@ -38,6 +39,12 @@
 - 只需 3 到 8 条短规则就能表达清楚的运行时约束。
 - 某个具体项目、版本或阶段的临时执行细节。
 - 尚未整理、没有明确职责边界的临时笔记。
+
+## 入口文档分工
+
+- `README.md`：解释本目录为什么存在、如何分层、如何维护。
+- `rules-source-map.md`：面向维护者，记录 `rule` 与真源的映射关系。
+- `references-index.md`：面向使用者，按问题类型告诉 agent 应优先读哪份真源。
 
 ## 新增文档时的判断原则
 
@@ -68,5 +75,6 @@
 - 一个主题只维护一个真源，不在 `AGENTS.md`、`rules/`、`.agents/references/` 重复维护完整正文。
 - 引用本目录内容时，其他入口只写摘要或指针，不复制整篇说明。
 - 文件命名保持稳定、可预测，优先使用英文 lowercase kebab-case。
-- 新增或调整真源关系时，同步更新 [source-map.md](./source-map.md)。
-- 如果某条 `rule` 仍没有对应真源，应在 `source-map.md` 中明确标记缺失，而不是默认把 `rule` 本身当成真源。
+- 新增或调整真源关系时，同步更新 [rules-source-map.md](./rules-source-map.md)。
+- 新增可供 agent 直接消费的真源时，评估是否需要同步更新 [references-index.md](./references-index.md)。
+- 如果某条 `rule` 仍没有对应真源，应在 `rules-source-map.md` 中明确标记缺失，而不是默认把 `rule` 本身当成真源。
