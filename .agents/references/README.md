@@ -1,90 +1,20 @@
 # References README
 
-## 文档职责
+## 当前定位
 
-- 本目录是 `claude_blueprint` 中面向 `Claude`、`Codex` 与公共 agent 的通用规则真源与方法沉淀层。
-- 这里存放需要解释边界、适用范围、示例或反例的完整版 guideline。
-- 这里不是运行时默认加载规则目录，也不是随手记录的临时草稿目录。
+- `rules/` 是共享规则的唯一真源。
+- 本目录只保留共享规则的入口层文件，不再承载长版 guideline。
+- 项目级 `AGENTS.md` 通过本目录中的 `references-index.md` 读取共享规则清单，再全量加载 `rules/`。
 
-## 为什么单独维护本目录
+## 目录分工
 
-- `Claude` 的 `rules/` 与 `Codex` 的 `AGENTS.md` 规则承载方式并不一致。
-- 当前仓库是先有 `rules/`，后发现它不能直接作为 `Codex` 与公共 agent 的通用真源。
-- 为修复“已有运行时规则、但缺少统一真源”的历史缺口，本目录用于承载语义真源。
-- 运行时规则应从这里提炼摘要，而不是在多个入口各自维护长版正文。
+- `README.md`：解释本目录定位和维护方式。
+- `references-index.md`：共享规则加载清单，由脚本生成。
+- `generate-references-index.sh`：从 `rules/` 全量生成 `references-index.md`。
 
-## 与其他层的关系
+## 维护规则
 
-- `~/.codex/AGENTS.md`：全局入口与跨项目稳定成立的极短个人习惯。
-- `.agents/references/`：完整真源，负责说明规则的职责、边界、示例与维护方式。
-- `rules/`：给运行时默认加载的最小摘要投影，只保留短规则，不重复长解释。
-- `rules-source-map.md`：记录当前 `rules/` 与真源的对应关系，服务维护与回写。
-- `references-index.md`：按问题域索引可用真源，服务 agent 使用与项目级 `AGENTS.md` 引用。
-
-推荐维护顺序：
-
-1. 先把历史上已经存在的 `rules/` 反向补齐为真源文件。
-2. 补齐后，以 `.agents/references/` 为准维护正文，再回写 `rules/` 摘要。
-3. 只有跨项目都稳定成立、且必须高优先级生效的极短约束，才保留在全局 `AGENTS.md`。
-
-## 什么内容适合放这里
-
-- 需要说明“为什么这样定义”的规则。
-- 需要给出适用边界、正反例或判断标准的 guideline。
-- 暂时还不适合直接压缩成 `rules/` 的通用方法。
-- 需要被多个 agent、skill 或运行时入口共同引用的长版真源。
-
-## 什么内容不应放这里
-
-- 只需 3 到 8 条短规则就能表达清楚的运行时约束。
-- 某个具体项目、版本或阶段的临时执行细节。
-- 尚未整理、没有明确职责边界的临时笔记。
-
-## 入口文档分工
-
-- `README.md`：解释本目录为什么存在、如何分层、如何维护。
-- `rules-source-map.md`：面向维护者，记录 `rule` 与真源的映射关系。
-- `references-index.md`：面向使用者，按问题类型告诉 agent 应优先读哪份真源。
-
-## 新增文档时的判断原则
-
-- 如果目标是“补齐已有 `rules/` 背后的真源”，优先放 `.agents/references/`。
-- 如果目标是“默认加载并直接影响 `Claude` 运行时行为”，写入 `rules/`，但正文仍以真源为准。
-- 如果目标是“沉淀完整方法并供多个入口复用”，优先放 `.agents/references/`。
-- 如果目标是“表达跨项目都成立的极短个人习惯”，优先放全局 `AGENTS.md`。
-
-## 新增规则时的标准流程
-
-1. 先判断这条内容是共享真源、运行时摘要，还是当前仓库局部规则。
-2. 如果它属于共享真源，优先在 `.agents/references/` 新增或扩展对应真源文件。
-3. 如果它需要被 `Claude` 运行时默认加载，再回写 `rules/` 中的最小摘要。
-4. 如果它形成了新的可路由主题，同步更新 [references-index.md](./references-index.md)。
-5. 如果它改变了某条 `rule` 与真源的对应关系，同步更新 [rules-source-map.md](./rules-source-map.md)。
-
-## 真源文件格式
-
-推荐使用以下最小骨架：
-
-1. 文档职责
-2. 适用范围
-3. 核心规则或判断标准
-4. 与运行时规则的关系
-5. 缺失或冲突时怎么处理
-
-补充约束：
-
-- 真源文件优先回答“为什么这样定义”“边界在哪里”“什么时候适用”。
-- 真源文件不追求覆盖所有细节，但应足够支撑 `rules/` 或 `AGENTS.md` 的摘要提炼。
-- 本仓库的 `rules/` 不再被视为 `Codex` 可直接依赖的真源；反向补齐后，`rules/` 仅作为运行时投影存在。
-- 如果某主题在某个 `skill` 下已经有稳定真源，优先复用该真源，不在本目录重复复制正文；本目录只保留索引或映射。
-- 并非所有真源都必须来自某条 `rule` 的反向提炼；有些真源本身就是独立的共享 guideline，不要求一定映射到 `rules/`。
-- `rules-source-map.md` 只维护与 `rules/` 有关的映射，不负责罗列本目录下全部真源。
-
-## 维护要求
-
-- 一个主题只维护一个真源，不在 `AGENTS.md`、`rules/`、`.agents/references/` 重复维护完整正文。
-- 引用本目录内容时，其他入口只写摘要或指针，不复制整篇说明。
-- 文件命名保持稳定、可预测，优先使用英文 lowercase kebab-case。
-- 新增或调整真源关系时，同步更新 [rules-source-map.md](./rules-source-map.md)。
-- 新增可供 agent 直接消费的真源时，评估是否需要同步更新 [references-index.md](./references-index.md)。
-- 如果某条 `rule` 仍没有对应真源，应在 `rules-source-map.md` 中明确标记缺失，而不是默认把 `rule` 本身当成真源。
+- 修改共享规则时，只改 `rules/`，不要在本目录重复维护正文。
+- `references-index.md` 不手写；修改 `rules/` 后运行生成脚本更新。
+- 已废弃或已被 `rules/` 吸收的旧 reference 文件统一移动到 `.agents/archived/references/`。
+- 新增共享规则时，必须为 rule 文件补充 frontmatter `description`，否则生成脚本会失败。
