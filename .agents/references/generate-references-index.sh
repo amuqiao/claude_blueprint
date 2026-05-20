@@ -10,7 +10,17 @@ OUTPUT_FILE="${REPO_ROOT}/.agents/references/references-index.md"
 tmp_file="${OUTPUT_FILE}.tmp"
 trap 'rm -f "${tmp_file}"' EXIT
 
-printf '# References Index\n\n' > "${tmp_file}"
+cat <<'EOF' > "${tmp_file}"
+# References Index
+
+本文件是当前仓库默认上下文的一部分。
+
+读取要求：
+
+- 在读取仓库根 `AGENTS.md` 后，必须实际读取本文件正文，不能只复述文件路径。
+- 本文件用于索引默认参考规则；如需继续展开，应按路径继续读取对应规则文件。
+
+EOF
 
 find "${RULES_DIR}" -maxdepth 1 -type f -name '*.md' | sort | while IFS= read -r rule_file; do
   description="$(awk '

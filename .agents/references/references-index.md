@@ -1,5 +1,12 @@
 # References Index
 
+本文件是当前仓库默认上下文的一部分。
+
+读取要求：
+
+- 在读取仓库根 `AGENTS.md` 后，必须实际读取本文件正文，不能只复述文件路径。
+- 本文件用于索引默认参考规则；如需继续展开，应按路径继续读取对应规则文件。
+
 - description: 执行清单创建、更新与归档规则
 - path: `/Users/admin/Downloads/Code/claude_blueprint/rules/execution-checklist.md`
 
