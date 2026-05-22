@@ -1,4 +1,0 @@
-interface:
-  display_name: "Personal OS"
-  short_description: "My main personal dev-OS skill for source-of-truth placement, design/backend/script rules, and prompt governance."
-  default_prompt: "Use $personal-os to decide whether this issue belongs to project methodology or personal-os references, then route it to the right source of truth for docs, design, FastAPI, scripts, code explanation, or prompt cleanup."
