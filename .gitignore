@@ -1,5 +1,7 @@
 CLAUDE.local.md
 .DS_Store
+.agents/skills/*
+!.agents/skills/.gitkeep
 .last-cleanup
 agent-memory/
 backups/
