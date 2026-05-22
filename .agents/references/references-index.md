@@ -10,9 +10,6 @@
 - description: 执行清单创建、更新与归档规则
 - path: `/Users/admin/Downloads/Code/claude_blueprint/rules/execution-checklist.md`
 
-- description: 新建或重命名文件时默认遵守的命名规则
-- path: `/Users/admin/Downloads/Code/claude_blueprint/rules/file-naming.md`
-
 - description: Git 提交默认规范
 - path: `/Users/admin/Downloads/Code/claude_blueprint/rules/git.md`
 
