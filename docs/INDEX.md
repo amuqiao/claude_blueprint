@@ -45,6 +45,13 @@
 - [`方法论/README.md`](方法论/README.md)
   管理已经进入 `docs/`、但尚未收编进 `skills/*/references/` 的方法论文档。
 
+### 专题目录
+
+这类目录承载某个技术主题下的一组文档。顶层索引只保留目录入口，具体阅读路径由目录自己的 `README.md` 维护。
+
+- [`IOS/README.md`](IOS/README.md)
+  管理 iOS App、SwiftUI 和 Apple 平台开发相关文档的阅读路径与索引。
+
 ---
 
 ## 不放什么

@@ -1,13 +1,15 @@
 # SwiftUI 示例项目基础扫盲
 
-> 让一个 SwiftUI 示例项目从“几堆文件和工具名”，变成一条可以从 0 到 1 跑通的开发链路。
+> 让一个 SwiftUI 示例项目从“几堆文件和工具名”，变成一条可以创建、承载、构建和运行的工程链路。
 
 ## 文档职责
 
 本文负责帮助初学者理解一个 SwiftUI App 示例项目从哪里开始、靠什么承载、用什么工具编写和运行，以及一个最小业务项目应该如何组织目录。
 
 **适用读者**：已经知道 SwiftUI 是 Apple 的声明式 UI 框架，但还不清楚如何把 SwiftUI 代码放进一个可运行 iOS App 项目的人。  
-**不适用于**：深入讲解 Swift 语法、SwiftUI 控件全集、复杂架构设计、App Store 上架流程或生产级工程自动化。
+**不适用于**：产品 0-1 工作流、深入 Swift 语法、SwiftUI 控件全集、复杂架构设计、App Store 上架流程或生产级工程自动化。
+
+如果你还在定义 App 想法、MVP、原型和设计规格，先读 [iOS App 0-1 工作流](ios-app-0-1-workflow.md)。如果你需要的是 iOS 开发、测试、提交审核和上架的整体路线，读 [iOS App 从 0 到上架：新手完整指南](ios-app-development-guide.md)。
 
 ## 先把对象定住
 
@@ -135,9 +137,9 @@ xcodebuild -project HeatMoment.xcodeproj -scheme HeatMoment -destination 'platfo
 
 新手不需要一开始熟练掌握所有参数，但要知道：Xcode 是图形化入口，`xcodebuild` 是命令行入口，它们面对的是同一个工程。
 
-## HeatMoment 示例项目目录
+## 示例项目目录
 
-一个 SwiftUI 日记类示例项目可以命名为 `HeatMomentApp`。它的目录不需要一开始很复杂，但要能让新手看出“入口、界面、业务、数据、工具”之间的边界。
+下面以一个日记类 SwiftUI 示例项目 `HeatMomentApp` 为例。这个目录不是所有 iOS 项目的通用架构规范，只是为了让新手看出“入口、界面、业务、数据、工具”之间的边界。
 
 建议目录如下：
 
@@ -247,7 +249,7 @@ Support/
 
 例如主题颜色、日期格式化、预览用模拟数据，都适合放在这里。
 
-## 推荐的 0-1 创建路径
+## SwiftUI 示例项目创建路径
 
 对第一个 SwiftUI 示例项目，推荐按这个顺序做：
 

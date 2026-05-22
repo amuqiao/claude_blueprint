@@ -5,7 +5,9 @@
 帮助完全没有 iOS 开发经验的新手，从搭建环境开始，经历开发、测试、直到将 App 成功上架 App Store，建立清晰的整体路径认知。
 
 **适用读者**：有一定编程基础，但没接触过 iOS 开发的新手  
-**不适用于**：需要深入学习 Swift 语法、架构设计或复杂功能实现的场景
+**不适用于**：产品 0-1 工作流、Swift 语法深学、复杂架构设计或完整功能实现细节
+
+如果你的 App 还没有明确 MVP、页面结构和设计规格，先阅读 [iOS App 0-1 工作流](ios-app-0-1-workflow.md)。如果你已经决定使用 SwiftUI，但还不清楚一个 SwiftUI 示例项目如何被 Xcode 工程承载并运行，阅读 [SwiftUI 示例项目基础扫盲](swiftui-sample-project-basic-literacy.md)。
 
 ---
 
@@ -91,6 +93,8 @@ YourApp/
 ```
 
 新手只需先关注 `ContentView.swift`，这是你写界面的地方。
+
+这一节只负责建立路线认知。关于 `.xcodeproj`、Swift Package、XcodeGen / Tuist、`xcodebuild` 和示例项目目录边界，见 [SwiftUI 示例项目基础扫盲](swiftui-sample-project-basic-literacy.md)。
 
 ### 在真机上运行
 
