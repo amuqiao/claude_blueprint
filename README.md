@@ -77,7 +77,7 @@ claude_blueprint/
 ├── .gitignore             # 仓库忽略规则（仓库元文档，不部署）
 │
 ├── hooks/                 # Hook 脚本：保护配置、提醒变更、阻止 git push
-├── rules/                 # 系统级最小规则层：背景 / 工作流 / 测试 / 安全 / Git / 写作 / 命名
+├── rules/                 # 系统级最小规则层：背景 / 心智模型 / 工作流 / 测试 / 安全 / Git / 写作 / 命名
 ├── skills/                # 运行层 skill（默认只保留成熟、稳定的能力）
 ├── agents/                # 子代理定义：arch / rev
 ├── commands/              # 自定义斜杠命令
