@@ -8,26 +8,29 @@
 - 本文件用于索引默认参考规则；如需继续展开，应按路径继续读取对应规则文件。
 
 - description: 执行清单创建、更新与归档规则
-- path: `/Users/admin/Downloads/Code/claude_blueprint/rules/execution-checklist.md`
+- path: `.agents/rules/execution-checklist.md`
 
 - description: Git 提交默认规范
-- path: `/Users/admin/Downloads/Code/claude_blueprint/rules/git.md`
+- path: `.agents/rules/git.md`
+
+- description: 心智模型构建与抽象压缩规则
+- path: `.agents/rules/mental-modeling.md`
 
 - description: 通用安全约束
-- path: `/Users/admin/Downloads/Code/claude_blueprint/rules/security.md`
+- path: `.agents/rules/security.md`
 
 - description: 术语纠偏与专业表达重述规则
-- path: `/Users/admin/Downloads/Code/claude_blueprint/rules/terminology-normalization.md`
+- path: `.agents/rules/terminology-normalization.md`
 
 - description: 测试与验证要求
-- path: `/Users/admin/Downloads/Code/claude_blueprint/rules/testing.md`
+- path: `.agents/rules/testing.md`
 
 - description: 用户背景、理解偏好与默认技术上下文
-- path: `/Users/admin/Downloads/Code/claude_blueprint/rules/user-background.md`
+- path: `.agents/rules/user-background.md`
 
 - description: 通用工作流与协作约束
-- path: `/Users/admin/Downloads/Code/claude_blueprint/rules/workflow.md`
+- path: `.agents/rules/workflow.md`
 
 - description: 正式文档输出默认遵守的高抽象表达规则
-- path: `/Users/admin/Downloads/Code/claude_blueprint/rules/writing.md`
+- path: `.agents/rules/writing.md`
 

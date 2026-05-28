@@ -40,8 +40,10 @@ find "${RULES_DIR}" -maxdepth 1 -type f -name '*.md' | sort | while IFS= read -r
     exit 1
   fi
 
+  indexed_rule_file=".agents/rules/$(basename "${rule_file}")"
+
   printf -- '- description: %s\n' "${description}" >> "${tmp_file}"
-  printf -- '- path: `%s`\n\n' "${rule_file}" >> "${tmp_file}"
+  printf -- '- path: `%s`\n\n' "${indexed_rule_file}" >> "${tmp_file}"
 done
 
 mv "${tmp_file}" "${OUTPUT_FILE}"
