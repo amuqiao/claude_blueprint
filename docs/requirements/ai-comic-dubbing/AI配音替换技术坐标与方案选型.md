@@ -120,6 +120,113 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 
 在没有平台数据闭环前，自研容易变成模型实验，而不是产品能力。
 
+## 节点技术选型详解
+
+本部分按方法论的9个节点展开，给出每个节点的技术选型对比、推荐方案和取舍依据。
+
+### Node 1: Ingest 所需技术
+
+**职责**：输入解析与校验
+
+| 能力 | 推荐方案 | 备注 |
+| --- | --- | --- |
+| 视频/音频元信息提取 | `ffprobe`（ffmpeg 附带） | 稳定，输出 JSON，无需额外依赖 |
+| SRT 解析与校验 | `pysrt`、`srt`（Python 库） | 不建议手写解析，边界情况多 |
+| 字幕轨检测 | `ffprobe` + `mkvmerge` | 软字幕轨可直接提取 |
+| 硬字幕检测 | `PaddleOCR`、`EasyOCR` | 用于估算硬字幕区域位置，辅助遮罩生成 |
+| 编码检测 | `chardet`、`charset-normalizer` | 自动识别并转换为 UTF-8 |
+
+### Node 2: Segmentation 所需技术
+
+**职责**：对白分段建模
+
+| 能力 | 推荐方案 | 备注 |
+| --- | --- | --- |
+| 辅助对齐验证（可选） | `WhisperX`（GitHub 10k+ star） | 生成词级时间戳，可校验 srt 与实际音频的偏差 |
+| 说话人辅助识别（可选） | `pyannote-audio`（GitHub 4k+ star） | 用于多说话人场景的自动 diarization |
+| 文本长度预估 | 基于目标语言字符/音节速率的规则 | 可在 Node 2 就预警「可能超时」的段 |
+
+### Node 3: Localization 所需技术
+
+**职责**：文本本地化
+
+| 能力 | 推荐方案 | 备注 |
+| --- | --- | --- |
+| 主力翻译（推荐） | OpenAI GPT-4o / Claude / Gemini（via API） | 支持 prompt 注入角色口吻和术语表 |
+| 轻量/高速翻译 | DeepL API、Google Translate API | 成本低，质量对简单对白够用 |
+| 开源翻译 | `Helsinki-NLP/opus-mt`（HuggingFace） | 自部署，多语言，质量不及 LLM |
+| 术语表管理 | 自建键值表 + 翻译后后处理替换 | 简单可靠，不依赖模型 |
+| 时长预估 | 目标语言字符/音节速率规则 + TTS 试算 | 在生成前预警，减少重生成 |
+
+### Node 4: Speaker Binding 所需技术
+
+**职责**：角色与音色绑定
+
+| 能力 | 推荐方案 | 备注 |
+| --- | --- | --- |
+| 说话人自动识别 | `pyannote-audio`（GitHub 4k+ star） | 需要 HuggingFace token，支持本地部署 |
+| 辅助对齐 + 说话人 | `WhisperX`（GitHub 10k+ star） | 同时给出 ASR + 说话人 + 词级时间戳 |
+| 人声分离 | `Demucs`（GitHub 8k+ star，Meta） | 分离人声与背景音，为音色提取做准备 |
+| 人声分离备选 | `UVR5`（Ultimate Vocal Remover，GUI） | 社区常用，多模型，效果好 |
+| 第三方音色管理 | ElevenLabs Voice Library | 提供现成音色库，省去克隆步骤 |
+
+### Node 5: TTS Generation 所需技术
+
+**职责**：配音生成
+
+| 能力 | 推荐方案 | 备注 |
+| --- | --- | --- |
+| 第三方 TTS（推荐 MVP） | ElevenLabs API | 多语言、音色克隆、情绪控制，质量基线高 |
+| 第三方备选 | OpenAI TTS、Azure TTS、Google TTS | 成本低，音色克隆能力弱 |
+| 开源音色克隆 | `CosyVoice`（GitHub 12k+ star，阿里） | 中英日韩，支持训练和部署，适合自部署 |
+| 开源备选 | `OpenVoice`（GitHub 30k+ star，MIT License） | 跨语言音色克隆，MIT 商用友好 |
+| 开源少样本微调 | `GPT-SoVITS`（GitHub 40k+ star） | 5s zero-shot，1min few-shot，中英日韩粤 |
+| SSML / 音素支持 | Azure TTS SSML、ElevenLabs pronunciation | 修正专有名词读音的主要手段 |
+
+### Node 6: Alignment 所需技术
+
+**职责**：时长对齐
+
+| 能力 | 推荐方案 | 备注 |
+| --- | --- | --- |
+| Time-stretch | `librosa`（Python）、`ffmpeg atempo` | librosa 质量更好，atempo 简单快速 |
+| Time-stretch 高质量 | `Rubber Band Library`（rubberband-cli） | 专业级，失真低，支持独立安装 |
+| 静默填充 | `ffmpeg` | 末尾补静默到目标时长 |
+| 时长测量 | `ffprobe` / `librosa` | 精确到毫秒 |
+
+### Node 7: Audio Mix 所需技术
+
+**职责**：音轨混音
+
+| 能力 | 推荐方案 | 备注 |
+| --- | --- | --- |
+| 音轨合并 / 混音 | `ffmpeg amix`、`pydub` | ffmpeg 稳定，pydub 易用 |
+| 人声分离 | `Demucs`（GitHub 8k+ star，Meta） | 4-stem 分离，保留鼓、贝斯、人声、其他 |
+| 人声分离备选 | `UVR5` / `MDX-Net` | 社区评价高，GUI 可直接试用 |
+| 响度归一化 | `pyloudnorm`、`ffmpeg loudnorm` | 符合 EBU R128 标准 |
+
+### Node 8: Subtitle Render 所需技术
+
+**职责**：字幕渲染
+
+| 能力 | 推荐方案 | 备注 |
+| --- | --- | --- |
+| 软字幕嵌入 | `ffmpeg` | 直接支持 srt、ass、mov_text |
+| 硬字幕烧录 | `ffmpeg subtitles` filter | 支持 ass/srt 格式字幕渲染 |
+| 字幕遮罩 | `ffmpeg drawbox` + `overlay` | 在字幕区域画色块遮盖原字幕 |
+| 字幕格式转换 | `pysrt`、`ass` Python 库 | srt → ass 可支持更丰富样式 |
+| 高质量字幕样式 | ASS 格式 + `libass` | 支持阴影、边框、动画等漫剧常见字幕特效 |
+
+### Node 9: Export 所需技术
+
+**职责**：审核与导出
+
+| 能力 | 推荐方案 | 备注 |
+| --- | --- | --- |
+| 视频合成导出 | `ffmpeg` | 合并视频流 + 目标音轨 + 字幕轨 |
+| 版本管理 | 对象存储（S3 / MinIO）+ 数据库版本记录 | 每次导出写入新路径，不覆盖 |
+| 处理报告生成 | 后端汇总 + JSON/PDF 输出 | 记录 provider 调用成本、耗时、segment 状态 |
+
 ## 关键取舍
 
 | 取舍 | 推荐判断 |
