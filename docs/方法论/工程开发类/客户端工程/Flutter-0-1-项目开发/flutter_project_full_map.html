@@ -1,0 +1,224 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.page{padding:1.5rem 0 2.5rem;font-size:13px}
+.legend{display:flex;gap:16px;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+.ld{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary)}
+.lc{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.lc-done{background:#9FE1CB;border:1px solid #0F6E56}
+.lc-impl{background:#B5D4F4;border:1px solid #185FA5}
+.lc-infra{background:#EF9F27;border:1px solid #854F0B}
+.lc-opt{background:#D3D1C7;border:1px solid #5F5E5A}
+
+.phase-block{margin-bottom:10px}
+.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.phase-num{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.04em;white-space:nowrap}
+.phase-name{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+
+.cards{display:grid;gap:8px}
+.g1{grid-template-columns:1fr}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+
+.card{border-radius:var(--border-radius-md);padding:10px 13px;border:0.5px solid;cursor:default}
+.card-done{background:#E1F5EE;border-color:#5DCAA5}
+.card-impl{background:#E6F1FB;border-color:#85B7EB}
+.card-infra{background:#FAEEDA;border-color:#EF9F27}
+.card-opt{background:#F1EFE8;border-color:#B4B2A9}
+
+.ct{font-size:13px;font-weight:500;margin-bottom:3px}
+.ct-done{color:#085041}
+.ct-impl{color:#0C447C}
+.ct-infra{color:#633806}
+.ct-opt{color:#444441}
+
+.cs{font-size:12px;line-height:1.45}
+.cs-done{color:#0F6E56}
+.cs-impl{color:#185FA5}
+.cs-infra{color:#854F0B}
+.cs-opt{color:#5F5E5A}
+
+.tag{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px;margin-top:5px;letter-spacing:.02em}
+.tag-done{background:#9FE1CB;color:#04342C}
+.tag-impl{background:#B5D4F4;color:#042C53}
+.tag-infra{background:#FAC775;color:#412402}
+.tag-opt{background:#D3D1C7;color:#2C2C2A}
+
+.divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:20px 0}
+.section-title{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.06em;margin-bottom:10px}
+.phase-line{width:1px;height:16px;background:var(--color-border-secondary);margin-left:18px;margin-bottom:10px}
+
+.infra-band{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:10px;border:0.5px solid var(--color-border-tertiary)}
+.infra-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.05em;margin-bottom:8px}
+</style>
+
+<div class="page">
+<h2 class="sr-only">Flutter 项目从 0 到 1 及演进阶段的完整文档全景图</h2>
+
+<div class="legend">
+  <div class="ld"><div class="lc lc-done"></div>原有文档</div>
+  <div class="ld"><div class="lc lc-impl"></div>本轮补充</div>
+  <div class="ld"><div class="lc lc-infra"></div>模板文档</div>
+  <div class="ld"><div class="lc lc-opt"></div>视团队规模</div>
+</div>
+
+<div class="section-title">0-1 阶段</div>
+
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-num">阶段 0</div>
+    <div class="phase-name">技术选型</div>
+  </div>
+  <div class="cards g2">
+    <div class="card card-done">
+      <div class="ct ct-done">Flutter-项目推进的正确顺序</div>
+      <div class="cs cs-done">六阶段框架 · 选型代价表 · 执行顺序约定</div>
+      <span class="tag tag-done">原有</span>
+    </div>
+    <div class="card card-infra">
+      <div class="ct ct-infra">Flutter-Tech-Decision-模板</div>
+      <div class="cs cs-infra">五项选型结论 · 放弃选项理由 · Open Questions 格式</div>
+      <span class="tag tag-infra">模板</span>
+    </div>
+  </div>
+</div>
+
+<div class="phase-line"></div>
+
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-num">阶段 1</div>
+    <div class="phase-name">Slice 设计文档</div>
+  </div>
+  <div class="cards g1">
+    <div class="card card-done">
+      <div class="ct ct-done">HeatMoment-Slice-写作规范</div>
+      <div class="cs cs-done">功能 / 设计原则 / 验证 三类 Slice · 写法 · 禁止内容 · 维护规则</div>
+      <span class="tag tag-done">原有</span>
+    </div>
+  </div>
+</div>
+
+<div class="phase-line"></div>
+
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-num">阶段 2</div>
+    <div class="phase-name">组件架构文档</div>
+  </div>
+  <div class="cards g1">
+    <div class="card card-impl">
+      <div class="ct ct-impl">Flutter-组件架构文档写作规范</div>
+      <div class="cs cs-impl">Component Tree · State Ownership · Data Flow · Boundary Rules · Open Questions</div>
+      <span class="tag tag-impl">新增</span>
+    </div>
+  </div>
+</div>
+
+<div class="phase-line"></div>
+
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-num">阶段 3</div>
+    <div class="phase-name">数据层实现</div>
+  </div>
+  <div class="cards g1">
+    <div class="card card-impl">
+      <div class="ct ct-impl">Flutter-数据层设计规范</div>
+      <div class="cs cs-impl">三模型分层（Entity / DTO / Domain） · Repository 接口与实现 · Notifier 类型选择 · Drift Migration · 错误分层</div>
+      <span class="tag tag-impl">新增</span>
+    </div>
+  </div>
+</div>
+
+<div class="phase-line"></div>
+
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-num">阶段 4</div>
+    <div class="phase-name">UI 层实现</div>
+  </div>
+  <div class="cards g3">
+    <div class="card card-impl">
+      <div class="ct ct-impl">Flutter-UI 组件规范</div>
+      <div class="cs cs-impl">Screen / Section / 叶子 三层 · 命名约定 · 样式 Token · 加载与错误状态</div>
+      <span class="tag tag-impl">新增</span>
+    </div>
+    <div class="card card-impl">
+      <div class="ct ct-impl">Flutter-导航规范</div>
+      <div class="cs cs-impl">GoRouter 集中定义 · go vs push vs replace · 只传 ID · 参数类型安全</div>
+      <span class="tag tag-impl">新增</span>
+    </div>
+    <div class="card card-impl">
+      <div class="ct ct-impl">Flutter-错误处理规范</div>
+      <div class="cs cs-impl">AppError 完整定义 · 四层职责链 · ErrorView · AppErrorMessage 文案策略</div>
+      <span class="tag tag-impl">新增</span>
+    </div>
+  </div>
+</div>
+
+<div class="phase-line"></div>
+
+<div class="phase-block">
+  <div class="phase-header">
+    <div class="phase-num">阶段 5</div>
+    <div class="phase-name">验收</div>
+  </div>
+  <div class="cards g1">
+    <div class="card card-impl">
+      <div class="ct ct-impl">Flutter-测试规范</div>
+      <div class="cs cs-impl">单元 / Widget / 集成 三层粒度 · mocktail · Slice Acceptance 映射到集成测试 · 修 bug 先写失败测试</div>
+      <span class="tag tag-impl">新增</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="infra-band">
+  <div class="infra-label">全程基础设施（0-1 阶段开始即生效）</div>
+  <div class="cards g3">
+    <div class="card card-impl">
+      <div class="ct ct-impl">Flutter-项目目录结构规范</div>
+      <div class="cs cs-impl">core / features / shared / data 四域 · 文件命名 · 依赖方向 · 禁止目录</div>
+      <span class="tag tag-impl">新增</span>
+    </div>
+    <div class="card card-impl">
+      <div class="ct ct-impl">README 文档索引</div>
+      <div class="cs cs-impl">文档地图 · 依赖关系图 · 技术选型汇总 · 新成员入门路径</div>
+      <span class="tag tag-impl">新增</span>
+    </div>
+    <div class="card card-impl">
+      <div class="ct ct-impl">Flutter-变更管理规范</div>
+      <div class="cs cs-impl">产品 / 架构 / 数据 / 修复 四类变更传播路径 · 检查清单 · 禁止模式</div>
+      <span class="tag tag-impl">新增</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section-title">0-1 之后 — 演进阶段</div>
+
+<div class="cards g2" style="margin-bottom:8px">
+  <div class="card card-opt">
+    <div class="ct ct-opt">Git 工作流规范</div>
+    <div class="cs cs-opt">分支命名 · PR 与 Slice 对应关系 · commit 消息约定</div>
+    <span class="tag tag-opt">视团队规模</span>
+  </div>
+  <div class="card card-opt">
+    <div class="ct ct-opt">发布 &amp; 环境规范</div>
+    <div class="cs cs-opt">staging / prod 差异处理 · 版本号管理 · 构建产物约定</div>
+    <span class="tag tag-opt">视团队规模</span>
+  </div>
+</div>
+<div class="cards g1">
+  <div class="card card-opt">
+    <div class="ct ct-opt">性能基线规范</div>
+    <div class="cs cs-opt">帧率阈值 · 首屏时间 · 包体积上限 · 回归检测触发条件</div>
+    <span class="tag tag-opt">视产品性质</span>
+  </div>
+</div>
+
+</div>

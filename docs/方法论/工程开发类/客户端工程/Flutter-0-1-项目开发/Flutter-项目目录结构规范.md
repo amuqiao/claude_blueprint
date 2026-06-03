@@ -1,0 +1,269 @@
+# Flutter 项目目录结构规范
+
+> 目录结构是代码的地图。地图的作用不是告诉你每条路怎么走，而是让你在不熟悉的地方快速找到方向。
+
+---
+
+## 顶层结构
+
+```
+heatmoment/
+├── lib/
+│   ├── core/              跨 feature 的基础设施
+│   ├── features/          按功能域划分的业务代码
+│   ├── shared/            跨 feature 复用的 UI 组件
+│   └── main.dart          应用入口
+├── test/
+│   ├── fixtures/
+│   ├── mocks/
+│   ├── unit/
+│   ├── widget/
+│   └── integration/
+├── assets/
+│   ├── images/
+│   └── fonts/
+├── docs/                  所有规范文档放这里
+└── pubspec.yaml
+```
+
+`lib/` 下只有三个顶级目录：`core`、`features`、`shared`。不要在顶层放零散文件，不要创建 `utils/`、`helpers/`、`common/` 这类名称模糊的目录。
+
+---
+
+## core/ — 基础设施
+
+`core/` 放的是和业务无关、但整个项目都需要的基础设施。判断标准：如果把这个文件复制到另一个 Flutter 项目，不需要任何修改就能用，它就属于 `core/`。
+
+```
+lib/core/
+├── errors/
+│   ├── app_error.dart          业务异常类定义
+│   └── error_handler.dart      全局错误处理逻辑
+├── router/
+│   ├── app_router.dart         GoRouter 配置入口
+│   └── routes.dart             路由名称常量
+├── theme/
+│   ├── app_theme.dart          ThemeData 配置
+│   ├── app_colors.dart         颜色常量
+│   ├── app_spacing.dart        间距常量
+│   └── app_text_styles.dart    文字样式
+├── extensions/
+│   ├── datetime_ext.dart       DateTime 扩展方法
+│   └── string_ext.dart         String 扩展方法
+└── providers/
+    └── core_providers.dart     核心基础 Provider（如当前用户、设备信息）
+```
+
+`core/` 里的文件不能 import `features/` 里的任何文件。依赖只能是单向的：`features/` 依赖 `core/`，反过来不行。
+
+---
+
+## features/ — 业务功能域
+
+`features/` 按产品功能域划分，每个子目录对应一个 Slice 或一组相关 Slice。
+
+```
+lib/features/
+├── home/
+├── editor/
+├── settings/
+└── onboarding/
+```
+
+### 每个 feature 的内部结构
+
+```
+lib/features/home/
+├── screens/
+│   └── home_screen.dart
+├── widgets/
+│   ├── heat_map_section.dart
+│   ├── home_timeline.dart
+│   ├── tag_filter_bar.dart
+│   ├── timeline_card.dart
+│   └── tag_chip.dart
+├── providers/
+│   ├── diary_list_notifier.dart
+│   └── tag_filter_notifier.dart
+└── home_providers.dart         这个 feature 的 Provider 对外暴露点（可选）
+```
+
+四个子目录，分别对应 UI 组件规范里的三个层级加上 Provider：
+
+```
+screens/     页面层，对应路由
+widgets/     容器层和叶子层都放这里，用命名区分
+providers/   这个 feature 的 Notifier 和 Provider
+```
+
+### feature 之间的依赖规则
+
+```
+feature A 的 Widget  不能 import  feature B 的 Widget
+feature A 的 Provider 可以 watch  feature B 的 Provider（通过接口）
+```
+
+如果两个 feature 的 Widget 需要共享某个组件，把那个组件移到 `shared/widgets/`，不要跨 feature 直接 import。
+
+---
+
+## features/ 里的数据层
+
+数据层不属于某个单一 feature，放在 `features/` 之外单独管理。
+
+```
+lib/
+├── data/
+│   ├── models/
+│   │   ├── domain/
+│   │   │   ├── diary.dart
+│   │   │   └── tag.dart
+│   │   ├── entities/
+│   │   │   ├── diary_entity.dart
+│   │   │   └── tag_entity.dart
+│   │   └── dtos/              如果有网络层
+│   ├── repositories/
+│   │   ├── diary_repository.dart        接口
+│   │   └── impl/
+│   │       └── diary_repository_impl.dart
+│   └── local/
+│       ├── app_database.dart
+│       ├── tables/
+│       │   ├── diary_table.dart
+│       │   └── tag_table.dart
+│       └── daos/
+│           ├── diary_dao.dart
+│           └── tag_dao.dart
+```
+
+数据层的文件只被 `features/` 里的 Provider 引用，不被 Widget 直接引用。
+
+---
+
+## shared/ — 跨 feature 的 UI 组件
+
+```
+lib/shared/
+└── widgets/
+    ├── empty_state.dart
+    ├── error_view.dart
+    ├── loading_skeleton.dart
+    └── avatar.dart
+```
+
+进入 `shared/widgets/` 的门槛只有一条：这个组件被两个或更多 feature 使用。只被一个 feature 用的组件放在那个 feature 的 `widgets/` 目录下，不要提前移到 `shared/`。
+
+`shared/` 里的组件不能 import `features/` 的代码，不能 watch 业务 Provider。
+
+---
+
+## 文件命名规则
+
+所有文件名用 snake_case，和 Dart 规范一致。
+
+```
+类型            命名模式                    示例
+Screen          {name}_screen.dart          home_screen.dart
+Widget（容器）   {name}_{type}.dart          home_timeline.dart
+Widget（叶子）   {name}_{type}.dart          timeline_card.dart
+Notifier        {name}_notifier.dart        diary_list_notifier.dart
+Repository接口   {name}_repository.dart      diary_repository.dart
+Repository实现   {name}_repository_impl.dart diary_repository_impl.dart
+DAO             {name}_dao.dart             diary_dao.dart
+Table           {name}_table.dart           diary_table.dart
+Domain Model    {name}.dart                 diary.dart
+Entity          {name}_entity.dart          diary_entity.dart
+DTO             {name}_dto.dart             diary_dto.dart
+扩展方法         {type}_ext.dart             datetime_ext.dart
+```
+
+命名用领域语言，不用技术后缀堆叠。`diary.dart` 比 `diary_model.dart` 好，`diary_entity.dart` 用 `_entity` 后缀是因为需要和 `diary.dart`（Domain Model）区分。
+
+---
+
+## 禁止创建的目录
+
+```
+utils/          太宽泛，不知道放什么，最终变成垃圾桶
+helpers/        同上
+common/         同上
+base/           抽象基类不需要单独目录，放在对应层级的目录里
+models/         放在 data/models/ 下，不要在顶层建
+```
+
+如果发现自己在创建这些目录，停下来，重新想这个文件属于哪个 feature 或哪个层级。
+
+---
+
+## 完整目录示例
+
+```
+lib/
+├── core/
+│   ├── errors/
+│   │   └── app_error.dart
+│   ├── router/
+│   │   ├── app_router.dart
+│   │   └── routes.dart
+│   ├── theme/
+│   │   ├── app_theme.dart
+│   │   ├── app_colors.dart
+│   │   ├── app_spacing.dart
+│   │   └── app_text_styles.dart
+│   └── extensions/
+│       └── datetime_ext.dart
+├── data/
+│   ├── models/
+│   │   ├── domain/
+│   │   │   ├── diary.dart
+│   │   │   └── tag.dart
+│   │   └── entities/
+│   │       ├── diary_entity.dart
+│   │       └── tag_entity.dart
+│   ├── repositories/
+│   │   ├── diary_repository.dart
+│   │   └── impl/
+│   │       └── diary_repository_impl.dart
+│   └── local/
+│       ├── app_database.dart
+│       ├── tables/
+│       │   └── diary_table.dart
+│       └── daos/
+│           └── diary_dao.dart
+├── features/
+│   ├── home/
+│   │   ├── screens/
+│   │   │   └── home_screen.dart
+│   │   ├── widgets/
+│   │   │   ├── heat_map_section.dart
+│   │   │   ├── home_timeline.dart
+│   │   │   ├── tag_filter_bar.dart
+│   │   │   ├── timeline_card.dart
+│   │   │   └── tag_chip.dart
+│   │   └── providers/
+│   │       ├── diary_list_notifier.dart
+│   │       └── tag_filter_notifier.dart
+│   └── editor/
+│       ├── screens/
+│       │   └── editor_screen.dart
+│       ├── widgets/
+│       │   └── content_input.dart
+│       └── providers/
+│           └── editor_notifier.dart
+├── shared/
+│   └── widgets/
+│       ├── empty_state.dart
+│       └── error_view.dart
+└── main.dart
+```
+
+---
+
+## 维护规则
+
+```
+新增 feature      在 features/ 下建对应目录，按四目录结构初始化
+Widget 被第二个 feature 引用  立即移到 shared/widgets/，更新两处 import
+发现 utils/ 目录  把里面的文件归类到正确位置，删除 utils/ 目录
+文件命名不符合规范  在同次 PR 里重命名，不要攒着
+```
