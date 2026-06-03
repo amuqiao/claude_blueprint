@@ -26,9 +26,9 @@
 -> 先跑通数据，不碰 UI
 
 阶段 4：实现 UI 层
--> 从叶子组件开始（TimelineCard）
--> 再组装容器组件（HomeTimeline）
--> 最后接入页面层（HomeScreen）
+-> 从叶子组件开始（ItemCard）
+-> 再组装容器组件（ItemListSection）
+-> 最后接入页面层（ListScreen）
 
 阶段 5：验收
 -> 对照 Slice 验收条件逐条检查
@@ -46,5 +46,5 @@ Flutter 生态有几个选型会直接影响组件架构，需要在阶段 0 锁
 | 状态管理 | 决定状态如何在组件间流动 | Riverpod，和 Flutter 架构契合度高 | 换选型 = 重写所有 Provider 和页面状态层 |
 | 本地数据库 | 决定数据层接口形态 | Drift（类型安全，适合复杂查询） | 换数据库 = 重写所有 Repository 和 migration |
 | 导航 | 决定页面组件边界 | GoRouter | 换导航 = 重构所有页面入口和参数传递 |
-| 滚动定位 | 直接影响时间轴实现方案 | scrollable_positioned_list 或原生 GlobalKey | 换方案 = 重构时间轴组件结构 |
+| 滚动定位 | 直接影响列表实现方案 | scrollable_positioned_list 或原生 GlobalKey | 换方案 = 重构列表组件结构 |
 | 图片/资源缓存 | 决定图片组件、占位状态和缓存清理方式 | cached_network_image / flutter_cache_manager | 换缓存方案 = 重构图片展示组件和资源生命周期管理 |

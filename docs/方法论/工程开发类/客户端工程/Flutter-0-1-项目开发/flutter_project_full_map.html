@@ -1,224 +1,424 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flutter 0-1 项目开发文档全景图</title>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --panel-soft: #f1f4f7;
+      --text: #17202a;
+      --muted: #52616f;
+      --subtle: #7a8794;
+      --border: #d9e0e7;
+      --flow-bg: #ddf2e8;
+      --flow-border: #45ad83;
+      --flow-text: #07543e;
+      --template-bg: #fff0cf;
+      --template-border: #d58a1f;
+      --template-text: #674006;
+      --design-bg: #eee8ff;
+      --design-border: #8b72d9;
+      --design-text: #473196;
+      --impl-bg: #dceeff;
+      --impl-border: #4f95d8;
+      --impl-text: #0a4a82;
+      --verify-bg: #fae3ef;
+      --verify-border: #cc6b98;
+      --verify-text: #7a2850;
+      --infra-bg: #e2f2f3;
+      --infra-border: #5da8ae;
+      --infra-text: #255e65;
+      --optional-bg: #ece9e2;
+      --optional-border: #8e8677;
+      --optional-text: #474035;
+    }
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-.page{padding:1.5rem 0 2.5rem;font-size:13px}
-.legend{display:flex;gap:16px;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
-.ld{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary)}
-.lc{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-.lc-done{background:#9FE1CB;border:1px solid #0F6E56}
-.lc-impl{background:#B5D4F4;border:1px solid #185FA5}
-.lc-infra{background:#EF9F27;border:1px solid #854F0B}
-.lc-opt{background:#D3D1C7;border:1px solid #5F5E5A}
+    * {
+      box-sizing: border-box;
+    }
 
-.phase-block{margin-bottom:10px}
-.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.phase-num{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.04em;white-space:nowrap}
-.phase-name{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      line-height: 1.5;
+    }
 
-.cards{display:grid;gap:8px}
-.g1{grid-template-columns:1fr}
-.g2{grid-template-columns:1fr 1fr}
-.g3{grid-template-columns:1fr 1fr 1fr}
-.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
 
-.card{border-radius:var(--border-radius-md);padding:10px 13px;border:0.5px solid;cursor:default}
-.card-done{background:#E1F5EE;border-color:#5DCAA5}
-.card-impl{background:#E6F1FB;border-color:#85B7EB}
-.card-infra{background:#FAEEDA;border-color:#EF9F27}
-.card-opt{background:#F1EFE8;border-color:#B4B2A9}
+    header {
+      margin-bottom: 24px;
+    }
 
-.ct{font-size:13px;font-weight:500;margin-bottom:3px}
-.ct-done{color:#085041}
-.ct-impl{color:#0C447C}
-.ct-infra{color:#633806}
-.ct-opt{color:#444441}
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 700;
+      letter-spacing: 0;
+    }
 
-.cs{font-size:12px;line-height:1.45}
-.cs-done{color:#0F6E56}
-.cs-impl{color:#185FA5}
-.cs-infra{color:#854F0B}
-.cs-opt{color:#5F5E5A}
+    .lead {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
 
-.tag{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px;margin-top:5px;letter-spacing:.02em}
-.tag-done{background:#9FE1CB;color:#04342C}
-.tag-impl{background:#B5D4F4;color:#042C53}
-.tag-infra{background:#FAC775;color:#412402}
-.tag-opt{background:#D3D1C7;color:#2C2C2A}
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 22px 0 26px;
+    }
 
-.divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:20px 0}
-.section-title{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.06em;margin-bottom:10px}
-.phase-line{width:1px;height:16px;background:var(--color-border-secondary);margin-left:18px;margin-bottom:10px}
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 13px;
+    }
 
-.infra-band{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:10px;border:0.5px solid var(--color-border-tertiary)}
-.infra-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:.05em;margin-bottom:8px}
-</style>
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      border: 1px solid currentColor;
+    }
 
-<div class="page">
-<h2 class="sr-only">Flutter 项目从 0 到 1 及演进阶段的完整文档全景图</h2>
+    .flow { --card-bg: var(--flow-bg); --card-border: var(--flow-border); --card-text: var(--flow-text); }
+    .template { --card-bg: var(--template-bg); --card-border: var(--template-border); --card-text: var(--template-text); }
+    .design { --card-bg: var(--design-bg); --card-border: var(--design-border); --card-text: var(--design-text); }
+    .impl { --card-bg: var(--impl-bg); --card-border: var(--impl-border); --card-text: var(--impl-text); }
+    .verify { --card-bg: var(--verify-bg); --card-border: var(--verify-border); --card-text: var(--verify-text); }
+    .infra { --card-bg: var(--infra-bg); --card-border: var(--infra-border); --card-text: var(--infra-text); }
+    .optional { --card-bg: var(--optional-bg); --card-border: var(--optional-border); --card-text: var(--optional-text); }
 
-<div class="legend">
-  <div class="ld"><div class="lc lc-done"></div>原有文档</div>
-  <div class="ld"><div class="lc lc-impl"></div>本轮补充</div>
-  <div class="ld"><div class="lc lc-infra"></div>模板文档</div>
-  <div class="ld"><div class="lc lc-opt"></div>视团队规模</div>
-</div>
+    .legend-dot {
+      background: var(--card-bg);
+      color: var(--card-border);
+    }
 
-<div class="section-title">0-1 阶段</div>
+    .section-title {
+      margin: 28px 0 12px;
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
 
-<div class="phase-block">
-  <div class="phase-header">
-    <div class="phase-num">阶段 0</div>
-    <div class="phase-name">技术选型</div>
-  </div>
-  <div class="cards g2">
-    <div class="card card-done">
-      <div class="ct ct-done">Flutter-项目推进的正确顺序</div>
-      <div class="cs cs-done">六阶段框架 · 选型代价表 · 执行顺序约定</div>
-      <span class="tag tag-done">原有</span>
+    .phase {
+      margin-bottom: 12px;
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .phase-num {
+      min-width: 54px;
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .phase-name {
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+    }
+
+    .g1 { grid-template-columns: 1fr; }
+    .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card {
+      position: relative;
+      display: block;
+      min-height: 92px;
+      padding: 13px 14px 13px 17px;
+      color: var(--card-text);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      text-decoration: none;
+      box-shadow: 0 1px 2px rgb(24 32 40 / 0.04);
+      overflow: hidden;
+    }
+
+    .card::before {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--card-border);
+      content: "";
+    }
+
+    a.card:hover {
+      filter: saturate(1.08);
+      transform: translateY(-1px);
+    }
+
+    .card-title {
+      margin-bottom: 5px;
+      color: var(--card-text);
+      font-size: 14px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .card-summary {
+      color: color-mix(in srgb, var(--card-text) 78%, #2f3740);
+      font-size: 12px;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 9px;
+      padding: 2px 7px;
+      color: var(--card-text);
+      background: color-mix(in srgb, var(--card-bg) 35%, #ffffff);
+      border: 1px solid color-mix(in srgb, var(--card-border) 70%, transparent);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .phase-line {
+      width: 1px;
+      height: 18px;
+      margin: 0 0 12px 27px;
+      background: var(--border);
+    }
+
+    .band {
+      margin-top: 22px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .band-label {
+      margin-bottom: 10px;
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    hr {
+      margin: 24px 0;
+      border: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 860px) {
+      main {
+        width: min(100% - 24px, 720px);
+        padding-top: 24px;
+      }
+
+      .g2,
+      .g3 {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Flutter 0-1 项目开发文档全景图</h1>
+      <p class="lead">这张图按项目推进顺序组织文档，帮助读者从阶段 0 技术选型一路定位到实现、验收和后续演进规范。</p>
+    </header>
+
+    <div class="legend" aria-label="文档类型图例">
+      <div class="legend-item flow"><span class="legend-dot"></span>流程规范</div>
+      <div class="legend-item template"><span class="legend-dot"></span>模板文档</div>
+      <div class="legend-item design"><span class="legend-dot"></span>设计规范</div>
+      <div class="legend-item impl"><span class="legend-dot"></span>实现规范</div>
+      <div class="legend-item verify"><span class="legend-dot"></span>验收规范</div>
+      <div class="legend-item infra"><span class="legend-dot"></span>基础设施</div>
+      <div class="legend-item optional"><span class="legend-dot"></span>可选扩展</div>
     </div>
-    <div class="card card-infra">
-      <div class="ct ct-infra">Flutter-Tech-Decision-模板</div>
-      <div class="cs cs-infra">五项选型结论 · 放弃选项理由 · Open Questions 格式</div>
-      <span class="tag tag-infra">模板</span>
+
+    <div class="section-title">0-1 阶段</div>
+
+    <section class="phase" aria-labelledby="phase-0">
+      <div class="phase-header">
+        <div class="phase-num">阶段 0</div>
+        <div id="phase-0" class="phase-name">技术选型</div>
+      </div>
+      <div class="cards g2">
+        <a class="card flow" href="./Flutter-项目推进的正确顺序.md">
+          <div class="card-title">Flutter-项目推进的正确顺序</div>
+          <div class="card-summary">六阶段框架 · 选型代价表 · 执行顺序约定</div>
+          <span class="tag">流程</span>
+        </a>
+        <a class="card template" href="./Flutter-Tech-Decision-模板.md">
+          <div class="card-title">Flutter-Tech-Decision-模板</div>
+          <div class="card-summary">选型结论 · 放弃选项理由 · Open Questions 格式</div>
+          <span class="tag">模板</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="phase-line"></div>
+
+    <section class="phase" aria-labelledby="phase-1">
+      <div class="phase-header">
+        <div class="phase-num">阶段 1</div>
+        <div id="phase-1" class="phase-name">Slice 设计文档</div>
+      </div>
+      <div class="cards g1">
+        <a class="card design" href="./Flutter-Slice-写作规范.md">
+          <div class="card-title">Flutter-Slice-写作规范</div>
+          <div class="card-summary">功能 / 设计原则 / 验证 三类 Slice · 写法 · 禁止内容 · 维护规则</div>
+          <span class="tag">设计</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="phase-line"></div>
+
+    <section class="phase" aria-labelledby="phase-2">
+      <div class="phase-header">
+        <div class="phase-num">阶段 2</div>
+        <div id="phase-2" class="phase-name">组件架构文档</div>
+      </div>
+      <div class="cards g1">
+        <a class="card design" href="./Flutter-组件架构文档写作规范.md">
+          <div class="card-title">Flutter-组件架构文档写作规范</div>
+          <div class="card-summary">Component Tree · State Ownership · Data Flow · Boundary Rules · Open Questions</div>
+          <span class="tag">设计</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="phase-line"></div>
+
+    <section class="phase" aria-labelledby="phase-3">
+      <div class="phase-header">
+        <div class="phase-num">阶段 3</div>
+        <div id="phase-3" class="phase-name">数据层实现</div>
+      </div>
+      <div class="cards g1">
+        <a class="card impl" href="./Flutter-数据层设计规范.md">
+          <div class="card-title">Flutter-数据层设计规范</div>
+          <div class="card-summary">三模型分层 · Repository 接口与实现 · Notifier 类型选择 · Drift Migration · 错误分层</div>
+          <span class="tag">实现</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="phase-line"></div>
+
+    <section class="phase" aria-labelledby="phase-4">
+      <div class="phase-header">
+        <div class="phase-num">阶段 4</div>
+        <div id="phase-4" class="phase-name">UI 层实现</div>
+      </div>
+      <div class="cards g3">
+        <a class="card impl" href="./Flutter-UI组件规范.md">
+          <div class="card-title">Flutter-UI 组件规范</div>
+          <div class="card-summary">Screen / Section / 叶子 三层 · 命名约定 · 样式 Token · 加载与错误状态</div>
+          <span class="tag">实现</span>
+        </a>
+        <a class="card impl" href="./Flutter-导航规范.md">
+          <div class="card-title">Flutter-导航规范</div>
+          <div class="card-summary">GoRouter 集中定义 · go vs push vs replace · 只传 ID · 参数类型安全</div>
+          <span class="tag">实现</span>
+        </a>
+        <a class="card impl" href="./Flutter-错误处理规范.md">
+          <div class="card-title">Flutter-错误处理规范</div>
+          <div class="card-summary">AppError 定义 · 四层职责链 · ErrorView · AppErrorMessage 文案策略</div>
+          <span class="tag">实现</span>
+        </a>
+      </div>
+    </section>
+
+    <div class="phase-line"></div>
+
+    <section class="phase" aria-labelledby="phase-5">
+      <div class="phase-header">
+        <div class="phase-num">阶段 5</div>
+        <div id="phase-5" class="phase-name">验收</div>
+      </div>
+      <div class="cards g1">
+        <a class="card verify" href="./Flutter-测试规范.md">
+          <div class="card-title">Flutter-测试规范</div>
+          <div class="card-summary">单元 / Widget / 集成 三层粒度 · mocktail · Slice Acceptance 映射到集成测试</div>
+          <span class="tag">验收</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="band" aria-labelledby="infra">
+      <div id="infra" class="band-label">全程基础设施（0-1 阶段开始即生效）</div>
+      <div class="cards g3">
+        <a class="card infra" href="./Flutter-项目目录结构规范.md">
+          <div class="card-title">Flutter-项目目录结构规范</div>
+          <div class="card-summary">core / data / features / shared 四域 · 文件命名 · 依赖方向 · 禁止目录</div>
+          <span class="tag">基础</span>
+        </a>
+        <a class="card infra" href="./README.md">
+          <div class="card-title">README 文档索引</div>
+          <div class="card-summary">文档地图 · 依赖关系图 · 技术选型汇总 · 新成员入门路径</div>
+          <span class="tag">基础</span>
+        </a>
+        <a class="card infra" href="./Flutter-变更管理规范.md">
+          <div class="card-title">Flutter-变更管理规范</div>
+          <div class="card-summary">产品 / 架构 / 数据 / 修复 四类变更传播路径 · 检查清单 · 禁止模式</div>
+          <span class="tag">基础</span>
+        </a>
+      </div>
+    </section>
+
+    <hr>
+
+    <div class="section-title">0-1 之后 — 演进阶段</div>
+
+    <div class="cards g2">
+      <div class="card optional">
+        <div class="card-title">Git 工作流规范</div>
+        <div class="card-summary">分支命名 · PR 与 Slice 对应关系 · commit 消息约定</div>
+        <span class="tag">可选</span>
+      </div>
+      <div class="card optional">
+        <div class="card-title">发布 &amp; 环境规范</div>
+        <div class="card-summary">staging / prod 差异处理 · 版本号管理 · 构建产物约定</div>
+        <span class="tag">可选</span>
+      </div>
+      <div class="card optional">
+        <div class="card-title">性能基线规范</div>
+        <div class="card-summary">帧率阈值 · 首屏时间 · 包体积上限 · 回归检测触发条件</div>
+        <span class="tag">可选</span>
+      </div>
     </div>
-  </div>
-</div>
-
-<div class="phase-line"></div>
-
-<div class="phase-block">
-  <div class="phase-header">
-    <div class="phase-num">阶段 1</div>
-    <div class="phase-name">Slice 设计文档</div>
-  </div>
-  <div class="cards g1">
-    <div class="card card-done">
-      <div class="ct ct-done">HeatMoment-Slice-写作规范</div>
-      <div class="cs cs-done">功能 / 设计原则 / 验证 三类 Slice · 写法 · 禁止内容 · 维护规则</div>
-      <span class="tag tag-done">原有</span>
-    </div>
-  </div>
-</div>
-
-<div class="phase-line"></div>
-
-<div class="phase-block">
-  <div class="phase-header">
-    <div class="phase-num">阶段 2</div>
-    <div class="phase-name">组件架构文档</div>
-  </div>
-  <div class="cards g1">
-    <div class="card card-impl">
-      <div class="ct ct-impl">Flutter-组件架构文档写作规范</div>
-      <div class="cs cs-impl">Component Tree · State Ownership · Data Flow · Boundary Rules · Open Questions</div>
-      <span class="tag tag-impl">新增</span>
-    </div>
-  </div>
-</div>
-
-<div class="phase-line"></div>
-
-<div class="phase-block">
-  <div class="phase-header">
-    <div class="phase-num">阶段 3</div>
-    <div class="phase-name">数据层实现</div>
-  </div>
-  <div class="cards g1">
-    <div class="card card-impl">
-      <div class="ct ct-impl">Flutter-数据层设计规范</div>
-      <div class="cs cs-impl">三模型分层（Entity / DTO / Domain） · Repository 接口与实现 · Notifier 类型选择 · Drift Migration · 错误分层</div>
-      <span class="tag tag-impl">新增</span>
-    </div>
-  </div>
-</div>
-
-<div class="phase-line"></div>
-
-<div class="phase-block">
-  <div class="phase-header">
-    <div class="phase-num">阶段 4</div>
-    <div class="phase-name">UI 层实现</div>
-  </div>
-  <div class="cards g3">
-    <div class="card card-impl">
-      <div class="ct ct-impl">Flutter-UI 组件规范</div>
-      <div class="cs cs-impl">Screen / Section / 叶子 三层 · 命名约定 · 样式 Token · 加载与错误状态</div>
-      <span class="tag tag-impl">新增</span>
-    </div>
-    <div class="card card-impl">
-      <div class="ct ct-impl">Flutter-导航规范</div>
-      <div class="cs cs-impl">GoRouter 集中定义 · go vs push vs replace · 只传 ID · 参数类型安全</div>
-      <span class="tag tag-impl">新增</span>
-    </div>
-    <div class="card card-impl">
-      <div class="ct ct-impl">Flutter-错误处理规范</div>
-      <div class="cs cs-impl">AppError 完整定义 · 四层职责链 · ErrorView · AppErrorMessage 文案策略</div>
-      <span class="tag tag-impl">新增</span>
-    </div>
-  </div>
-</div>
-
-<div class="phase-line"></div>
-
-<div class="phase-block">
-  <div class="phase-header">
-    <div class="phase-num">阶段 5</div>
-    <div class="phase-name">验收</div>
-  </div>
-  <div class="cards g1">
-    <div class="card card-impl">
-      <div class="ct ct-impl">Flutter-测试规范</div>
-      <div class="cs cs-impl">单元 / Widget / 集成 三层粒度 · mocktail · Slice Acceptance 映射到集成测试 · 修 bug 先写失败测试</div>
-      <span class="tag tag-impl">新增</span>
-    </div>
-  </div>
-</div>
-
-<div class="divider"></div>
-
-<div class="infra-band">
-  <div class="infra-label">全程基础设施（0-1 阶段开始即生效）</div>
-  <div class="cards g3">
-    <div class="card card-impl">
-      <div class="ct ct-impl">Flutter-项目目录结构规范</div>
-      <div class="cs cs-impl">core / features / shared / data 四域 · 文件命名 · 依赖方向 · 禁止目录</div>
-      <span class="tag tag-impl">新增</span>
-    </div>
-    <div class="card card-impl">
-      <div class="ct ct-impl">README 文档索引</div>
-      <div class="cs cs-impl">文档地图 · 依赖关系图 · 技术选型汇总 · 新成员入门路径</div>
-      <span class="tag tag-impl">新增</span>
-    </div>
-    <div class="card card-impl">
-      <div class="ct ct-impl">Flutter-变更管理规范</div>
-      <div class="cs cs-impl">产品 / 架构 / 数据 / 修复 四类变更传播路径 · 检查清单 · 禁止模式</div>
-      <span class="tag tag-impl">新增</span>
-    </div>
-  </div>
-</div>
-
-<div class="divider"></div>
-
-<div class="section-title">0-1 之后 — 演进阶段</div>
-
-<div class="cards g2" style="margin-bottom:8px">
-  <div class="card card-opt">
-    <div class="ct ct-opt">Git 工作流规范</div>
-    <div class="cs cs-opt">分支命名 · PR 与 Slice 对应关系 · commit 消息约定</div>
-    <span class="tag tag-opt">视团队规模</span>
-  </div>
-  <div class="card card-opt">
-    <div class="ct ct-opt">发布 &amp; 环境规范</div>
-    <div class="cs cs-opt">staging / prod 差异处理 · 版本号管理 · 构建产物约定</div>
-    <span class="tag tag-opt">视团队规模</span>
-  </div>
-</div>
-<div class="cards g1">
-  <div class="card card-opt">
-    <div class="ct ct-opt">性能基线规范</div>
-    <div class="cs cs-opt">帧率阈值 · 首屏时间 · 包体积上限 · 回归检测触发条件</div>
-    <span class="tag tag-opt">视产品性质</span>
-  </div>
-</div>
-
-</div>
+  </main>
+</body>
+</html>

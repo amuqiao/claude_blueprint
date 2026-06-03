@@ -7,9 +7,10 @@
 ## 顶层结构
 
 ```
-heatmoment/
+flutter_app/
 ├── lib/
 │   ├── core/              跨 feature 的基础设施
+│   ├── data/              跨 feature 的数据层
 │   ├── features/          按功能域划分的业务代码
 │   ├── shared/            跨 feature 复用的 UI 组件
 │   └── main.dart          应用入口
@@ -26,7 +27,7 @@ heatmoment/
 └── pubspec.yaml
 ```
 
-`lib/` 下只有三个顶级目录：`core`、`features`、`shared`。不要在顶层放零散文件，不要创建 `utils/`、`helpers/`、`common/` 这类名称模糊的目录。
+`lib/` 下只有四个顶级目录：`core`、`data`、`features`、`shared`。不要在顶层放零散文件，不要创建 `utils/`、`helpers/`、`common/` 这类名称模糊的目录。
 
 ---
 
@@ -64,8 +65,8 @@ lib/core/
 
 ```
 lib/features/
-├── home/
-├── editor/
+├── list/
+├── item_editor/
 ├── settings/
 └── onboarding/
 ```
@@ -73,27 +74,28 @@ lib/features/
 ### 每个 feature 的内部结构
 
 ```
-lib/features/home/
+lib/features/list/
 ├── screens/
-│   └── home_screen.dart
+│   └── list_screen.dart
 ├── widgets/
-│   ├── heat_map_section.dart
-│   ├── home_timeline.dart
-│   ├── tag_filter_bar.dart
-│   ├── timeline_card.dart
-│   └── tag_chip.dart
+│   ├── index_section.dart
+│   ├── item_list_section.dart
+│   ├── category_filter_bar.dart
+│   ├── item_card.dart
+│   └── category_chip.dart
 ├── providers/
-│   ├── diary_list_notifier.dart
-│   └── tag_filter_notifier.dart
-└── home_providers.dart         这个 feature 的 Provider 对外暴露点（可选）
+│   ├── item_list_notifier.dart
+│   └── category_filter_notifier.dart
+└── list_providers.dart         这个 feature 的 Provider 对外暴露点（可选）
 ```
 
-四个子目录，分别对应 UI 组件规范里的三个层级加上 Provider：
+三个子目录分别对应页面、组件和 Provider；如果这个 feature 需要统一对外暴露 Provider，可以额外保留一个 `{feature}_providers.dart` 文件：
 
 ```
 screens/     页面层，对应路由
 widgets/     容器层和叶子层都放这里，用命名区分
 providers/   这个 feature 的 Notifier 和 Provider
+{feature}_providers.dart  Provider 对外暴露点（可选文件，不是子目录）
 ```
 
 ### feature 之间的依赖规则
@@ -107,7 +109,7 @@ feature A 的 Provider 可以 watch  feature B 的 Provider（通过接口）
 
 ---
 
-## features/ 里的数据层
+## features/ 之外的数据层
 
 数据层不属于某个单一 feature，放在 `features/` 之外单独管理。
 
@@ -116,24 +118,24 @@ lib/
 ├── data/
 │   ├── models/
 │   │   ├── domain/
-│   │   │   ├── diary.dart
-│   │   │   └── tag.dart
+│   │   │   ├── item.dart
+│   │   │   └── category.dart
 │   │   ├── entities/
-│   │   │   ├── diary_entity.dart
-│   │   │   └── tag_entity.dart
+│   │   │   ├── item_entity.dart
+│   │   │   └── category_entity.dart
 │   │   └── dtos/              如果有网络层
 │   ├── repositories/
-│   │   ├── diary_repository.dart        接口
+│   │   ├── item_repository.dart        接口
 │   │   └── impl/
-│   │       └── diary_repository_impl.dart
+│   │       └── item_repository_impl.dart
 │   └── local/
 │       ├── app_database.dart
 │       ├── tables/
-│       │   ├── diary_table.dart
-│       │   └── tag_table.dart
+│       │   ├── item_table.dart
+│       │   └── category_table.dart
 │       └── daos/
-│           ├── diary_dao.dart
-│           └── tag_dao.dart
+│           ├── item_dao.dart
+│           └── category_dao.dart
 ```
 
 数据层的文件只被 `features/` 里的 Provider 引用，不被 Widget 直接引用。
@@ -163,21 +165,21 @@ lib/shared/
 
 ```
 类型            命名模式                    示例
-Screen          {name}_screen.dart          home_screen.dart
-Widget（容器）   {name}_{type}.dart          home_timeline.dart
-Widget（叶子）   {name}_{type}.dart          timeline_card.dart
-Notifier        {name}_notifier.dart        diary_list_notifier.dart
-Repository接口   {name}_repository.dart      diary_repository.dart
-Repository实现   {name}_repository_impl.dart diary_repository_impl.dart
-DAO             {name}_dao.dart             diary_dao.dart
-Table           {name}_table.dart           diary_table.dart
-Domain Model    {name}.dart                 diary.dart
-Entity          {name}_entity.dart          diary_entity.dart
-DTO             {name}_dto.dart             diary_dto.dart
+Screen          {name}_screen.dart          list_screen.dart
+Widget（容器）   {name}_{type}.dart          item_list_section.dart
+Widget（叶子）   {name}_{type}.dart          item_card.dart
+Notifier        {name}_notifier.dart        item_list_notifier.dart
+Repository接口   {name}_repository.dart      item_repository.dart
+Repository实现   {name}_repository_impl.dart item_repository_impl.dart
+DAO             {name}_dao.dart             item_dao.dart
+Table           {name}_table.dart           item_table.dart
+Domain Model    {name}.dart                 item.dart
+Entity          {name}_entity.dart          item_entity.dart
+DTO             {name}_dto.dart             item_dto.dart
 扩展方法         {type}_ext.dart             datetime_ext.dart
 ```
 
-命名用领域语言，不用技术后缀堆叠。`diary.dart` 比 `diary_model.dart` 好，`diary_entity.dart` 用 `_entity` 后缀是因为需要和 `diary.dart`（Domain Model）区分。
+命名用领域语言，不用技术后缀堆叠。`item.dart` 比 `item_model.dart` 好，`item_entity.dart` 用 `_entity` 后缀是因为需要和 `item.dart`（Domain Model）区分。
 
 ---
 
@@ -215,41 +217,41 @@ lib/
 ├── data/
 │   ├── models/
 │   │   ├── domain/
-│   │   │   ├── diary.dart
-│   │   │   └── tag.dart
+│   │   │   ├── item.dart
+│   │   │   └── category.dart
 │   │   └── entities/
-│   │       ├── diary_entity.dart
-│   │       └── tag_entity.dart
+│   │       ├── item_entity.dart
+│   │       └── category_entity.dart
 │   ├── repositories/
-│   │   ├── diary_repository.dart
+│   │   ├── item_repository.dart
 │   │   └── impl/
-│   │       └── diary_repository_impl.dart
+│   │       └── item_repository_impl.dart
 │   └── local/
 │       ├── app_database.dart
 │       ├── tables/
-│       │   └── diary_table.dart
+│       │   └── item_table.dart
 │       └── daos/
-│           └── diary_dao.dart
+│           └── item_dao.dart
 ├── features/
-│   ├── home/
+│   ├── list/
 │   │   ├── screens/
-│   │   │   └── home_screen.dart
+│   │   │   └── list_screen.dart
 │   │   ├── widgets/
-│   │   │   ├── heat_map_section.dart
-│   │   │   ├── home_timeline.dart
-│   │   │   ├── tag_filter_bar.dart
-│   │   │   ├── timeline_card.dart
-│   │   │   └── tag_chip.dart
+│   │   │   ├── index_section.dart
+│   │   │   ├── item_list_section.dart
+│   │   │   ├── category_filter_bar.dart
+│   │   │   ├── item_card.dart
+│   │   │   └── category_chip.dart
 │   │   └── providers/
-│   │       ├── diary_list_notifier.dart
-│   │       └── tag_filter_notifier.dart
-│   └── editor/
+│   │       ├── item_list_notifier.dart
+│   │       └── category_filter_notifier.dart
+│   └── item_editor/
 │       ├── screens/
-│       │   └── editor_screen.dart
+│       │   └── item_editor_screen.dart
 │       ├── widgets/
 │       │   └── content_input.dart
 │       └── providers/
-│           └── editor_notifier.dart
+│           └── item_editor_notifier.dart
 ├── shared/
 │   └── widgets/
 │       ├── empty_state.dart
@@ -262,7 +264,7 @@ lib/
 ## 维护规则
 
 ```
-新增 feature      在 features/ 下建对应目录，按四目录结构初始化
+新增 feature      在 features/ 下建对应目录，按标准结构初始化
 Widget 被第二个 feature 引用  立即移到 shared/widgets/，更新两处 import
 发现 utils/ 目录  把里面的文件归类到正确位置，删除 utils/ 目录
 文件命名不符合规范  在同次 PR 里重命名，不要攒着

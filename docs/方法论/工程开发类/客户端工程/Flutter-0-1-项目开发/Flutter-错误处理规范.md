@@ -86,7 +86,7 @@ DataSource 层抛出平台原始异常，不做转换：
 
 ```dart
 // Drift DAO 自然抛出 SqliteException，不需要捕获
-Future<List<DiaryEntity>> getAll() => select(diaryTable).get();
+Future<List<ItemEntity>> getAll() => select(itemTable).get();
 ```
 
 DataSource 不应该 try-catch 再重新 throw，让异常自然向上传播到 Repository。
@@ -97,23 +97,23 @@ Repository 层是唯一做异常转换的地方。捕获平台异常，转换为
 
 ```dart
 @override
-Future<List<Diary>> fetchAll() async {
+Future<List<Item>> fetchAll() async {
   try {
     final entities = await _dao.getAll();
     return entities.map(_toModel).toList();
   } on SqliteException catch (e) {
-    throw StorageError(message: '读取日记失败', cause: e);
+    throw StorageError(message: '读取记录失败', cause: e);
   }
 }
 
 @override
-Future<Diary?> fetchById(String id) async {
+Future<Item?> fetchById(String id) async {
   try {
     final entity = await _dao.getById(id);
     if (entity == null) return null;    // 不存在返回 null，不 throw NotFoundError
     return _toModel(entity);
   } on SqliteException catch (e) {
-    throw StorageError(message: '读取日记 $id 失败', cause: e);
+    throw StorageError(message: '读取记录 $id 失败', cause: e);
   }
 }
 ```
@@ -134,17 +134,17 @@ Notifier 层用 `AsyncValue.guard` 捕获 `AppError`，暴露给 UI：
 
 ```dart
 @riverpod
-class DiaryListNotifier extends _$DiaryListNotifier {
+class ItemListNotifier extends _$ItemListNotifier {
   @override
-  Future<List<Diary>> build() => _fetch();
+  Future<List<Item>> build() => _fetch();
 
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_fetch);
   }
 
-  Future<List<Diary>> _fetch() {
-    return ref.read(diaryRepositoryProvider).fetchAll();
+  Future<List<Item>> _fetch() {
+    return ref.read(itemRepositoryProvider).fetchAll();
   }
 }
 ```
@@ -240,11 +240,11 @@ class AppErrorMessage {
 
 ```dart
 return switch (state) {
-  AsyncData(:final value) => HomeTimeline(diaries: value),
-  AsyncLoading()          => const TimelineSkeleton(),
+  AsyncData(:final value) => ItemListSection(items: value),
+  AsyncLoading()          => const ItemListSkeleton(),
   AsyncError(:final error) => ErrorView(
       error: error,
-      onRetry: () => ref.invalidate(diaryListNotifierProvider),
+      onRetry: () => ref.invalidate(itemListNotifierProvider),
     ),
 };
 ```

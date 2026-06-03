@@ -13,7 +13,7 @@ UI 层按三个层级组织，每一层有明确的职责边界：
   持有页面生命周期，处理路由参数，组装 Section
   不持有业务数据，不直接写 Repository
 
-容器层（Section / Timeline / Bar）
+容器层（Section / ItemList / Bar）
   持有区块级交互逻辑，读取 Provider，处理用户操作
   可以 watch Provider，可以调用 Notifier 方法
   不做 UI 细节决策（颜色、间距由子组件自己决定）
@@ -39,9 +39,9 @@ Card/Cell  不可以 watch，只接收 props
 ### 文件命名
 
 ```
-页面层      {name}_screen.dart        home_screen.dart
-容器层      {name}_{type}.dart        home_timeline.dart, tag_filter_bar.dart
-叶子层      {name}_{type}.dart        timeline_card.dart, tag_chip.dart
+页面层      {name}_screen.dart        list_screen.dart
+容器层      {name}_{type}.dart        item_list_section.dart, category_filter_bar.dart
+叶子层      {name}_{type}.dart        item_card.dart, category_chip.dart
 ```
 
 全部用 snake_case，和 Dart 文件命名惯例一致。
@@ -49,24 +49,24 @@ Card/Cell  不可以 watch，只接收 props
 ### 类命名
 
 ```
-页面层      {Name}Screen              HomeScreen
-容器层      {Name}{Type}              HomeTimeline, TagFilterBar
-叶子层      {Name}{Type}              TimelineCard, TagChip
+页面层      {Name}Screen              ListScreen
+容器层      {Name}{Type}              ItemListSection, CategoryFilterBar
+叶子层      {Name}{Type}              ItemCard, CategoryChip
 ```
 
-类名和文件名保持一一对应。`home_screen.dart` 里只有 `HomeScreen`。
+类名和文件名保持一一对应。`list_screen.dart` 里只有 `ListScreen`。
 
 ### 什么时候叫 Card，什么时候叫 Cell，什么时候叫 Tile
 
 ```
-Card     有内容密度，通常带阴影或边框，代表一个独立的信息单元   TimelineCard
-Cell     列表或网格中的最小单元，通常是同类重复项              HeatMapCell
-Chip     可选择的标签或过滤器，有选中/未选中状态               TagChip
-Tile     带图标或头像的列表项，通常是 ListTile 风格            ContactTile
-Item     泛指列表中的一条，当上面几个都不合适时用              SearchResultItem
+Card     有内容密度，通常带阴影或边框，代表一个独立的信息单元   ItemCard
+Cell     列表或网格中的最小单元，通常是同类重复项              IndexCell
+Chip     可选择的分类或过滤器，有选中/未选中状态               CategoryChip
+Tile     带图标或头像的列表项，通常是 ListTile 风格            UserTile
+Item     泛指列表中的一条，当上面几个都不合适时用              ResultItem
 ```
 
-不要用 `Widget` 作为后缀（`DiaryWidget` 很模糊），也不要用 `View`（Flutter 不是 iOS）。
+不要用 `Widget` 作为后缀（`ItemWidget` 很模糊），也不要用 `View`（Flutter 不是 iOS）。
 
 ---
 
@@ -76,22 +76,22 @@ Item     泛指列表中的一条，当上面几个都不合适时用           
 
 ```dart
 // 正确：通过构造函数接收数据
-class TimelineCard extends StatelessWidget {
-  const TimelineCard({
+class ItemCard extends StatelessWidget {
+  const ItemCard({
     super.key,
-    required this.diary,
+    required this.item,
     required this.onTap,
   });
 
-  final Diary diary;
+  final Item item;
   final VoidCallback onTap;
 }
 
 // 错误：直接读 Provider
-class TimelineCard extends ConsumerWidget {
+class ItemCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final diary = ref.watch(diaryProvider(id));  // 不要这样做
+    final item = ref.watch(itemProvider(id));  // 不要这样做
   }
 }
 ```
@@ -116,7 +116,7 @@ final Function onDelete;                    // 错误，调用方不知道要传
 叶子组件尽量用 `const` 构造函数。这不是风格问题，是性能问题：`const` 组件在父组件重建时不会重建。
 
 ```dart
-const TimelineCard({super.key, required this.diary, required this.onTap});
+const ItemCard({super.key, required this.item, required this.onTap});
 ```
 
 只要所有字段都是 final 且类型支持 const，就应该加 `const`。
@@ -150,7 +150,7 @@ color: AppColors.textSecondary
 color: const Color(0xFF666666)  // 深色模式下看不见
 ```
 
-只有一种情况允许硬编码颜色：热力图这类"颜色本身就是数据"的场景，比如根据打卡频率计算颜色深度。这种情况在组件注释里说明原因。
+只有一种情况允许硬编码颜色：索引这类"颜色本身就是数据"的场景，比如根据状态频率计算颜色深度。这种情况在组件注释里说明原因。
 
 ### 间距
 
@@ -187,8 +187,8 @@ abstract class AppSpacing {
   临时 UI 状态         Tooltip 是否显示
 
 放在 Provider（Riverpod Notifier）：
-  业务数据             日记列表、标签列表
-  跨组件共享的 UI 状态  当前选中的标签、热力图点选的日期
+  业务数据             记录列表、分类列表
+  跨组件共享的 UI 状态  当前选中的分类、索引点选的日期
   需要持久化的状态      用户偏好设置
 ```
 
@@ -213,28 +213,28 @@ abstract class AppSpacing {
 每个从 Provider 读取异步数据的容器组件，必须处理三种状态：
 
 ```dart
-final state = ref.watch(diaryListNotifierProvider);
+final state = ref.watch(itemListNotifierProvider);
 
 return switch (state) {
-  AsyncData(:final value) => HomeTimeline(diaries: value),
-  AsyncLoading()          => const TimelineSkeleton(),
+  AsyncData(:final value) => ItemListSection(items: value),
+  AsyncLoading()          => const ItemListSkeleton(),
   AsyncError(:final error) => ErrorView(
       error: error,
-      onRetry: () => ref.invalidate(diaryListNotifierProvider),
+      onRetry: () => ref.invalidate(itemListNotifierProvider),
     ),
 };
 ```
 
-`TimelineSkeleton` 的形状要和真实内容一致，高度和卡片数量要接近真实值，不要用全屏 loading spinner。
+`ItemListSkeleton` 的形状要和真实内容一致，高度和卡片数量要接近真实值，不要用全屏 loading spinner。
 
 ### 空状态要区分原因
 
 ```dart
-if (diaries.isEmpty) {
+if (items.isEmpty) {
   return EmptyState(
     reason: filter.isActive
         ? EmptyReason.filteredOut   // "没有匹配的记录，试试清除筛选条件"
-        : EmptyReason.noContent,    // "还没有日记，开始记录吧"
+        : EmptyReason.noContent,    // "还没有记录，开始记录吧"
   );
 }
 ```
@@ -267,10 +267,10 @@ await tester.tap(find.byKey(const Key('submit_button')));
 
 ```dart
 // 错误：build 里做日期格式化
-Text(DateFormat('yyyy-MM-dd').format(diary.createdAt))
+Text(DateFormat('yyyy-MM-dd').format(item.createdAt))
 
 // 正确：计算逻辑移到外面，build 只做 UI 组装
-final formattedDate = _formatDate(diary.createdAt);
+final formattedDate = _formatDate(item.createdAt);
 Text(formattedDate)
 ```
 
@@ -283,17 +283,17 @@ build 方法越纯粹，Widget 测试越容易写。
 ```
 lib/
 ├── features/
-│   ├── home/
+│   ├── list/
 │   │   ├── screens/
-│   │   │   └── home_screen.dart
+│   │   │   └── list_screen.dart
 │   │   ├── widgets/
-│   │   │   ├── heat_map_section.dart
-│   │   │   ├── home_timeline.dart
-│   │   │   ├── tag_filter_bar.dart
-│   │   │   ├── timeline_card.dart
-│   │   │   └── tag_chip.dart
-│   │   └── home_providers.dart     这个 feature 的 Provider
-│   └── editor/
+│   │   │   ├── index_section.dart
+│   │   │   ├── item_list_section.dart
+│   │   │   ├── category_filter_bar.dart
+│   │   │   ├── item_card.dart
+│   │   │   └── category_chip.dart
+│   │   └── list_providers.dart     Provider 对外暴露点（可选）
+│   └── item_editor/
 │       ├── screens/
 │       └── widgets/
 └── shared/
