@@ -3,16 +3,16 @@
 > 把「mp4 + srt 输入，目标语言 mp4 + srt 输出」这一反复出现的生产问题，抽象成对象清楚、节点稳定、每步可干预、技术路线可替换的方法论。
 
 ```text
-AI 漫剧本地化流水线方法论
-├── Node 1：Ingest           输入解析与校验
-├── Node 2：Segmentation     对白分段建模
-├── Node 3：Localization     文本本地化
-├── Node 4：Speaker Binding  角色与音色绑定
-├── Node 5：TTS Generation   配音生成
-├── Node 6：Alignment        时长对齐
-├── Node 7：Audio Mix        音轨混音
-├── Node 8：Subtitle Render  字幕渲染
-└── Node 9：Export           审核与导出
+AI 漫剧本地化流水线方法论（ADR Workflow）
+├── Node 1：Ingest           输入解析与校验（Media Ingestion）
+├── Node 2：Segmentation     配音单元建模（Dubbing Cue Preparation）
+├── Node 3：Localization     文本本地化（Text Localization）
+├── Node 4：Speaker Binding  角色与音色绑定（Voice Casting）
+├── Node 5：TTS Generation   配音生成（ADR Recording / TTS）
+├── Node 6：Alignment        时长对齐（Spotting & Timing）
+├── Node 7：Audio Mix        音轨混音（Audio Mixing）
+├── Node 8：Subtitle Render  字幕渲染（Subtitle Rendering）
+└── Node 9：Export           审核与导出（QA & Delivery）
 ```
 
 ---
@@ -27,15 +27,15 @@ AI 漫剧本地化流水线方法论
 
 ```text
 mp4 + srt（原语言或已译）
-  -> 解析与校验
-  -> 对白分段建模（Segment 是最小处理单元）
-  -> 文本本地化
-  -> 角色识别 + 音色绑定
-  -> 目标语言配音生成
-  -> 时长对齐
-  -> 音轨混音（保留背景音）
-  -> 字幕渲染（软字幕 / 硬字幕覆盖）
-  -> 人工审核 + 导出
+  -> 解析与校验（Media Ingestion）
+  -> 配音单元建模（Dubbing Cue 是最小处理单元）
+  -> 文本本地化（Localization / Transcreation）
+  -> 角色识别 + 音色绑定（Voice Casting）
+  -> 目标语言配音生成（ADR / TTS）
+  -> 时长对齐（Spotting）
+  -> 音轨混音（Stem Mixing，保留背景音）
+  -> 字幕渲染（Closed/Burned-in Subtitle）
+  -> 人工审核 + 导出（QA & Delivery）
 ```
 
 技术路线默认混合：第三方 API 快速验证，开源方案并行评测，自研后置。
@@ -65,7 +65,7 @@ mp4 + srt（原语言或已译）
 | 媒体元信息 | 视频时长、分辨率、帧率、音轨采样率、声道数 |
 | 字幕类型判断 | 软字幕 / 硬字幕，及其位置区域估计 |
 | SRT 校验报告 | 时间越界、重叠、空文本、乱序、编码异常的列表 |
-| 原始 Segment 列表 | 每条 srt 条目转成结构化对白段 |
+| 原始 Segment（配音单元）列表 | 每条 SRT 字幕条目（Subtitle Cue）转成结构化配音单元（Dubbing Cue） |
 
 **可能遇到的问题**
 
@@ -96,11 +96,13 @@ mp4 + srt（原语言或已译）
 
 ---
 
-### Node 2：Segmentation — 对白分段建模
+### Node 2：Segmentation — 配音单元建模
 
 **这个节点解决什么问题**
 
-SRT 的分段服务于字幕阅读，不天然服务于配音生产。一条 srt 可能太长（一句话跨多个镜头），也可能太短（被拆成两行）。这个节点把 srt 条目转成「可生成、可编辑、可独立重试」的最小配音单元 Segment。
+SRT 的分段服务于字幕阅读，不天然服务于配音生产。一条 SRT 字幕条目（Subtitle Cue）可能太长（一句话跨多个镜头），也可能太短（被拆成两行）。这个节点把字幕条目转成「可生成、可编辑、可独立重试（Re-take）」的最小配音单元（Dubbing Cue）。
+
+**术语说明**：代码中使用 `Segment` 类名，概念上对应 **Dubbing Cue（配音单元）**。
 
 **输入**
 
@@ -109,7 +111,7 @@ SRT 的分段服务于字幕阅读，不天然服务于配音生产。一条 srt
 
 **输出**
 
-每个 Segment 包含：
+每个 Segment（配音单元）包含：
 
 ```text
 id
@@ -135,15 +137,15 @@ review_status        pending
 | 单条 srt 文本过长 | 字幕编辑时没有考虑配音长度 | 标记为「建议拆分」，提供可视化拆分入口 |
 | 相邻两条 srt 语义上是一句话 | 字幕为阅读换行 | 标记为「建议合并」，提供合并入口 |
 | 时间窗太短（<0.5s） | 快速短句或标点段 | 标记为「极短段」，提示可能无法生成自然配音 |
-| 说话人切换频繁 | 多人快速来回对话 | 每条 segment 独立处理，speaker_id 后续绑定 |
+| 说话人切换频繁 | 多人快速来回对话 | 每条 配音单元独立处理，speaker_id 后续绑定 |
 
 **人工干预入口**
 
-- 合并相邻 segment（拖拽或勾选合并）
-- 拆分单条 segment（选择断句位置）
+- 合并相邻配音单元（拖拽或勾选合并）
+- 拆分单条配音单元（选择断句位置）
 - 修改 source_text（修正 OCR 或 srt 错误）
 - 调整单条 start_time / end_time（毫秒精度）
-- 锁定某条 segment（锁定后不被批量操作覆盖）
+- 锁定某条配音单元（锁定后不被批量操作覆盖）
 
 **技术选型**
 
@@ -159,7 +161,9 @@ review_status        pending
 
 **这个节点解决什么问题**
 
-把每个 Segment 的 source_text 转成目标语言 target_text，同时兼顾角色语气、配音时长约束、术语一致性。如果用户上传的 srt 已经是目标语言（`is_translated: true`），本节点跳过自动翻译，直接进入人工校对模式。
+把每个 Segment（配音单元）的 source_text 转成目标语言 target_text，同时兼顾角色语气、配音时长约束、术语一致性（Glossary）。如果用户上传的 SRT 已经是目标语言（`is_translated: true`），本节点跳过自动翻译，直接进入人工校对模式。
+
+**相关术语**：Transcreation（创译）指创造性翻译，保留文化内涵和语气风格。
 
 **输入**
 
@@ -380,49 +384,49 @@ review_status        pending
 
 **这个节点解决什么问题**
 
-把生成的对白音频片段按时间轴合并成目标音轨，同时保留原视频的背景音乐和音效，让成品听感自然。这个节点是「用什么方式处理原音轨」决策最复杂的地方。
+把生成的配音音频片段按时间轴合并成目标音轨，同时保留原视频的背景音乐和音效（Music Stem），让成品听感自然。这个节点是「用什么方式处理原音轨」决策最复杂的地方。
 
 **输入**
 
-- 原视频音轨
-- 所有 Segment 的对齐后音频片段 + 时间戳
-- 混音策略配置
+- 原视频音轨（Original Audio Track）
+- 所有 Segment（配音单元）的对齐后音频片段 + 时间码（Timecode）
+- 混音策略配置（Mixing Strategy）
 
 **输出**
 
-- 目标语言音轨文件（wav）
-- 混音日志（每条 segment 的混音位置、音量参数）
+- 目标语言音轨文件（Target Audio Track，wav 格式）
+- 混音日志（每条配音单元的混音位置、音量参数）
 
 **混音策略选项（按保守到激进排列）**
 
 | 策略 | 做法 | 优点 | 缺点 | 适用场景 |
 | --- | --- | --- | --- | --- |
-| 压低原音叠加 | 原音轨整体降低（-12dB 左右），对白时间段叠加目标配音 | 实现简单，背景音保留 | 原对白仍可听见 | MVP 第一版 |
-| 人声分离后替换 | 先分离人声和背景音，背景音保留，对白轨替换为目标配音 | 原对白完全消失，背景音干净 | 人声分离有质量损失 | 主流推荐路线 |
-| 全轨替换 | 直接用目标配音替换整条音轨 | 最简单 | 背景音全部丢失 | 不推荐，除非原视频无背景音 |
+| **音频闪避（Ducking）** | 原音轨整体降低（-12dB 左右），配音时间段叠加目标配音 | 实现简单，背景音保留 | 原对白仍可听见 | MVP 第一版 |
+| **音源分离后替换** | 先分离人声轨（Vocal Stem）和音乐轨（Music Stem），保留音乐轨，人声轨替换为目标配音 | 原对白完全消失，背景音干净 | 音源分离有质量损失 | 主流推荐路线 |
+| **全轨替换** | 直接用目标配音替换整条音轨 | 最简单 | 背景音全部丢失 | 不推荐，除非原视频无背景音 |
 
 **可能遇到的问题**
 
-| 问题 | 原因 | 处理建议 |
-| --- | --- | --- |
-| 人声分离后背景音有残留人声 | 分离模型不完美 | 可接受轻微残留；严重时对该段手动处理 |
-| 对白音频和背景音音量不平衡 | TTS 输出音量和原视频音量基准不同 | 对目标配音做响度归一化（loudness normalization）|
-| 背景音乐节拍在对白段被压低 | 压低策略影响节拍感 | 支持对特定时间段单独设置压低参数 |
-| 多说话人同时发言（重叠对白） | 漫剧偶有重叠音效 | 标记为「重叠段」，当前版本建议人工处理 |
+| 问题 | 原因 | 处理建议 | 业界术语 |
+| --- | --- | --- | --- |
+| 音源分离后背景音有残留人声 | 分离模型不完美 | 可接受轻微残留；严重时对该段手动处理 | Stem Bleeding |
+| 配音和背景音音量不平衡 | TTS 输出音量和原视频音量基准不同 | 对目标配音做响度归一化（Loudness Normalization） | Loudness Mismatch |
+| 背景音乐节拍在对白段被压低 | 音频闪避（Ducking）策略影响节拍感 | 支持对特定时间段单独设置 Ducking 参数 | Ducking Artifacts |
+| 多说话人同时发言（重叠对白） | 漫剧偶有重叠音效 | 标记为「重叠段」，当前版本建议人工处理 | Overlapping Dialogue |
 
 **人工干预入口**
 
-- 选择混音策略（全局或按 segment）
-- 调整对白音量和背景音音量比例
-- 对单个时间段微调 ducking 参数
-- 替换某段的对白音频后重新混音
+- 选择混音策略（全局或按配音单元）
+- 调整配音音量和背景音音量比例
+- 对单个时间段微调 Ducking 参数
+- 替换某段的配音音频后重新混音
 - 局部预览混音效果（选择时间段）
 
 **技术选型**
 
 - 音轨合并 / 混音：`ffmpeg amix` / `pydub`
-- 人声分离：`Demucs` / `UVR5` / `MDX-Net`
-- 响度归一化：`pyloudnorm` / `ffmpeg loudnorm`
+- 音源分离（Source Separation）：`Demucs` / `UVR5` / `MDX-Net` / `Spleeter`
+- 响度归一化（Loudness Normalization）：`pyloudnorm` / `ffmpeg loudnorm`
 
 详细对比和选型依据见 [`AI配音替换技术坐标与方案选型.md`](./AI配音替换技术坐标与方案选型.md#node-7-audio-mix-所需技术)。
 

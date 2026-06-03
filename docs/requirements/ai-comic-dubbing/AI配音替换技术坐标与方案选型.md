@@ -143,7 +143,10 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 | 能力 | 推荐方案 | 备注 |
 | --- | --- | --- |
 | 辅助对齐验证（可选） | `WhisperX`（GitHub 10k+ star） | 生成词级时间戳，可校验 srt 与实际音频的偏差 |
+| 辅助对齐备选 | `Wav2Vec2`（Meta） | 适合微调，支持多语言 |
+| 第三方 ASR（可选） | AssemblyAI、Deepgram | 商业服务，速度快，支持说话人识别 |
 | 说话人辅助识别（可选） | `pyannote-audio`（GitHub 4k+ star） | 用于多说话人场景的自动 diarization |
+| 说话人识别备选 | `Resemblyzer`、`SpeechBrain` | 轻量级音色相似度工具，适合快速验证 |
 | 文本长度预估 | 基于目标语言字符/音节速率的规则 | 可在 Node 2 就预警「可能超时」的段 |
 
 ### Node 3: Localization 所需技术
@@ -152,8 +155,9 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 
 | 能力 | 推荐方案 | 备注 |
 | --- | --- | --- |
-| 主力翻译（推荐） | OpenAI GPT-4o / Claude / Gemini（via API） | 支持 prompt 注入角色口吻和术语表 |
+| 主力翻译（推荐） | OpenAI GPT-4o / Claude Opus 4.7 / Gemini（via API） | 支持 prompt 注入角色口吻和术语表，Opus 4.7 质量最高 |
 | 轻量/高速翻译 | DeepL API、Google Translate API | 成本低，质量对简单对白够用 |
+| 第三方备选 | Azure Translator、Amazon Translate | 企业级服务，稳定性好 |
 | 开源翻译 | `Helsinki-NLP/opus-mt`（HuggingFace） | 自部署，多语言，质量不及 LLM |
 | 术语表管理 | 自建键值表 + 翻译后后处理替换 | 简单可靠，不依赖模型 |
 | 时长预估 | 目标语言字符/音节速率规则 + TTS 试算 | 在生成前预警，减少重生成 |
@@ -166,8 +170,8 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 | --- | --- | --- |
 | 说话人自动识别 | `pyannote-audio`（GitHub 4k+ star） | 需要 HuggingFace token，支持本地部署 |
 | 辅助对齐 + 说话人 | `WhisperX`（GitHub 10k+ star） | 同时给出 ASR + 说话人 + 词级时间戳 |
-| 人声分离 | `Demucs`（GitHub 8k+ star，Meta） | 分离人声与背景音，为音色提取做准备 |
-| 人声分离备选 | `UVR5`（Ultimate Vocal Remover，GUI） | 社区常用，多模型，效果好 |
+| 音源分离 | `Demucs`（GitHub 8k+ star，Meta） | 分离人声与背景音，为音色提取做准备 |
+| 音源分离备选 | `UVR5`（Ultimate Vocal Remover，GUI） | 社区常用，多模型，效果好 |
 | 第三方音色管理 | ElevenLabs Voice Library | 提供现成音色库，省去克隆步骤 |
 
 ### Node 5: TTS Generation 所需技术
@@ -178,8 +182,13 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 | --- | --- | --- |
 | 第三方 TTS（推荐 MVP） | ElevenLabs API | 多语言、音色克隆、情绪控制，质量基线高 |
 | 第三方备选 | OpenAI TTS、Azure TTS、Google TTS | 成本低，音色克隆能力弱 |
-| 开源音色克隆 | `CosyVoice`（GitHub 12k+ star，阿里） | 中英日韩，支持训练和部署，适合自部署 |
-| 开源备选 | `OpenVoice`（GitHub 30k+ star，MIT License） | 跨语言音色克隆，MIT 商用友好 |
+| 第三方商业方案 | Resemble AI、Descript Overdub、Murf.ai | 专业音色克隆服务，质量高但成本较高 |
+| 开源音色克隆（推荐） | `CosyVoice`（GitHub 12k+ star，阿里） | 中英日韩，支持训练和部署，适合自部署 |
+| 开源备选 1 | `OpenVoice`（GitHub 30k+ star，MIT License） | 跨语言音色克隆，MIT 商用友好 |
+| 开源备选 2 | `Fish Audio` | 音色克隆，中文社区活跃 |
+| 开源备选 3 | `VITS` / `VITS2` | 端到端TTS，VITS2性能更好 |
+| 开源备选 4 | `Bark`（Suno AI） | 多语言TTS，支持非语言音效（笑声、叹气） |
+| 开源备选 5 | `Coqui TTS` | 已停止维护但仍广泛使用，资源丰富 |
 | 开源少样本微调 | `GPT-SoVITS`（GitHub 40k+ star） | 5s zero-shot，1min few-shot，中英日韩粤 |
 | SSML / 音素支持 | Azure TTS SSML、ElevenLabs pronunciation | 修正专有名词读音的主要手段 |
 
@@ -201,8 +210,10 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 | 能力 | 推荐方案 | 备注 |
 | --- | --- | --- |
 | 音轨合并 / 混音 | `ffmpeg amix`、`pydub` | ffmpeg 稳定，pydub 易用 |
-| 人声分离 | `Demucs`（GitHub 8k+ star，Meta） | 4-stem 分离，保留鼓、贝斯、人声、其他 |
-| 人声分离备选 | `UVR5` / `MDX-Net` | 社区评价高，GUI 可直接试用 |
+| 音源分离（推荐） | `Demucs`（GitHub 8k+ star，Meta） | 4-stem 分离，保留鼓、贝斯、人声、其他 |
+| 音源分离备选 1 | `UVR5` / `MDX-Net` | 社区评价高，GUI 可直接试用 |
+| 音源分离备选 2 | `Spleeter`（Deezer） | 2/4/5-stem 分离，轻量快速 |
+| 音源分离备选 3 | `Open-Unmix` | 学术界常用，质量稳定 |
 | 响度归一化 | `pyloudnorm`、`ffmpeg loudnorm` | 符合 EBU R128 标准 |
 
 ### Node 8: Subtitle Render 所需技术
@@ -238,6 +249,105 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 | 模型能力优先 vs 工作流优先 | 工作流优先，模型 provider 可替换 |
 | 自研模型 vs 自研平台 | 优先自研平台编排和质检闭环，模型后置 |
 
+## 错误处理与降级策略
+
+AI 能力调用会面临临时性失败、配额耗尽、长时间故障等问题，必须建立分级处理机制。
+
+### Provider 错误分类
+
+| 错误类型 | 典型原因 | 处理策略 |
+| --- | --- | --- |
+| **临时性失败** | 网络抖动、服务短暂不可用 | 指数退避重试（1s、2s、4s），最多3次 |
+| **配额限制** | API rate limit、quota exhausted | 等待或自动切换到备用 provider |
+| **参数错误** | 输入格式不对、文本过长 | 标记失败，不重试，通知人工 |
+| **超时** | 长文本生成超时、模型响应慢 | 单次超时60s，重试或降级到快速 provider |
+| **质量不合格** | 生成音频失真、错读严重 | 允许人工标记，自动切换备选 provider |
+| **长时间故障** | provider 服务中断超30分钟 | 熔断，切换到备用方案 |
+
+### 重试策略
+
+```python
+# 推荐配置示例
+retry_config = {
+    "max_attempts": 3,
+    "backoff_strategy": "exponential",  # linear / exponential
+    "initial_delay": 1.0,  # 秒
+    "max_delay": 30.0,  # 秒
+    "retry_on": [
+        "network_error",
+        "timeout",
+        "service_unavailable",
+        "rate_limit"
+    ],
+    "no_retry_on": [
+        "invalid_parameter",
+        "authentication_failed",
+        "insufficient_quota"
+    ]
+}
+```
+
+### 熔断机制
+
+当某个 provider 在短时间内（如5分钟）失败率超过阈值（如50%），触发熔断：
+
+| 状态 | 说明 | 持续时间 | 行为 |
+| --- | --- | --- | --- |
+| **正常** | 失败率 <20% | - | 正常调用 |
+| **半开** | 失败率 20%-50% | - | 降低并发，增加监控 |
+| **熔断** | 失败率 ≥50% | 30分钟 | 停止调用，切换备用 provider |
+| **恢复** | 熔断后尝试恢复 | 5分钟 | 小流量试探，成功率 >80% 则恢复 |
+
+### 降级策略
+
+按优先级顺序尝试 provider：
+
+| 节点 | 主方案 | 备用方案1 | 备用方案2 | 最终降级 |
+| --- | --- | --- | --- | --- |
+| TTS | ElevenLabs | CosyVoice（自部署） | OpenAI TTS | 标记失败，人工处理 |
+| 翻译 | Claude Opus 4.7 | GPT-4o | DeepL | Google Translate |
+| ASR | WhisperX | Whisper | - | 跳过自动识别，人工标注 |
+| 音源分离 | Demucs | UVR5 | Spleeter | 降低原音轨 + 叠加配音 |
+
+### 成本与质量平衡
+
+允许配置"成本优先"或"质量优先"模式：
+
+| 模式 | 主 TTS | 备用 TTS | 主翻译 | 备用翻译 |
+| --- | --- | --- | --- | --- |
+| **质量优先** | ElevenLabs | CosyVoice | Claude Opus 4.7 | GPT-4o |
+| **成本优先** | CosyVoice | OpenAI TTS | DeepL | GPT-4o (batch) |
+| **平衡** | ElevenLabs | OpenAI TTS | GPT-4o | DeepL |
+
+### 监控与告警
+
+每个 provider 调用记录：
+
+```python
+provider_call_log = {
+    "provider_name": "elevenlabs",
+    "node": "tts_generation",
+    "segment_id": "seg_123",
+    "start_time": "2026-06-01T10:30:00Z",
+    "end_time": "2026-06-01T10:30:05Z",
+    "duration_ms": 5000,
+    "status": "success",  # success / failed / timeout / retried
+    "retry_count": 1,
+    "error_message": null,
+    "cost_usd": 0.05,
+    "parameters": {...}
+}
+```
+
+告警触发条件：
+
+| 告警级别 | 触发条件 |
+| --- | --- |
+| **P0 严重** | 某 provider 全部失败超过10分钟 |
+| **P1 重要** | 某 provider 失败率 >30% 持续5分钟 |
+| **P2 警告** | 某 provider 平均响应时延超过基线2倍 |
+| **P3 提示** | 成本超出预算20% |
+
 ## 推荐路线
 
 ```text
@@ -247,8 +357,9 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 阶段 2：开源组件并行评测
 目标：建立同一批片段上的质量、耗时、成本、语言覆盖对比。
 
-阶段 3：Provider 可替换架构
+阶段 3：Provider 可替换架构 + 错误处理
 目标：TTS、ASR、翻译、音频处理和视频处理都能替换实现。
+      建立重试、熔断、降级机制。
 
 阶段 4：基于平台数据做微调或训练
 目标：只对真实瓶颈做自研，不为技术完整性自研。
@@ -256,7 +367,9 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 
 ## 选型验收标准
 
-候选方案不应只比较“听起来像不像”，还要比较生产可用性。
+候选方案不应只比较”听起来像不像”，还要比较生产可用性。
+
+### 定性评估维度
 
 | 维度 | 评估问题 |
 | --- | --- |
@@ -268,3 +381,37 @@ GPT-SoVITS 定位为 few-shot voice conversion and TTS WebUI，支持 5 秒 zero
 | 工程接入 | 是否有 API、批量处理、异步任务和错误处理能力 |
 | 成本 | 单分钟成本、重生成成本、GPU 成本是否可接受 |
 | 合规 | 是否支持授权声音管理、内容审查和数据删除 |
+
+### 定量对比维度（建议 benchmark）
+
+| 维度 | 指标 | 说明 |
+| --- | --- | --- |
+| **质量** | MOS (Mean Opinion Score) | 主观质量评分，1-5分，建议 ≥4.0 |
+| | 音色相似度 | 使用 Resemblyzer 或 speaker embedding cosine similarity，建议 ≥0.7 |
+| | WER/CER | 如有 ASR 环节，词错误率/字错误率，越低越好 |
+| | 情绪匹配率 | 人工评估情绪表达是否符合预期的比例 |
+| **成本** | $/分钟（第三方） | 第三方 API 调用成本 |
+| | GPU 时/分钟（自部署） | 自部署方案的算力成本 |
+| | 重生成成本 | 单句重生成的边际成本 |
+| **速度** | 实时率（RTF） | 生成1秒音频需要的实际时间，<1.0 为实时以内 |
+| | 冷启动时延 | 模型加载到首次推理的时间 |
+| | P95 响应时延 | 95%请求的完成时间 |
+| **稳定性** | 失败率 | API/模型调用失败的比例，建议 <1% |
+| | 平均重试次数 | 成功前的平均重试次数 |
+| **资源要求** | GPU 显存 | 推理所需最小显存（GB） |
+| | 并发能力 | 单卡/单实例支持的并发数 |
+| | 依赖复杂度 | Python版本、CUDA版本、系统依赖等 |
+
+### 推荐 benchmark 数据集
+
+建立标准测试集，包含：
+
+| 类型 | 数量 | 说明 |
+| --- | --- | --- |
+| 单人对白 | 5条 x 30s | 覆盖不同情绪：平静、激动、愤怒、低语、惊讶 |
+| 多人对话 | 3条 x 1min | 2-3个角色快速切换 |
+| 长对白 | 2条 x 2min | 测试长文本稳定性 |
+| 多语言 | 各2条 | 英、日、韩、法、印尼、中文 |
+| 特殊场景 | 各1条 | 背景音乐强、专有名词多、快速节奏 |
+
+每个候选方案在同一数据集上测试，记录上述指标，形成对比报告。
