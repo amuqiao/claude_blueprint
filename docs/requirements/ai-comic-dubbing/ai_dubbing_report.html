@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>海外短剧 AI 配音调研报告</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f4f0;
+    --bg3: #eeecea;
+    --text: #1a1a18;
+    --text2: #5a5a56;
+    --text3: #9a9990;
+    --border: rgba(0,0,0,0.10);
+    --border2: rgba(0,0,0,0.18);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --info-bg: #e6f1fb;
+    --info-text: #185fa5;
+    --success-bg: #eaf3de;
+    --success-text: #3b6d11;
+    --warn-bg: #faeeda;
+    --warn-text: #854f0b;
+    --warn-border: #efc97a;
+    --danger-bg: #fcebeb;
+    --danger-text: #a32d2d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1e1c;
+      --bg2: #2a2a27;
+      --bg3: #333330;
+      --text: #e8e6de;
+      --text2: #a8a69e;
+      --text3: #6a6860;
+      --border: rgba(255,255,255,0.10);
+      --border2: rgba(255,255,255,0.18);
+      --info-bg: #042c53;
+      --info-text: #85b7eb;
+      --success-bg: #173404;
+      --success-text: #97c459;
+      --warn-bg: #412402;
+      --warn-text: #ef9f27;
+      --warn-border: #633806;
+      --danger-bg: #501313;
+      --danger-text: #f09595;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: 16px;
+    border: 0.5px solid var(--border);
+    padding: 2.5rem 2.5rem 3rem;
+  }
+
+  h1 { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 0.5rem; }
+  h2 { font-size: 15px; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; padding-bottom: 6px; border-bottom: 0.5px solid var(--border); }
+  h3 { font-size: 13px; font-weight: 600; color: var(--text2); margin: 1.25rem 0 0.5rem; }
+  p  { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 0.5rem; }
+
+  .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .meta-pill { font-size: 11px; padding: 3px 10px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--text2); background: var(--bg2); }
+  .meta-pill.warn { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 1rem 0; }
+  .stat-card { background: var(--bg2); border-radius: var(--radius-md); padding: 12px 14px; }
+  .stat-num   { font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.1; }
+  .stat-label { font-size: 11px; color: var(--text2); margin-top: 3px; }
+
+  .signal-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin: 0.75rem 0; }
+  .signal-list li { font-size: 12px; color: var(--text2); line-height: 1.5; padding-left: 14px; position: relative; }
+  .signal-list li::before { content: "·"; position: absolute; left: 0; color: var(--text3); }
+
+  /* Tabs */
+  .section-tabs { display: flex; gap: 6px; margin: 1rem 0 0.75rem; flex-wrap: wrap; }
+  .tab-btn {
+    font-size: 12px; padding: 5px 14px; border-radius: 20px;
+    border: 0.5px solid var(--border2); background: transparent;
+    color: var(--text2); cursor: pointer; transition: all .15s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { background: var(--bg2); }
+  .tab-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Vendor cards */
+  .vendor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .vendor-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .vendor-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .vendor-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .badge-star   { background: var(--warn-bg);    color: var(--warn-text); }
+  .badge-cn     { background: var(--info-bg);    color: var(--info-text); }
+  .badge-v      { background: var(--success-bg); color: var(--success-text); }
+  .badge-self   { background: var(--danger-bg);  color: var(--danger-text); }
+  .badge-gray   { background: var(--bg2);        color: var(--text3); }
+  .vendor-cap { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 8px; }
+  .vendor-tag-row { display: flex; gap: 5px; flex-wrap: wrap; }
+  .vtag { font-size: 10px; padding: 2px 7px; border-radius: 10px; background: var(--bg2); color: var(--text3); border: 0.5px solid var(--border); }
+
+  /* Table */
+  .caveat {
+    background: var(--warn-bg); border: 0.5px solid var(--warn-border);
+    border-radius: var(--radius-md); padding: 10px 14px;
+    margin: 0.75rem 0; font-size: 12px; color: var(--warn-text); line-height: 1.6;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0.75rem 0; }
+  th {
+    font-size: 11px; font-weight: 600; color: var(--text3); text-align: left;
+    padding: 6px 10px; border-bottom: 0.5px solid var(--border); background: var(--bg2);
+  }
+  td { padding: 8px 10px; border-bottom: 0.5px solid var(--border); color: var(--text2); vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+  .conf { font-size: 10px; padding: 2px 6px; border-radius: 10px; white-space: nowrap; }
+  .conf-y { background: var(--success-bg); color: var(--success-text); }
+  .conf-n { background: var(--bg2);        color: var(--text3); }
+  .platform-name { font-weight: 600; color: var(--text); }
+
+  /* Kunlun stack */
+  .kunlun-stack { display: flex; flex-direction: column; gap: 6px; margin: 0.75rem 0; }
+  .stack-row { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 8px; align-items: start; }
+  .stack-label { font-size: 11px; color: var(--text3); padding-top: 6px; }
+  .stack-cell { background: var(--bg2); border-radius: var(--radius-md); padding: 8px 10px; }
+  .stack-cell-wide { grid-column: 2 / 4; }
+  .stack-cell-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .stack-cell-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  /* Tech cards */
+  .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 0.75rem 0; }
+  .tech-card { border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; background: var(--bg); }
+  .tech-dim    { font-size: 12px; font-weight: 600; color: var(--text);    margin-bottom: 4px; }
+  .tech-leader { font-size: 11px; color: var(--info-text); margin-bottom: 3px; }
+  .tech-note   { font-size: 11px; color: var(--text2); line-height: 1.5; }
+  .importance  { display: flex; gap: 3px; margin-bottom: 6px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--bg2); border: 0.5px solid var(--border2); }
+  .dot.on { background: var(--warn-text); border-color: var(--warn-text); }
+
+  /* Trends */
+  .trend-list { display: flex; flex-direction: column; gap: 8px; margin: 0.75rem 0; }
+  .trend-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; background: var(--bg2); border-radius: var(--radius-md); }
+  .trend-num  { font-size: 11px; font-weight: 600; color: var(--text3); min-width: 20px; padding-top: 1px; }
+  .trend-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+  /* Rec cards */
+  .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 0.75rem 0; }
+  .rec-card { border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; background: var(--bg2); }
+  .rec-scene    { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .rec-solution { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* Todo */
+  .todo-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin: 0.75rem 0; }
+  .todo-list li { display: flex; gap: 8px; font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .todo-list li::before { content: "○"; color: var(--text3); flex-shrink: 0; }
+
+  .divider { height: 0.5px; background: var(--border); margin: 1.5rem 0; }
+
+  @media (max-width: 600px) {
+    .page { padding: 1.25rem 1rem 2rem; border-radius: 0; }
+    body  { padding: 0; }
+    .stack-row { grid-template-columns: 60px 1fr; }
+    .stack-cell-wide { grid-column: 2 / 3; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>海外短剧 AI 配音调研报告</h1>
+  <div class="meta">
+    <span class="meta-pill">整理日期：2026-05-29</span>
+    <span class="meta-pill warn">⚠ 多数平台-vendor 关系未公开，标注「公开确认」与「行业推断」，落地前请二次验证</span>
+  </div>
+
+  <!-- 一 -->
+  <h2>一、行业现状速览</h2>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">200+</div><div class="stat-label">覆盖国家</div></div>
+    <div class="stat-card"><div class="stat-num">15+</div><div class="stat-label">覆盖语种</div></div>
+    <div class="stat-card"><div class="stat-num">~1 万</div><div class="stat-label">短剧部数（头部5平台）</div></div>
+    <div class="stat-card"><div class="stat-num">470</div><div class="stat-label">部/天（中国AI短剧，2026-05）</div></div>
+  </div>
+  <h3>语种内容分布（Top 3）</h3>
+  <ul class="signal-list">
+    <li>英语 26.57% · 印尼语 10.25% · 葡萄牙语 9.13% — 小语种长尾正快速扩张</li>
+  </ul>
+  <h3>行业定位</h3>
+  <p>AI 配音当前仍是<strong>生产辅助层</strong>（降本提速），头部精品以人工配音为主；2026 年正进入腰尾部内容 AI 化拐点。</p>
+  <h3>2026 年关键信号</h3>
+  <ul class="signal-list">
+    <li>MIT Tech Review（2026-05）：中国短剧 AI 内容生产已达 industrial scale，470 部/天</li>
+    <li>MiniMax Speech-02、火山引擎「声影智译」、ElevenLabs Dubbing v2、Resemble AI DramaBox、昆仑万维 SkyReels-V3 集中发布，专门面向短剧/微剧场景</li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <!-- 二 -->
+  <h2>二、AI 配音 / 内容生产厂商图谱</h2>
+  <div class="section-tabs" id="vendor-tabs">
+    <button class="tab-btn active" data-tab="overseas">海外通用 TTS</button>
+    <button class="tab-btn" data-tab="vertical">视频本地化垂直</button>
+    <button class="tab-btn" data-tab="china">中国/华人厂商</button>
+    <button class="tab-btn" data-tab="selfdev">自研大模型</button>
+  </div>
+
+  <div id="tab-overseas" class="tab-content active">
+    <div class="vendor-grid">
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">ElevenLabs</span><span class="badge badge-star">行业标杆</span></div><div class="vendor-cap">Dubbing v2 · Voice Clone · TTS；质量上限最高；不支持私有部署</div><div class="vendor-tag-row"><span class="vtag">90+ 语言</span><span class="vtag">Dubbing v2</span><span class="vtag">Voice Clone</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Resemble AI</span><span class="badge badge-star">短剧情绪专属</span></div><div class="vendor-cap">唯一专为短剧情绪表达设计的模型，prompt 控制叹息/呼吸/停顿；DramaBox 开源模型</div><div class="vendor-tag-row"><span class="vtag">多语</span><span class="vtag">Voice Clone</span><span class="vtag">情绪 prompt</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Respeecher</span><span class="badge badge-gray">影视工业</span></div><div class="vendor-cap">Voice Cloning + FE 级配音；好莱坞案例多，偏影视工业</div><div class="vendor-tag-row"><span class="vtag">多语</span><span class="vtag">Voice Cloning</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Dubformer</span><span class="badge badge-gray">企业级</span></div><div class="vendor-cap">AI Dubbing；创作者/企业向，强 WE；"AI Dubbing You Direct"</div><div class="vendor-tag-row"><span class="vtag">140+ 语种</span><span class="vtag">AI Dubbing</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">HeyGen</span><span class="badge badge-gray">视频翻译</span></div><div class="vendor-cap">Video Translate + Avatar；175+ 语言</div><div class="vendor-tag-row"><span class="vtag">175+ 语言</span><span class="vtag">Avatar</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Speechify</span><span class="badge badge-gray">阅读/教育</span></div><div class="vendor-cap">TTS + Dubbing；偏阅读/教育场景</div><div class="vendor-tag-row"><span class="vtag">多语</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Wavel AI / Maestra</span><span class="badge badge-gray">性价比</span></div><div class="vendor-cap">Dubbing · Voice；性价比向</div><div class="vendor-tag-row"><span class="vtag">多语</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Voiseed</span><span class="badge badge-gray">情绪</span></div><div class="vendor-cap">专注情绪表达的 AI 语音</div><div class="vendor-tag-row"><span class="vtag">多语</span><span class="vtag">情绪化 AI 语音</span></div></div>
+    </div>
+  </div>
+
+  <div id="tab-vertical" class="tab-content">
+    <div class="vendor-grid">
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">VMEG AI</span><span class="badge badge-v">短剧一体化</span></div><div class="vendor-cap">短剧/微剧本地化一体化；字幕+翻译+配音+多语种交付一站式</div><div class="vendor-tag-row"><span class="vtag">短剧专属</span><span class="vtag">全流程</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">GhostCut (JollyToday)</span><span class="badge badge-v">短剧字幕</span></div><div class="vendor-cap">短剧字幕去除/翻译/配音；自称占 70% AI 短剧本地化市场，日处理 ~10 万集</div><div class="vendor-tag-row"><span class="vtag">字幕去除</span><span class="vtag">翻译</span><span class="vtag">配音</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Camb.ai（MARS 模型）</span><span class="badge badge-gray">内容/娱乐</span></div><div class="vendor-cap">印度团队，长尾语种强，MARS 模型情绪还原好；内容/娱乐/体育本地化</div><div class="vendor-tag-row"><span class="vtag">长尾语种</span><span class="vtag">情绪还原</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Papercup</span><span class="badge badge-gray">欧美企业级</span></div><div class="vendor-cap">视频配音；欧美企业级</div><div class="vendor-tag-row"><span class="vtag">视频配音</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Deepdub</span><span class="badge badge-gray">以色列团队</span></div><div class="vendor-cap">视频配音；以色列团队</div><div class="vendor-tag-row"><span class="vtag">视频配音</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Rask AI</span><span class="badge badge-gray">创作者向</span></div><div class="vendor-cap">视频翻译配音；创作者向，单价低</div><div class="vendor-tag-row"><span class="vtag">视频翻译</span><span class="vtag">低价</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Dubverse</span><span class="badge badge-gray">印度系语种</span></div><div class="vendor-cap">本地化配音；Hindi / Tamil / Telugu 强</div><div class="vendor-tag-row"><span class="vtag">印度系语种</span></div></div>
+    </div>
+  </div>
+
+  <div id="tab-china" class="tab-content">
+    <div class="vendor-grid">
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">火山引擎（豆包语音）</span><span class="badge badge-cn">ByteDance 生态</span></div><div class="vendor-cap">「声影智译」= TTS + 口型同步 + 音色复刻 + 字幕翻译；已有公开短剧合作案例（麦芽传媒）</div><div class="vendor-tag-row"><span class="vtag">口型同步</span><span class="vtag">音色复刻</span><span class="vtag">短剧合作</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">MiniMax / 海螺 AI</span><span class="badge badge-cn">英文对标 ElevenLabs</span></div><div class="vendor-cap">Speech-02 模型；30+ 语言；英文相似度官方对标 ElevenLabs；中文优于海外厂；支持私有部署</div><div class="vendor-tag-row"><span class="vtag">30+ 语言</span><span class="vtag">私有部署</span><span class="vtag">Speech-02</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">科大讯飞</span><span class="badge badge-cn">中文最强</span></div><div class="vendor-cap">TTS + Voice Clone；中文最强，海外弱</div><div class="vendor-tag-row"><span class="vtag">中文 TTS</span><span class="vtag">Voice Clone</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">阿里云 / 腾讯云 TTS</span><span class="badge badge-cn">长尾基础设施</span></div><div class="vendor-cap">基础 TTS；长尾基础设施</div><div class="vendor-tag-row"><span class="vtag">基础 TTS</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">Reecho 容声</span><span class="badge badge-cn">技术派</span></div><div class="vendor-cap">TTS + Voice Clone；小厂技术派</div><div class="vendor-tag-row"><span class="vtag">TTS</span><span class="vtag">Voice Clone</span></div></div>
+    </div>
+  </div>
+
+  <div id="tab-selfdev" class="tab-content">
+    <div class="vendor-grid">
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">昆仑万维 / Skywork AI</span><span class="badge badge-self">全栈自研</span></div><div class="vendor-cap">SkyReels-V2（2025-04 开源，Diffusion-forcing 框架，无限时长）· SkyReels-V3（2026-01 开源，音频驱动虚拟人）；全球首个视频+3D 大模型的 AI 短剧 to-B 平台</div><div class="vendor-tag-row"><span class="vtag">视频生成</span><span class="vtag">3D 大模型</span><span class="vtag">音频驱动</span><span class="vtag">开源</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">快手 Keling AI</span><span class="badge badge-self">视频生成</span></div><div class="vendor-cap">视频生成大模型；2026 年中国 AI 短剧主流引擎之一</div><div class="vendor-tag-row"><span class="vtag">视频生成</span><span class="vtag">短剧引擎</span></div></div>
+      <div class="vendor-card"><div class="vendor-header"><span class="vendor-name">字节 Seedance 2.0</span><span class="badge badge-self">视频生成</span></div><div class="vendor-cap">视频生成大模型；中国 AI 短剧主流引擎</div><div class="vendor-tag-row"><span class="vtag">视频生成</span><span class="vtag">短剧引擎</span></div></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 三 -->
+  <h2>三、头部海外短剧平台 AI 配音使用情况</h2>
+  <div class="caveat">⚠ 重要说明：除「麦芽传媒 × 火山引擎」和「DramaWave × 昆仑万维自研」为公开确认合作外，多数平台未披露具体 vendor。下表为综合公开报道 / 技术 BD 信号 / 产品观察的推断，仅供选型参考，不可直接对外引用。</div>
+  <div style="overflow-x:auto">
+  <table>
+    <thead><tr><th>平台</th><th>母公司</th><th>AI 配音情况</th><th>已知/疑似 vendor</th><th>确认度</th><th>备注</th></tr></thead>
+    <tbody>
+      <tr><td><span class="platform-name">ReelShort</span></td><td>Crazy Maple Studio</td><td>头部人工为主，AI 辅助加速</td><td>未公开</td><td><span class="conf conf-n">推断</span></td><td>行业访谈显示头部仍走人工 lip-sync</td></tr>
+      <tr><td><span class="platform-name">DramaBox</span></td><td>中文阅读集团 (Storynet)</td><td>头部人工为主，AI 辅助加速</td><td>未公开</td><td><span class="conf conf-n">推断</span></td><td>Resemble AI 开源模型也叫「DramaBox」，与此平台无直接关系，名字撞车</td></tr>
+      <tr><td><span class="platform-name">ShortMax</span></td><td>映宇宙（Inverse）</td><td>人工 + AI 混合</td><td>未公开</td><td><span class="conf conf-n">推断</span></td><td>三家合计占国际短剧市场过半收入（2025 mid）</td></tr>
+      <tr><td><span class="platform-name">NetShort</span></td><td>—</td><td>大量翻译 / AI 配音</td><td>未公开</td><td><span class="conf conf-n">推断</span></td><td>—</td></tr>
+      <tr><td><span class="platform-name">DramaWave</span></td><td>昆仑万维 / Skywork AI</td><td>✅ 明确使用 AI 配音</td><td>昆仑万维 SkyReels 自研</td><td><span class="conf conf-y">公开确认</span></td><td>16 种语言；2024-09 上线，半年 ARR 破 1.2 亿美元；2025 年 ARR 涨至 2.4 亿美元，进入行业 Top 5</td></tr>
+      <tr><td><span class="platform-name">FreeReels</span></td><td>昆仑万维</td><td>推测同 DramaWave</td><td>自研为主</td><td><span class="conf conf-n">推断</span></td><td>与 DramaWave 双品牌策略（付费 vs 免费）</td></tr>
+      <tr><td><span class="platform-name">麦芽国际 / 单剧</span></td><td>重庆麦芽传媒</td><td>✅ 明确使用 AI 配音</td><td>🔵 火山引擎「声影智译」</td><td><span class="conf conf-y">公开确认</span></td><td>公开案例，已出海 23 国/地区</td></tr>
+      <tr><td><span class="platform-name">FlexTV</span></td><td>中文在线</td><td>人工 + AI 混合</td><td>疑似复用中文在线技术栈</td><td><span class="conf conf-n">推断</span></td><td>—</td></tr>
+      <tr><td><span class="platform-name">GoodShort</span></td><td>九州文化</td><td>人工 + AI 混合</td><td>未公开</td><td><span class="conf conf-n">推断</span></td><td>—</td></tr>
+      <tr><td><span class="platform-name">TopShort</span></td><td>—</td><td>人工 + AI 混合</td><td>未公开</td><td><span class="conf conf-n">推断</span></td><td>—</td></tr>
+      <tr><td><span class="platform-name">MyDrama (Holywater)</span></td><td>—</td><td>AI 配音占比较高</td><td>疑似 ElevenLabs 体系</td><td><span class="conf conf-n">推断</span></td><td>公司本身重 AI 自研</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>3.1 昆仑万维体系特别说明</h3>
+  <p>昆仑万维是「短剧 + AI 大模型自研」垂直整合路线的代表，与其他平台明显不同：</p>
+  <div class="kunlun-stack">
+    <div class="stack-row">
+      <div class="stack-label">C 端 App</div>
+      <div class="stack-cell"><div class="stack-cell-name">DramaWave（付费）</div><div class="stack-cell-desc">覆盖付费用户</div></div>
+      <div class="stack-cell"><div class="stack-cell-name">FreeReels（免费）</div><div class="stack-cell-desc">覆盖免费用户</div></div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-label">创作平台</div>
+      <div class="stack-cell stack-cell-wide"><div class="stack-cell-name">SkyReels（to-B / 内部）</div><div class="stack-cell-desc">全球首个视频 + 3D 大模型 AI 短剧 to-B 工具</div></div>
+    </div>
+    <div class="stack-row">
+      <div class="stack-label">底层模型</div>
+      <div class="stack-cell stack-cell-wide"><div class="stack-cell-name">SkyReels-V2 / V3（开源）</div><div class="stack-cell-desc">视频生成、多模态、音频驱动虚拟人</div></div>
+    </div>
+  </div>
+  <p style="margin-top:8px">相比 ReelShort / DramaBox 主要采购 vendor 服务，昆仑万维把 AI 大模型自研当成核心壁垒，从底层模型 → AI 创作工具 → C 端 App 全栈控制。成本更高、周期更长，但天花板也更高。</p>
+
+  <div class="divider"></div>
+
+  <!-- 四 -->
+  <h2>四、短剧 AI 配音关键技术要点</h2>
+  <div class="tech-grid">
+    <div class="tech-card"><div class="importance"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span></div><div class="tech-dim">情绪表达（哭/笑/喘息）</div><div class="tech-leader">Resemble AI DramaBox</div><div class="tech-note">prompt 控制叹息/呼吸/停顿，唯一专为短剧情绪表达设计</div></div>
+    <div class="tech-card"><div class="importance"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span></div><div class="tech-dim">音色克隆（跨语言连贯）</div><div class="tech-leader">ElevenLabs / 火山引擎 / MiniMax</div><div class="tech-note">10 秒样本可克隆；角色 IP 跨语言保持一致性</div></div>
+    <div class="tech-card"><div class="importance"><span class="dot on"></span><span class="dot on"></span><span class="dot on"></span></div><div class="tech-dim">口型同步 lip-sync</div><div class="tech-leader">火山引擎「声影智译」</div><div class="tech-note">宣称已实现 AI 自适应口型</div></div>
+    <div class="tech-card"><div class="importance"><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div><div class="tech-dim">音频驱动数字人</div><div class="tech-leader">昆仑万维 SkyReels-V3</div><div class="tech-note">音频驱动虚拟人视频生成</div></div>
+    <div class="tech-card"><div class="importance"><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div><div class="tech-dim">小语种口音准确度</div><div class="tech-leader">印尼语/葡语/阿语/土耳其语</div><div class="tech-note">核心战场；长尾语种快速扩张</div></div>
+    <div class="tech-card"><div class="importance"><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div><div class="tech-dim">多语种规模化转译</div><div class="tech-leader">DramaWave 已做到 16 语种</div><div class="tech-note">AI 配音规模化交付</div></div>
+    <div class="tech-card"><div class="importance"><span class="dot on"></span><span class="dot on"></span><span class="dot"></span></div><div class="tech-dim">私有部署 / 数据合规</div><div class="tech-leader">MiniMax（明确支持）</div><div class="tech-note">ElevenLabs 不支持；国内系普遍优于海外厂 50%+</div></div>
+    <div class="tech-card"><div class="importance"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div><div class="tech-dim">批量并发 / 成本</div><div class="tech-leader">GhostCut / VMEG AI</div><div class="tech-note">日处理 ~10 万集；国内系性价比优势明显</div></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 五 -->
+  <h2>五、结论与建议</h2>
+  <h3>5.1 行业趋势判断</h3>
+  <div class="trend-list">
+    <div class="trend-item"><span class="trend-num">01</span><span class="trend-text">2026 是 AI 配音从「加速器」向「主力配音方式」过渡的拐点——头部精品仍人工，腰尾部 + 长尾语种会优先全 AI 化</span></div>
+    <div class="trend-item"><span class="trend-num">02</span><span class="trend-text">两条战略路径分化：<strong>采购 vendor 路线</strong>（ReelShort / DramaBox / ShortMax 等）重运营轻技术；<strong>自研大模型路线</strong>（昆仑万维 SkyReels）垂直整合，重技术建壁垒</span></div>
+    <div class="trend-item"><span class="trend-num">03</span><span class="trend-text">中国系厂商（火山 / MiniMax / 昆仑万维）凭借「短剧场景定制 + 私有部署 + 性价比」正快速侵蚀 ElevenLabs 市场份额</span></div>
+    <div class="trend-item"><span class="trend-num">04</span><span class="trend-text">专做「短剧」垂直的 AI 工具链正在出现（Resemble DramaBox、VMEG、GhostCut、SkyReels），通用 TTS 不再够用</span></div>
+    <div class="trend-item"><span class="trend-num">05</span><span class="trend-text">中国短剧 AI 内容已达 industrial scale（470 部/天，2026-05 MIT Tech Review），AI 配音是其中关键一环</span></div>
+  </div>
+
+  <h3>5.2 选型建议（按场景）</h3>
+  <div class="rec-grid">
+    <div class="rec-card"><div class="rec-scene">多语种规模化 · 质量上限</div><div class="rec-solution">ElevenLabs Dubbing v2</div></div>
+    <div class="rec-card"><div class="rec-scene">情绪表达 · 女频甜宠/虐恋</div><div class="rec-solution">Resemble AI DramaBox</div></div>
+    <div class="rec-card"><div class="rec-scene">中国出海 + 数据合规 + 性价比</div><div class="rec-solution">MiniMax 或 火山引擎「声影智译」</div></div>
+    <div class="rec-card"><div class="rec-scene">全流程一体化（去字幕+翻译+配音）</div><div class="rec-solution">VMEG AI 或 GhostCut</div></div>
+    <div class="rec-card"><div class="rec-scene">印度市场小语种（Hindi / Tamil / Telugu）</div><div class="rec-solution">Dubverse + Camb.ai</div></div>
+    <div class="rec-card"><div class="rec-scene">自研路线 / audio-driven 数字人</div><div class="rec-solution">昆仑万维 SkyReels（开源可自部署）</div></div>
+  </div>
+
+  <h3>5.3 待补充调研（建议下一步）</h3>
+  <ul class="todo-list">
+    <li>各 vendor 实际报价 / API 限流 / SLA</li>
+    <li>主流小语种（印尼语、阿语、土耳其语）的 AI 配音 MOS 主观评测</li>
+    <li>各平台用户对 AI 配音 vs 人工配音的偏好度数据（A/B 测试）</li>
+    <li>vendor BD 渠道二次验证厂商-平台对应关系</li>
+    <li>DramaWave 16 语种 AI 配音的具体技术栈（自研 + 是否复用第三方 vendor 补足小语种）</li>
+  </ul>
+
+</div>
+
+<script>
+(function () {
+  var tabs = document.querySelectorAll('#vendor-tabs .tab-btn');
+  tabs.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = btn.getAttribute('data-tab');
+      tabs.forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function (el) { el.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+})();
+</script>
+</body>
+</html>
