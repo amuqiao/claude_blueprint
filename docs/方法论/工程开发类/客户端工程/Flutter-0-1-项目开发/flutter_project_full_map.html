@@ -31,9 +31,18 @@
       --infra-bg: #e2f2f3;
       --infra-border: #5da8ae;
       --infra-text: #255e65;
+      --pending-bg: #fff7db;
+      --pending-border: #c99a2e;
+      --pending-text: #684d08;
+      --conditional-bg: #e7f6ed;
+      --conditional-border: #55a976;
+      --conditional-text: #25613b;
       --optional-bg: #ece9e2;
       --optional-border: #8e8677;
       --optional-text: #474035;
+      --merge-bg: #edf0f4;
+      --merge-border: #8c99a8;
+      --merge-text: #3b4654;
     }
 
     * {
@@ -101,7 +110,10 @@
     .impl { --card-bg: var(--impl-bg); --card-border: var(--impl-border); --card-text: var(--impl-text); }
     .verify { --card-bg: var(--verify-bg); --card-border: var(--verify-border); --card-text: var(--verify-text); }
     .infra { --card-bg: var(--infra-bg); --card-border: var(--infra-border); --card-text: var(--infra-text); }
+    .pending { --card-bg: var(--pending-bg); --card-border: var(--pending-border); --card-text: var(--pending-text); }
+    .conditional { --card-bg: var(--conditional-bg); --card-border: var(--conditional-border); --card-text: var(--conditional-text); }
     .optional { --card-bg: var(--optional-bg); --card-border: var(--optional-border); --card-text: var(--optional-text); }
+    .merge { --card-bg: var(--merge-bg); --card-border: var(--merge-border); --card-text: var(--merge-text); }
 
     .legend-dot {
       background: var(--card-bg);
@@ -263,7 +275,10 @@
       <div class="legend-item impl"><span class="legend-dot"></span>实现规范</div>
       <div class="legend-item verify"><span class="legend-dot"></span>验收规范</div>
       <div class="legend-item infra"><span class="legend-dot"></span>基础设施</div>
-      <div class="legend-item optional"><span class="legend-dot"></span>可选扩展</div>
+      <div class="legend-item pending"><span class="legend-dot"></span>待补必选</div>
+      <div class="legend-item conditional"><span class="legend-dot"></span>条件触发</div>
+      <div class="legend-item optional"><span class="legend-dot"></span>延后评估</div>
+      <div class="legend-item merge"><span class="legend-dot"></span>合并处理</div>
     </div>
 
     <div class="section-title">0-1 阶段</div>
@@ -284,6 +299,11 @@
           <div class="card-summary">选型结论 · 放弃选项理由 · Open Questions 格式</div>
           <span class="tag">模板</span>
         </a>
+        <div class="card pending">
+          <div class="card-title">Flutter-项目初始化规范</div>
+          <div class="card-summary">从 flutter create 到 Riverpod / Drift / GoRouter 接入完成，让项目进入可写业务状态</div>
+          <span class="tag">待补必选</span>
+        </div>
       </div>
     </section>
 
@@ -400,23 +420,50 @@
 
     <hr>
 
-    <div class="section-title">0-1 之后 — 演进阶段</div>
+    <div class="section-title">条件触发规范</div>
+
+    <div class="cards g2">
+      <div class="card conditional">
+        <div class="card-title">Flutter-CI质量门禁规范</div>
+        <div class="card-summary">有 CI 时必选 · analyze / test / coverage / build_runner 检查</div>
+        <span class="tag">有 CI 时</span>
+      </div>
+      <div class="card conditional">
+        <div class="card-title">Flutter-Git-PR工作流规范</div>
+        <div class="card-summary">2 人以上必选 · PR 粒度 · Slice 对应关系 · review 检查清单</div>
+        <span class="tag">2 人以上</span>
+      </div>
+      <div class="card conditional">
+        <div class="card-title">Flutter-发布与环境规范</div>
+        <div class="card-summary">准备外部分发前必选 · 环境配置 · 包名签名 · 版本号 · TestFlight / 内测发布</div>
+        <span class="tag">上线前</span>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="section-title">延后评估 / 合并处理</div>
 
     <div class="cards g2">
       <div class="card optional">
-        <div class="card-title">Git 工作流规范</div>
-        <div class="card-summary">分支命名 · PR 与 Slice 对应关系 · commit 消息约定</div>
-        <span class="tag">可选</span>
+        <div class="card-title">Flutter-性能基线规范</div>
+        <div class="card-summary">有真实性能数据后再写 · 首屏时间 · 列表帧率 · 包体积 · 回归触发条件</div>
+        <span class="tag">延后</span>
       </div>
       <div class="card optional">
-        <div class="card-title">发布 &amp; 环境规范</div>
-        <div class="card-summary">staging / prod 差异处理 · 版本号管理 · 构建产物约定</div>
-        <span class="tag">可选</span>
+        <div class="card-title">Flutter-线上问题回流规范</div>
+        <div class="card-summary">上线后再写 · crash / bug 回流 · 补测试 · 回写 Slice 与变更记录</div>
+        <span class="tag">延后</span>
       </div>
-      <div class="card optional">
-        <div class="card-title">性能基线规范</div>
-        <div class="card-summary">帧率阈值 · 首屏时间 · 包体积上限 · 回归检测触发条件</div>
-        <span class="tag">可选</span>
+      <div class="card merge">
+        <div class="card-title">安全与隐私约束</div>
+        <div class="card-summary">不单独成文 · 按产品性质写入对应 Slice 的 Edge Cases 和权限 / 数据处理说明</div>
+        <span class="tag">并入 Slice</span>
+      </div>
+      <div class="card merge">
+        <div class="card-title">设计系统与可访问性约束</div>
+        <div class="card-summary">不单独成文 · 并入 Flutter-UI 组件规范，约束 Token、语义、深色模式与动态字体</div>
+        <span class="tag">并入 UI</span>
       </div>
     </div>
   </main>
