@@ -23,11 +23,45 @@ flutter_app/
 ├── assets/
 │   ├── images/
 │   └── fonts/
-├── docs/                  所有规范文档放这里
+├── docs/                  项目文档放这里
 └── pubspec.yaml
 ```
 
 `lib/` 下只有四个顶级目录：`core`、`data`、`features`、`shared`。不要在顶层放零散文件，不要创建 `utils/`、`helpers/`、`common/` 这类名称模糊的目录。
+
+---
+
+## docs/ — 项目文档目录
+
+`docs/` 放的是具体项目自己的决策、设计和验收文档，不是方法论规范的复制品。
+
+方法论规范负责“怎么写”，项目文档负责“这个项目实际决定了什么”。新项目按这套方法论落地时，至少保留以下结构：
+
+```
+docs/
+├── README.md
+├── tech-decisions/
+│   └── tech-decision.md
+├── slices/
+│   ├── features/
+│   ├── design-principles/
+│   └── verification/
+└── architecture/
+    └── pages/
+```
+
+各目录职责：
+
+```
+README.md             项目文档入口，说明当前项目有哪些文档、从哪里开始读
+tech-decisions/       阶段 0 技术选型记录，由 Tech Decision 模板派生
+slices/features/      功能 Slice，描述产品功能、交互、状态和验收条件
+slices/design-principles/ 设计原则 Slice，描述跨功能语义边界和关系
+slices/verification/  验证 Slice，描述跨 Slice 的验收链路和一致性检查
+architecture/pages/   页面级组件架构文档，对应组件架构文档写作规范
+```
+
+0-1 早期不要提前创建没有使用场景的目录。CI、发布、线上问题回流、性能基线等文档，等触发条件成立后再补。
 
 ---
 
