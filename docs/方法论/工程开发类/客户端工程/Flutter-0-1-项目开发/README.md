@@ -162,7 +162,9 @@ Flutter-项目开发调度范式.md
 
 ---
 
-## 文档目录
+## 本规范目录文件清单
+
+下面是本目录当前维护的规范文件。真实项目应从这些规范中派生自己的项目文档，只维护当前项目实际存在的决策、设计、验收和变更记录。
 
 ```
 docs/
@@ -179,9 +181,5 @@ docs/
 ├── Flutter-导航规范.md
 ├── Flutter-错误处理规范.md
 ├── Flutter-变更管理规范.md
-├── Flutter-测试规范.md
-└── slices/                                 Slice 设计文档
-    ├── features/
-    ├── design-principles/
-    └── verification/
+└── Flutter-测试规范.md
 ```

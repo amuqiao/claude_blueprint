@@ -100,6 +100,13 @@
       font-size: 13px;
     }
 
+    .blueprint-note {
+      max-width: 860px;
+      margin: -8px 0 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
     .legend-dot {
       width: 11px;
       height: 11px;
@@ -286,6 +293,10 @@
       <div class="legend-item merge"><span class="legend-dot"></span>合并处理</div>
     </div>
 
+    <p class="blueprint-note">
+      卡片表示一类能力或文档职责，不要求一张卡片必须对应一篇同名文档。标签只提示当前承接方式：可能独立成文、条件触发、按需补充，也可能并入 Slice、UI 或其他规范中处理。
+    </p>
+
     <div class="section-title">MVP 边界判断</div>
 
     <div class="cards g2">
@@ -294,10 +305,10 @@
         <div class="card-summary">先判断当前问题属于项目起盘、版本收敛、功能模块、基础设施还是治理回写</div>
         <span class="tag">流程</span>
       </a>
-      <div class="card pending">
+      <div class="card flow">
         <div class="card-title">Flutter-版本边界与首个核心路径</div>
-        <div class="card-summary">明确当前版本做什么、不做什么、首个主链路是什么，再进入技术选型和 Slice</div>
-        <span class="tag">待补必选</span>
+        <div class="card-summary">由调度范式的 Project / Version 层承接，用于判断当前版本做什么、不做什么、首个主链路是什么</div>
+        <span class="tag">调度承接</span>
       </div>
     </div>
 
@@ -311,7 +322,7 @@
       <div class="cards g2">
         <a class="card flow" href="./Flutter-项目推进的正确顺序.md">
           <div class="card-title">Flutter-项目推进的正确顺序</div>
-          <div class="card-summary">六阶段框架 · 选型代价表 · 执行顺序约定</div>
+          <div class="card-summary">MVP 推进顺序 · 完成判断 · 下一步条件</div>
           <span class="tag">流程</span>
         </a>
         <a class="card template" href="./Flutter-Tech-Decision-模板.md">
