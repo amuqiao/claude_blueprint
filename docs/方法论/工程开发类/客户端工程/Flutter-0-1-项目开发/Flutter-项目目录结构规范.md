@@ -146,6 +146,16 @@ slices/verification/  验证 Slice，描述跨 Slice 的验收链路和一致性
 architecture/pages/   页面级组件架构文档，对应组件架构文档写作规范
 ```
 
+项目文档的最小交付物是文件，不是目录。目录只负责分类和收纳，不能用空目录代替设计决策。
+
+```
+docs/slices/features/              分类目录，不是一个 Slice
+docs/slices/features/item-list.md  一个功能 Slice
+docs/architecture/pages/list.md    一个页面组件架构文档
+```
+
+当文档内容过大必须目录化时，目录下必须有 `README.md` 作为入口，说明这个文档组的边界、读法和验收口径。
+
 0-1 早期不要提前创建没有使用场景的目录。CI、发布、线上问题回流、性能基线等文档，等触发条件成立后再补。
 
 ---
