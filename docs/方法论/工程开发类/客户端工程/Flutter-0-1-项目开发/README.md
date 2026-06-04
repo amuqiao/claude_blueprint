@@ -4,11 +4,36 @@
 
 ---
 
+## 文档角色
+
+本目录的文档分四层使用：
+
+```text
+flutter_project_full_map.html
+  -> 总纲蓝图：给人先看全局视野，理解 MVP 主线、条件触发和后续演进，不作为具体执行入口
+
+README.md
+  -> 文字索引：回答“我现在该读哪份文档”
+
+Flutter-项目开发调度范式.md
+  -> 判断入口：回答“当前问题属于 Project / Version / Feature / Infrastructure / Governance 哪一层”
+
+其他规范文档
+  -> 执行规范：在层级已经判断清楚后，指导具体设计、实现、验收和回写
+```
+
+如果只是想建立全局心智模型，可以先看 [flutter_project_full_map.html](./flutter_project_full_map.html)。如果已经进入实际工作，应以本文档和 [Flutter-项目开发调度范式](./Flutter-项目开发调度范式.md) 作为入口。
+
+本文中的“阶段 0 / 阶段 1 / 阶段 2 ...”指 **MVP 开发主线内部步骤**，不是 `0-1 / 1-100` 的项目阶段划分。`0-1` 在这里指一个 App 从想法、边界判断、首个核心链路到可运行可验收 MVP 的首版闭环。
+
+---
+
 ## 文档地图
 
 ```
 你在做什么                           读哪份文档
 ──────────────────────────────────────────────────────────────
+想先看 0-1 全局蓝图                  flutter_project_full_map.html
 刚加入项目，不知道从哪开始            本文档，从头到尾读一遍
 不知道当前问题该调用哪类规范           Flutter-项目开发调度范式
 要写一个新功能，不知道先做什么         Flutter-项目推进的正确顺序
@@ -142,6 +167,7 @@
 ```
 docs/
 ├── README.md                               本文档（索引）
+├── flutter_project_full_map.html           总纲蓝图（给人看全局视野）
 ├── Flutter-项目开发调度范式.md
 ├── Flutter-项目推进的正确顺序.md
 ├── Flutter-Tech-Decision-模板.md
