@@ -37,6 +37,9 @@
       --conditional-bg: #e7f6ed;
       --conditional-border: #55a976;
       --conditional-text: #25613b;
+      --evolution-bg: #e4eefb;
+      --evolution-border: #5b7fb8;
+      --evolution-text: #243f72;
       --optional-bg: #ece9e2;
       --optional-border: #8e8677;
       --optional-text: #474035;
@@ -112,6 +115,7 @@
     .infra { --card-bg: var(--infra-bg); --card-border: var(--infra-border); --card-text: var(--infra-text); }
     .pending { --card-bg: var(--pending-bg); --card-border: var(--pending-border); --card-text: var(--pending-text); }
     .conditional { --card-bg: var(--conditional-bg); --card-border: var(--conditional-border); --card-text: var(--conditional-text); }
+    .evolution { --card-bg: var(--evolution-bg); --card-border: var(--evolution-border); --card-text: var(--evolution-text); }
     .optional { --card-bg: var(--optional-bg); --card-border: var(--optional-border); --card-text: var(--optional-text); }
     .merge { --card-bg: var(--merge-bg); --card-border: var(--merge-border); --card-text: var(--merge-text); }
 
@@ -265,7 +269,7 @@
   <main>
     <header>
       <h1>Flutter 0-1 项目开发文档全景图</h1>
-      <p class="lead">这张图按项目推进顺序组织文档，帮助读者从阶段 0 技术选型一路定位到实现、验收和后续演进规范。</p>
+      <p class="lead">这张图按 App MVP 首版闭环组织文档，从边界判断、技术选型、Slice 设计一路定位到实现、验收和后续演进视野。</p>
     </header>
 
     <div class="legend" aria-label="文档类型图例">
@@ -277,15 +281,31 @@
       <div class="legend-item infra"><span class="legend-dot"></span>基础设施</div>
       <div class="legend-item pending"><span class="legend-dot"></span>待补必选</div>
       <div class="legend-item conditional"><span class="legend-dot"></span>条件触发</div>
+      <div class="legend-item evolution"><span class="legend-dot"></span>演进路线</div>
       <div class="legend-item optional"><span class="legend-dot"></span>延后评估</div>
       <div class="legend-item merge"><span class="legend-dot"></span>合并处理</div>
     </div>
 
-    <div class="section-title">0-1 阶段</div>
+    <div class="section-title">MVP 边界判断</div>
+
+    <div class="cards g2">
+      <a class="card flow" href="./Flutter-项目开发调度范式.md">
+        <div class="card-title">Flutter-项目开发调度范式</div>
+        <div class="card-summary">先判断当前问题属于项目起盘、版本收敛、功能模块、基础设施还是治理回写</div>
+        <span class="tag">流程</span>
+      </a>
+      <div class="card pending">
+        <div class="card-title">Flutter-版本边界与首个核心路径</div>
+        <div class="card-summary">明确当前版本做什么、不做什么、首个主链路是什么，再进入技术选型和 Slice</div>
+        <span class="tag">待补必选</span>
+      </div>
+    </div>
+
+    <div class="section-title">MVP 开发主线</div>
 
     <section class="phase" aria-labelledby="phase-0">
       <div class="phase-header">
-        <div class="phase-num">阶段 0</div>
+        <div class="phase-num">准备</div>
         <div id="phase-0" class="phase-name">技术选型</div>
       </div>
       <div class="cards g2">
@@ -311,7 +331,7 @@
 
     <section class="phase" aria-labelledby="phase-1">
       <div class="phase-header">
-        <div class="phase-num">阶段 1</div>
+        <div class="phase-num">设计</div>
         <div id="phase-1" class="phase-name">Slice 设计文档</div>
       </div>
       <div class="cards g1">
@@ -327,7 +347,7 @@
 
     <section class="phase" aria-labelledby="phase-2">
       <div class="phase-header">
-        <div class="phase-num">阶段 2</div>
+        <div class="phase-num">架构</div>
         <div id="phase-2" class="phase-name">组件架构文档</div>
       </div>
       <div class="cards g1">
@@ -343,7 +363,7 @@
 
     <section class="phase" aria-labelledby="phase-3">
       <div class="phase-header">
-        <div class="phase-num">阶段 3</div>
+        <div class="phase-num">数据</div>
         <div id="phase-3" class="phase-name">数据层实现</div>
       </div>
       <div class="cards g1">
@@ -359,7 +379,7 @@
 
     <section class="phase" aria-labelledby="phase-4">
       <div class="phase-header">
-        <div class="phase-num">阶段 4</div>
+        <div class="phase-num">界面</div>
         <div id="phase-4" class="phase-name">UI 层实现</div>
       </div>
       <div class="cards g3">
@@ -385,8 +405,8 @@
 
     <section class="phase" aria-labelledby="phase-5">
       <div class="phase-header">
-        <div class="phase-num">阶段 5</div>
-        <div id="phase-5" class="phase-name">验收</div>
+        <div class="phase-num">验证</div>
+        <div id="phase-5" class="phase-name">测试验收</div>
       </div>
       <div class="cards g1">
         <a class="card verify" href="./Flutter-测试规范.md">
@@ -398,7 +418,7 @@
     </section>
 
     <section class="band" aria-labelledby="infra">
-      <div id="infra" class="band-label">全程基础设施（0-1 阶段开始即生效）</div>
+      <div id="infra" class="band-label">MVP 全程基础设施（首版开始即生效）</div>
       <div class="cards g3">
         <a class="card infra" href="./Flutter-项目目录结构规范.md">
           <div class="card-title">Flutter-项目目录结构规范</div>
@@ -420,7 +440,7 @@
 
     <hr>
 
-    <div class="section-title">条件触发规范</div>
+    <div class="section-title">MVP 条件触发规范</div>
 
     <div class="cards g2">
       <div class="card conditional">
@@ -442,7 +462,44 @@
 
     <hr>
 
-    <div class="section-title">延后评估 / 合并处理</div>
+    <div class="section-title">MVP 后技术方案演进视野</div>
+
+    <div class="cards g3">
+      <div class="card evolution">
+        <div class="card-title">Flutter-状态管理演进路线</div>
+        <div class="card-summary">setState → StateProvider → Notifier / AsyncNotifier → Riverpod codegen → 分域状态治理</div>
+        <span class="tag">按需补</span>
+      </div>
+      <div class="card evolution">
+        <div class="card-title">Flutter-数据层演进路线</div>
+        <div class="card-summary">本地文件 / 设置存储 → Drift → Repository 接口化 → 本地 / 远程双实现 → 离线同步</div>
+        <span class="tag">按需补</span>
+      </div>
+      <div class="card evolution">
+        <div class="card-title">Flutter-导航演进路线</div>
+        <div class="card-summary">Navigator → GoRouter → typed route → deep link / auth guard → nested shell 与复杂入口</div>
+        <span class="tag">按需补</span>
+      </div>
+      <div class="card evolution">
+        <div class="card-title">Flutter-异步与后台能力演进路线</div>
+        <div class="card-summary">页面内 Future → Notifier 封装 → isolate / compute → 后台任务 → 服务端任务系统</div>
+        <span class="tag">按需补</span>
+      </div>
+      <div class="card evolution">
+        <div class="card-title">Flutter-发布闭环演进路线</div>
+        <div class="card-summary">本地验证 → flavor / env → CI 门禁 → 签名分发 → 监控与反馈回流</div>
+        <span class="tag">按需补</span>
+      </div>
+      <div class="card evolution">
+        <div class="card-title">Flutter-性能优化演进路线</div>
+        <div class="card-summary">手工感知 → DevTools 定位 → 局部优化 → 性能基线 → 回归门禁</div>
+        <span class="tag">按需补</span>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="section-title">MVP 后延后事项 / 合并处理</div>
 
     <div class="cards g2">
       <div class="card optional">
@@ -452,7 +509,7 @@
       </div>
       <div class="card optional">
         <div class="card-title">Flutter-线上问题回流规范</div>
-        <div class="card-summary">上线后再写 · crash / bug 回流 · 补测试 · 回写 Slice 与变更记录</div>
+        <div class="card-summary">上线后再写 · crash / bug / 用户反馈 → 修复变更 → 补测试 → 回写 Slice</div>
         <span class="tag">延后</span>
       </div>
       <div class="card merge">
