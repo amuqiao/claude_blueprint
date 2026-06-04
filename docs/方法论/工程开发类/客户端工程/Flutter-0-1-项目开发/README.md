@@ -10,6 +10,7 @@
 你在做什么                           读哪份文档
 ──────────────────────────────────────────────────────────────
 刚加入项目，不知道从哪开始            本文档，从头到尾读一遍
+要把规范包用于真实项目落地             Flutter-0-1-项目落地范式
 要写一个新功能，不知道先做什么         Flutter-项目推进的正确顺序
 要做阶段 0 技术选型                  Flutter-Tech-Decision-模板
 要写 Slice 设计文档                  Flutter-Slice-写作规范
@@ -31,6 +32,7 @@
 
 | 文档 | 对应阶段 | 核心问题 |
 |------|---------|---------|
+| [Flutter-0-1-项目落地范式](./Flutter-0-1-项目落地范式.md) | 全程 | 指导规范包如何转成真实项目的文档、代码、验证和演进主线 |
 | [Flutter-项目推进的正确顺序](./Flutter-项目推进的正确顺序.md) | 全程 | 各阶段做什么、顺序是什么 |
 | [Flutter-Tech-Decision-模板](./Flutter-Tech-Decision-模板.md) | 阶段 0 | 技术选型怎么记录、怎么锁定、怎么处理未决问题 |
 | [Flutter-变更管理规范](./Flutter-变更管理规范.md) | 演进期 | 改了一个地方，哪些地方要跟着改 |
@@ -63,6 +65,11 @@
 ## 文档之间的依赖关系
 
 ```
+项目落地范式
+  └── Intent -> Decision -> Slice -> Architecture -> Foundation -> Implementation -> Verification -> Evolution
+        └── 引用  项目推进顺序（阶段化执行）
+        └── 引用  项目目录结构规范（项目 docs/ 与 lib/ 组织）
+
 项目推进顺序
   └── 阶段 0  ->  Tech Decision 模板
   └── 阶段 1  ->  Slice 写作规范
@@ -132,6 +139,7 @@
 ```
 docs/
 ├── README.md                               本文档（索引）
+├── Flutter-0-1-项目落地范式.md
 ├── Flutter-项目推进的正确顺序.md
 ├── Flutter-Tech-Decision-模板.md
 ├── Flutter-Slice-写作规范.md
