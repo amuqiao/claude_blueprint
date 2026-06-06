@@ -16,7 +16,7 @@ UI 层按三个层级组织，每一层有明确的职责边界：
 容器层（Section / ItemList / Bar）
   持有区块级交互逻辑，读取 Provider，处理用户操作
   可以 watch Provider，可以调用 Notifier 方法
-  不做 UI 细节决策（颜色、间距由子组件自己决定）
+  不做业务样式发明（颜色、间距、圆角、动效必须来自语义 token）
 
 叶子层（Card / Cell / Chip / Button）
   只接收数据，通过回调通知父组件
@@ -125,17 +125,67 @@ const ItemCard({super.key, required this.item, required this.onTap});
 
 ## 样式管理
 
-### 设计 Token
+### 语义 Token 是前置条件
 
-颜色、间距、字体大小统一放在 `lib/core/theme/` 下，不要在组件里硬编码数值。
+写 UI 组件前必须先建立语义 token。没有语义 token，不开始批量写 Widget。
+
+语义 token 解决的不是“数字放在哪里”，而是“这个数字为什么存在”。组件里不能直接写颜色、间距、圆角、字号、阴影、动画时长这类裸值，也不要把 `16` 这种数值换成没有业务含义的 `md` 就结束。
+
+Token 分两层：
+
+```text
+基础 token     -> 项目全局尺度，只表达设计系统的基础刻度
+语义 token     -> 业务/组件语义，表达具体场景为什么用这个值
+```
+
+推荐目录：
 
 ```
 lib/core/theme/
 ├── app_theme.dart       ThemeData 配置入口
-├── app_colors.dart      颜色常量
-├── app_spacing.dart     间距常量
+├── app_colors.dart      基础颜色与 ColorScheme 映射
+├── app_spacing.dart     基础间距刻度
+├── app_radius.dart      基础圆角刻度
+├── app_motion.dart      基础动效时长和曲线
 └── app_text_styles.dart 文字样式
+
+lib/features/{feature}/theme/
+└── {feature}_tokens.dart  feature 级语义 token
 ```
+
+示例：
+
+```dart
+abstract class TimelineRhythm {
+  static const double readingGap = AppSpacing.lg;
+  static const double anchorTopPadding = AppSpacing.md;
+}
+
+abstract class TimelineBubbleTokens {
+  static const BorderRadius radius = BorderRadius.all(
+    Radius.circular(AppRadius.md),
+  );
+  static const Color background = AppColors.surfaceRaised;
+}
+```
+
+`AppSpacing.md` 是基础刻度，`TimelineRhythm.readingGap` 才是语义 token。组件优先使用语义 token；只有还没有形成具体业务语义的通用布局，才直接使用基础 token。
+
+### 禁止硬编码的范围
+
+默认禁止在 Widget 中直接硬编码以下内容：
+
+```text
+Color(0x...)
+EdgeInsets / Padding 裸数字
+SizedBox width / height 裸数字
+BorderRadius / Radius 裸数字
+TextStyle fontSize / height / weight 的随手值
+BoxShadow 的 blur / offset / color 裸值
+Duration / Curve 的随手值
+```
+
+这些值只能出现在 token 文件、Theme 配置、测试断言或“值本身就是数据”的场景里。例外必须写注释说明原因。
 
 ### 颜色的取用方式
 
@@ -155,7 +205,10 @@ color: const Color(0xFF666666)  // 深色模式下看不见
 ### 间距
 
 ```dart
-// 正确：使用间距常量
+// 正确：使用语义 token
+padding: const EdgeInsets.only(top: TimelineRhythm.anchorTopPadding)
+
+// 可以接受：通用布局使用基础 token
 padding: const EdgeInsets.all(AppSpacing.md)
 
 // 错误：魔法数字
@@ -312,5 +365,6 @@ lib/
 新增组件         -> 先确认层级（Screen/Section/叶子），按命名规范建文件，在组件架构文档里登记
 修改组件接口     -> 更新所有调用方，不留废弃参数
 样式改动         -> 改 Theme 或 Token，不改个别组件的硬编码值
-发现硬编码颜色   -> 立即替换为 Token，不要"先跑起来以后再说"
+新增业务组件       -> 先补语义 token，再写 Widget
+发现硬编码样式值   -> 立即替换为 Token，不要"先跑起来以后再说"
 ```
