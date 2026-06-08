@@ -54,10 +54,13 @@
 
 ### 专题目录
 
-这类目录承载某个技术主题下的一组文档。顶层索引只保留目录入口，具体阅读路径由目录自己的 `README.md` 维护。
+这类目录承载某个技术主题下的一组文档。顶层索引只保留目录入口或该专题的主入口文档；如果专题已有 `README.md`，具体阅读路径由目录自己的 `README.md` 维护。
 
 - [`IOS/README.md`](IOS/README.md)
   管理 iOS App、SwiftUI 和 Apple 平台开发相关文档的阅读路径与索引。
+
+- [`deploy/ClaudeBlueprint部署与发布手册.md`](deploy/ClaudeBlueprint部署与发布手册.md)
+  说明如何把本仓库维护的 Claude Code 运行层资产同步到 `~/.claude`，以及更新 manifest、脚本和 Plugin 计划后的发布验证方式。
 
 ---
 
