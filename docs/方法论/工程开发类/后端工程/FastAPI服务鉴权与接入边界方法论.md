@@ -137,6 +137,33 @@ FastAPI 服务鉴权与接入边界处理的不是“给接口加一个 `Depends
 | 独立 Auth 服务 | 多应用共享登录、账号体系开始复用、需要统一 token 签发和撤销 | 需要清楚划分 Auth 服务、业务服务和网关的信任边界 |
 | 网关 SSO / API Gateway 鉴权 | 统一入口、多个后端服务、企业登录、集中认证和限流 | 后端要明确身份透传格式、签名校验、防绕过和服务间调用规则 |
 
+对纯机器调用或能力型 API，`X-API-Key` 和 `Authorization: Bearer` 都可以成立，关键是协议、配置、实现、文档和验证必须保持一致。
+
+两种常见服务级 Key 形态可以这样选择：
+
+| 形态 | 请求头 | 配置倾向 | FastAPI 建模 | 适合场景 |
+| --- | --- | --- | --- | --- |
+| 自定义 API Key Header | `X-API-Key: <key>` | `VALID_API_KEYS`、`API_KEYS` 这类调用方 Key 列表 | `APIKeyHeader(name="X-API-Key")` | 简单服务间调用、内部工具、明确以 API Key 命名的第三方接入 |
+| Bearer Token | `Authorization: Bearer <token>` | `SERVICE_API_KEY`、`SERVICE_TOKEN` 或按调用方发放的 token | `HTTPBearer` | 已采用标准 `Authorization` 头、未来可能接入 JWT/OAuth2/网关 token 的服务 |
+
+二者本质上都可以表达“调用方已被允许访问服务”，不是用户登录态，也不自动表达终端用户、租户、角色或资源权限。选择时不要只看个人习惯，应优先看调用方生态、已有网关规范、文档可读性、密钥轮换方式和未来演进路径。
+
+FastAPI 实现应使用与协议匹配的 `fastapi.security` 组件建模鉴权，而不是只用普通 `Header(...)` 手写读取。普通 Header 读取可以完成运行时校验，但不会天然生成 OpenAPI `securitySchemes`，容易造成真实接口需要鉴权、Swagger UI 却没有 `Authorize` 入口，或 `Try it out` 生成的 curl 不带鉴权头。
+
+最小实现约定是：
+
+```text
+协议是 X-API-Key
+  -> 使用 APIKeyHeader(name="X-API-Key")
+  -> 文档、curl、SDK 和测试都传 X-API-Key
+
+协议是 Authorization: Bearer
+  -> 使用 HTTPBearer
+  -> 文档、curl、SDK 和测试都传 Authorization: Bearer <token>
+```
+
+如果项目确实需要自定义 Header、签名请求或网关透传，也应显式补齐 OpenAPI security scheme 或文档说明，避免 `/docs` 与真实接口脱节。
+
 有用户系统时，不应只写“升级到 JWT”。至少要判断三条路线：
 
 | 路线 | 适合阶段 | 信任边界 |
@@ -343,6 +370,7 @@ CORS 只开放明确需要的前端来源
 - HTTPS：生产入口不会明文传输凭证
 - 日志：认证失败、授权失败和限流可排查，但不出现凭证原文
 - 文档：接口表、请求头、状态码、Key 管理、token/session 生命周期和接入建议与实现一致
+- OpenAPI / Swagger UI：受保护接口声明正确的 `securitySchemes`，`Authorize` 后生成的请求会携带预期鉴权头
 
 有用户系统时追加
 - 认证入口：登录、刷新、登出、OAuth 回调、防爆破和 CSRF/state 校验可验证
@@ -364,6 +392,8 @@ CORS 只开放明确需要的前端来源
 ```
 
 验证可以是单元测试、集成测试、`curl` 冒烟脚本、浏览器联调、网关联调或上线前清单。资源级越权测试应至少构造两个合法主体，而不是只测匿名访问；例如 user_A 创建任务后，用 user_B 的 token 访问该 `task_id`，应返回 `403` 或 `404`，并且响应不暴露资源归属。关键不在形式，而在它能发现“接口漏鉴权、CORS 被误当安全边界、CSRF 缺失、密钥泄漏、身份 Header 可伪造、IDOR、限流维度错误、文档与实现不一致”这些高风险问题。
+
+对 FastAPI 服务，建议把 OpenAPI 鉴权契约纳入自动化验证。至少检查 `components.securitySchemes` 中存在项目选择的认证方案，受保护路由声明了对应 `security`，并用一个最小请求验证缺失凭证、错误凭证和正确凭证的行为。这样可以防止“运行时依赖能校验 Header，但 `/docs` 无法带鉴权头”的接口接入问题。
 
 ### Stage：演进触发
 
