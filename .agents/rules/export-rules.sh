@@ -16,7 +16,7 @@ usage() {
 用法：
   .agents/rules/export-rules.sh --target /path/to/project
   .agents/rules/export-rules.sh --target /path/to/project --all
-  .agents/rules/export-rules.sh --target /path/to/project --rules git.md writing.md
+  .agents/rules/export-rules.sh --target /path/to/project --rules git.md backend/fastapi/jobs/async-job.md
   .agents/rules/export-rules.sh --list
   .agents/rules/export-rules.sh -h
 
@@ -32,26 +32,26 @@ usage() {
 
 参数：
   -t, --target <path>      目标项目目录。脚本会写入 <path>/.agents/rules/
-  -r, --rules <rules...>   指定要复制的规则，支持文件名、无 .md 后缀名称或序号
+  -r, --rules <rules...>   指定要复制的规则，支持序号、相对路径、文件名或省略 .md 后缀名称
       --all                复制全部规则
       --list               只列出当前可选规则，不复制文件
   -h, --help               显示本帮助信息
 
 交互模式：
   不传 --rules 或 --all 时，脚本会列出规则并等待输入。
-  支持输入序号、文件名或 all，例如：
+  支持输入序号、相对路径、文件名或 all，例如：
     1,3,5
-    git.md writing.md
-    git writing
+    git.md backend/fastapi/jobs/async-job.md
+    git backend/fastapi/jobs/async-job
     all
 
 示例：
-  .agents/rules/export-rules.sh --target ~/Code/new-project --rules git.md testing.md
+  .agents/rules/export-rules.sh --target ~/Code/new-project --rules git.md backend/fastapi/jobs/async-job.md
   .agents/rules/export-rules.sh --target ~/Code/new-project --all
   .agents/rules/export-rules.sh --list
 
 执行结果：
-  1. 复制选中的规则文件到目标项目 .agents/rules/
+  1. 按相对目录复制选中的规则文件到目标项目 .agents/rules/
   2. 在终端输出 References Index，手动复制到目标项目 AGENTS.md
 
 幂等性和副作用：
@@ -119,12 +119,17 @@ check_dependencies
 
 [[ -d "$SOURCE_DIR" ]] || fail "source rules directory not found: $SOURCE_DIR"
 
-# 规则真源固定为仓库根目录下的 rules/*.md。
+# 规则真源固定为仓库根目录下的 rules/**/*.md，复制时保留相对目录。
 RULE_FILES=()
 while IFS= read -r file; do
   RULE_FILES+=("$file")
-done < <(find "$SOURCE_DIR" -maxdepth 1 -type f -name '*.md' -print | sort)
+done < <(find "$SOURCE_DIR" -type f -name '*.md' -print | sort)
 [[ ${#RULE_FILES[@]} -gt 0 ]] || fail "no rule files found in: $SOURCE_DIR"
+
+relative_rule_path() {
+  local file="$1"
+  printf '%s\n' "${file#${SOURCE_DIR}/}"
+}
 
 # 每条规则必须在 frontmatter 中声明 description，用于生成 AGENTS.md 索引。
 description_for() {
@@ -153,7 +158,7 @@ print_available_rules() {
   local index=1
   local file
   for file in "${RULE_FILES[@]}"; do
-    printf '  %d. %s - %s\n' "$index" "$(basename "$file")" "$(description_for "$file")"
+    printf '  %d. %s - %s\n' "$index" "$(relative_rule_path "$file")" "$(description_for "$file")"
     index=$((index + 1))
   done
 }
@@ -180,11 +185,13 @@ select_all_rules() {
 
 select_rules_by_tokens() {
   SELECTED_RULES=()
-  local token normalized file found position
+  local token normalized file found position rel rel_no_ext base base_no_ext matched_count matched_file
 
-  # 支持通过序号、完整文件名或省略 .md 后缀的名称选择规则。
+  # 支持通过序号、相对路径、完整文件名或省略 .md 后缀的名称选择规则。
   for token in "$@"; do
     found=0
+    matched_count=0
+    matched_file=""
 
     if [[ "$token" =~ ^[0-9]+$ ]]; then
       position=$((token - 1))
@@ -200,11 +207,22 @@ select_rules_by_tokens() {
       fi
 
       for file in "${RULE_FILES[@]}"; do
-        if [[ "$(basename "$file")" == "$normalized" ]]; then
-          found=1
-          break
+        rel="$(relative_rule_path "$file")"
+        rel_no_ext="${rel%.md}"
+        base="$(basename "$file")"
+        base_no_ext="${base%.md}"
+        if [[ "$rel" == "$normalized" || "$rel_no_ext" == "$token" || "$base" == "$normalized" || "$base_no_ext" == "$token" ]]; then
+          matched_count=$((matched_count + 1))
+          matched_file="$file"
         fi
       done
+
+      if [[ "$matched_count" -eq 1 ]]; then
+        file="$matched_file"
+        found=1
+      elif [[ "$matched_count" -gt 1 ]]; then
+        fail "ambiguous rule: $token; use the relative path"
+      fi
     fi
 
     [[ "$found" -eq 1 ]] || fail "unknown rule: $token"
@@ -248,12 +266,14 @@ mkdir -p "$TARGET_RULE_DIR"
 
 # 只把选中的规则复制到目标项目；当前仓库 .agents/rules/ 不保存生成物。
 for file in "${SELECTED_RULES[@]}"; do
-  cp "$file" "${TARGET_RULE_DIR}/$(basename "$file")"
+  rule_name="$(relative_rule_path "$file")"
+  mkdir -p "${TARGET_RULE_DIR}/$(dirname "$rule_name")"
+  cp "$file" "${TARGET_RULE_DIR}/${rule_name}"
 done
 
 printf '\nCopied rules to: %s\n' "$TARGET_RULE_DIR"
 for file in "${SELECTED_RULES[@]}"; do
-  printf '  - %s\n' "$(basename "$file")"
+  printf '  - %s\n' "$(relative_rule_path "$file")"
 done
 
 cat <<'EOF'
@@ -272,7 +292,7 @@ cat <<'EOF'
 EOF
 
 for file in "${SELECTED_RULES[@]}"; do
-  rule_name="$(basename "$file")"
+  rule_name="$(relative_rule_path "$file")"
   description="$(description_for "$file")"
   printf -- '- description: %s\n' "$description"
   printf -- '- path: `.agents/rules/%s`\n\n' "$rule_name"
