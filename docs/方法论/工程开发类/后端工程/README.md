@@ -1,38 +1,64 @@
 # 后端工程方法论
 
-> 本目录存放后端服务起盘、FastAPI 服务架构、项目入口、部署发布和运行治理相关的方法论。
+> 本目录存放后端服务起盘、FastAPI 服务架构、项目入口、部署发布和运行治理相关的方法论。可复用的落地规则统一维护在 [`../../../../rules/backend/`](../../../../rules/backend/)。
+
+## 方法论与规则边界
+
+后端工程知识分三层维护：
+
+| 层级 | 职责 | 维护位置 |
+| --- | --- | --- |
+| 方法论 | 判断何时引入某类能力，以及能力之间如何装配 | 本目录 |
+| 规则 | 约束新项目实际怎么分层、配置、部署、鉴权、记录日志和实现任务 | [`../../../../rules/backend/`](../../../../rules/backend/) |
+| 案例 / 手册 | 记录具体项目排障过程、平台操作说明和扫盲材料 | 本目录下对应文档，后续可迁入案例目录 |
+
+方法论不要重复维护规则正文。规则一旦提取，方法论文档只保留判断模型、适用边界和到规则真源的链接。
 
 ## 文档分类
 
 ### 服务起盘
 
 - [`新服务架构龙骨与能力装配方法论.md`](新服务架构龙骨与能力装配方法论.md)
-  用于从 0-1 构建新服务时，先建立服务龙骨，再按需求触发接口、任务、数据、缓存、存储、前端、安全、部署等能力积木，并判断它们的架构权重和装配顺序。
+  用于从 0-1 构建新服务时，先建立服务龙骨，再按需求触发接口、任务、数据、缓存、存储、前端、安全、部署等能力积木，并判断它们的架构权重和装配顺序。规则真源见 [`rules/backend/architecture/layering.md`](../../../../rules/backend/architecture/layering.md)。
 
 ### FastAPI 服务
 
 - [`FastAPI独立服务接口与任务架构方法论.md`](FastAPI独立服务接口与任务架构方法论.md)
-  用于指导小型 FastAPI 独立服务在同步请求、同步 batch、异步任务、任务队列和工作流升级之间建立稳定架构判断。
+  用于指导小型 FastAPI 独立服务在同步请求、同步 batch、异步任务、任务队列和工作流升级之间建立稳定架构判断。异步 Job 规则真源见 [`rules/backend/fastapi/jobs/async-job.md`](../../../../rules/backend/fastapi/jobs/async-job.md)。
 
 - [`FastAPI服务鉴权与接入边界方法论.md`](FastAPI服务鉴权与接入边界方法论.md)
-  用于指导轻量 FastAPI 服务判断接口暴露面、服务角色与状态属性、调用主体、有无用户系统、凭证模式、密钥与会话生命周期、授权限流、CORS/CSRF、HTTPS、身份透传、长连接、文件产物、审计日志、失败可观测和阶段演进边界。
+  用于指导轻量 FastAPI 服务判断接口暴露面、服务角色与状态属性、调用主体、有无用户系统、凭证模式、密钥与会话生命周期、授权限流、CORS/CSRF、HTTPS、身份透传、长连接、文件产物、审计日志、失败可观测和阶段演进边界。规则真源见 [`rules/backend/fastapi/security/access-boundary.md`](../../../../rules/backend/fastapi/security/access-boundary.md)。
 
 - [`FastAPI服务运行日志与排障可观测性方法论.md`](FastAPI服务运行日志与排障可观测性方法论.md)
-  用于指导 FastAPI 服务建立轻量统一日志模块、请求追踪、业务摘要和敏感信息边界，让容器或 K8s 部署后能直接采集和排查。
+  用于指导 FastAPI 服务建立轻量统一日志模块、请求追踪、业务摘要和敏感信息边界，让容器或 K8s 部署后能直接采集和排查。规则真源见 [`rules/backend/fastapi/observability/logging.md`](../../../../rules/backend/fastapi/observability/logging.md) 和 [`rules/backend/fastapi/configuration/settings.md`](../../../../rules/backend/fastapi/configuration/settings.md)。
 
 ### 项目入口与部署
 
 - [`项目开发入口设计方法论.md`](项目开发入口设计方法论.md)
-  用于判断一个项目是否需要统一开发入口，以及入口应采用文档、脚本、包管理命令、任务运行器还是服务管理脚本。
+  用于判断一个项目是否需要统一开发入口，以及入口应采用文档、脚本、包管理命令、任务运行器还是服务管理脚本。规则真源见 [`rules/backend/entrypoints/project-entrypoints.md`](../../../../rules/backend/entrypoints/project-entrypoints.md)。
 
 - [`项目部署入口与配置加载方法论.md`](项目部署入口与配置加载方法论.md)
-  用于统一项目的本地开发、Dockerfile 独立、docker compose 全量和 docker compose 依赖部署，并切清服务边界、配置加载和验证入口。
+  用于统一项目的本地开发、Dockerfile 独立、docker compose 全量和 docker compose 依赖部署，并切清服务边界、配置加载和验证入口。规则真源见 [`rules/backend/deployment/service-deployment.md`](../../../../rules/backend/deployment/service-deployment.md)。
 
 - [`项目部署文档与发布手册方法论.md`](项目部署文档与发布手册方法论.md)
-  用于把已经稳定的部署路径沉淀为可查、可复制、可维护的项目级部署文档和发布手册。
+  用于把已经稳定的部署路径沉淀为可查、可复制、可维护的项目级部署文档和发布手册。部署规则真源见 [`rules/backend/deployment/service-deployment.md`](../../../../rules/backend/deployment/service-deployment.md)。
 
 - [`环境发布脚本构建方法论.md`](环境发布脚本构建方法论.md)
-  用于把高风险、可重复的环境发布流程沉淀为安全、可检查、可回退、可复制到其他项目的脚本入口。
+  用于把高风险、可重复的环境发布流程沉淀为安全、可检查、可回退、可复制到其他项目的脚本入口。入口规则真源见 [`rules/backend/entrypoints/project-entrypoints.md`](../../../../rules/backend/entrypoints/project-entrypoints.md)。
+
+### 规范与案例
+
+- [`FastAPI/async-job-spec.md`](FastAPI/async-job-spec.md)
+  保留为 AI 异步 Job 系统长版规范和参考实现说明；短规则真源维护在 [`rules/backend/fastapi/jobs/async-job.md`](../../../../rules/backend/fastapi/jobs/async-job.md)。
+
+- [`FastAPI/deploy/ci-dockerfile-config-standard.md`](FastAPI/deploy/ci-dockerfile-config-standard.md)
+  保留为 CI 与 Dockerfile 长版规范；test/master 发布链路的短规则真源维护在 [`rules/backend/deployment/ci-dockerfile.md`](../../../../rules/backend/deployment/ci-dockerfile.md)，不约束本地 dev Dockerfile。
+
+- [`FastAPI/deploy/k8s-deployment-beginner-guide.md`](FastAPI/deploy/k8s-deployment-beginner-guide.md)
+  保留为 K8s 使用与维护扫盲手册，不作为规则真源。
+
+- [`FastAPI/deploy/postgresql-k8s-first-deploy-issues.md`](FastAPI/deploy/postgresql-k8s-first-deploy-issues.md)
+  保留为 PostgreSQL 首次部署排障案例；其中“新环境必须运行迁移”和“数据库 SSL 配置必须显式表达”已归入部署和配置规则。
 
 ## 新服务方法论挂载关系
 
@@ -70,6 +96,13 @@
 
 后端工程方法论负责服务起盘、接口与任务架构、运行日志与排障、项目入口、部署配置、发布手册和发布脚本等后端工程问题。
 
-本层 README 维护后端工程目录内部索引和新服务能力挂载关系。新增、迁移或归档后端工程文档时，应同步更新本 README；上级 `工程开发类/README.md` 只保留到本目录的入口。
+本层 README 维护后端工程目录内部索引、规则真源挂载关系和新服务能力挂载关系。新增、迁移或归档后端工程文档时，应同步更新本 README；上级 `工程开发类/README.md` 只保留到本目录的入口。
+
+规则维护原则：
+
+- 可直接复制到新项目执行的约束，放入 `rules/backend/`。
+- 解释“为什么这样判断”的内容，留在方法论文档。
+- 具体项目排障、截图说明、平台操作扫盲，保留为案例或手册，不进入规则真源。
+- 同一条规则只维护一次；方法论和案例只能链接规则，不重复改写规则正文。
 
 Flutter 项目开发主干方法论属于客户端工程方法论，不作为新服务架构龙骨的挂载范式；当项目对象是 Flutter 客户端应用或 Flutter 子工程时，应使用 [`../客户端工程/README.md`](../客户端工程/README.md)。

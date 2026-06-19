@@ -1,5 +1,8 @@
 # CI 与 Dockerfile 通用配置规范
 
+
+> 规则真源：短版可执行约束维护在 [`../../../../../../rules/backend/deployment/ci-dockerfile.md`](../../../../../../rules/backend/deployment/ci-dockerfile.md)。本文保留 test/master 发布链路的长版配置说明和参考细节，不约束本地 dev Dockerfile；短规则中使用 `cms-story-tagger` 的 `.gitlab-ci.yml`、`Dockerfile`、`Dockerfile_OS` 作为最小示例。
+
 本文说明项目接入 GitLab CI 容器构建时，`.gitlab-ci.yml`、`Dockerfile` 和 `Dockerfile_OS` 三类文件的职责边界、推荐配置和维护规则。
 
 本文适用于需要通过 GitLab CI 构建代码镜像与运行环境镜像的后端服务项目；不负责说明 Kuboard 平台操作、Kubernetes 工作负载配置或业务代码发布流程。

@@ -77,7 +77,7 @@ claude_blueprint/
 ├── .gitignore             # 仓库忽略规则（仓库元文档，不部署）
 │
 ├── hooks/                 # Hook 脚本：保护配置、提醒变更、阻止 git push
-├── rules/                 # 系统级最小规则层：背景 / 心智模型 / 工作流 / 测试 / 安全 / Git / 写作 / 配置设计 / 命名
+├── rules/                 # 规则层：系统级最小规则 + 按需领域规则（如 backend）
 ├── skills/                # 运行层 skill（默认只保留成熟、稳定的能力）
 ├── agents/                # 子代理定义：arch / rev
 ├── commands/              # 自定义斜杠命令
@@ -167,7 +167,8 @@ cd ~/code/claude_blueprint
 补充：
 - `skills/` 仍会随部署脚本同步到 `~/.claude/skills/`
 - `rules/` 也会随部署脚本同步到 `~/.claude/rules/`
-- 当前 `rules/` 只保留少量跨项目稳定的系统级最小规则，不承载完整方法论或项目细则
+- 当前 `rules/` 默认只加载少量跨项目稳定的系统级最小规则；`rules/backend/` 这类领域规则按新项目或具体任务需要引用
+- 规则只维护可复用约束，方法论、教程和排障案例继续留在 `docs/`
 - 但本仓库默认不再把“方法论 / 模板 / 检查清单”直接升成运行层 skill
 - 当前允许的例外是：已经稳定的 meta 方法论可以收敛为 **薄调度 skill + references 真源** 的形态，由 skill 负责阶段判断与路由
 - 这类内容优先沉淀到 `drafts/prompts/wip/`

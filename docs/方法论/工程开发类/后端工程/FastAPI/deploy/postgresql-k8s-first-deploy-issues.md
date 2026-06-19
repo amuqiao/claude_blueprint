@@ -1,5 +1,8 @@
 # PostgreSQL 首次部署常见问题排查
 
+
+> 文档定位：本文是 PostgreSQL 首次部署排障案例，不作为规则真源；已提炼出的配置与迁移约束维护在 [`../../../../../../rules/backend/deployment/service-deployment.md`](../../../../../../rules/backend/deployment/service-deployment.md) 和 [`../../../../../../rules/backend/fastapi/configuration/settings.md`](../../../../../../rules/backend/fastapi/configuration/settings.md)。
+
 本文记录项目首次部署到 K8s 测试环境时，数据库链接失败和表不存在这两个问题的完整排查过程与解决方案。
 
 适用场景：本项目新部署到 K8s、数据库为新建实例、未曾在该环境运行过迁移。

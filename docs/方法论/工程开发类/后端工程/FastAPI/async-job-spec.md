@@ -1,5 +1,8 @@
 # AI 异步 Job 系统设计规范
 
+
+> 规则真源：短版可执行约束维护在 [`../../../../../rules/backend/fastapi/jobs/async-job.md`](../../../../../rules/backend/fastapi/jobs/async-job.md)。本文保留长版背景、参考模式和实现说明。
+
 **版本**：v1.1 · 最后更新：2026-06-13
 
 | 版本 | 日期 | 说明 |

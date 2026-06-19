@@ -1,5 +1,8 @@
 # K8s 部署使用与维护扫盲
 
+
+> 文档定位：本文是 K8s 使用与维护扫盲手册，不作为规则真源；部署规则维护在 [`../../../../../../rules/backend/deployment/service-deployment.md`](../../../../../../rules/backend/deployment/service-deployment.md)。
+
 本文用于把 `chapters-short-lang-detector` 已部署到 K8s 后的运行状态、使用方式、维护动作和截图里的两个容器说明清楚。
 
 本文不替代 K8s 官方手册，也不负责完整讲解集群、网络、存储和云厂商控制台。它只解释这个服务在 K8s 里应该怎么看、怎么调用、怎么发布、怎么排障。
