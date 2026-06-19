@@ -7,13 +7,16 @@
 - 在读取仓库根 `AGENTS.md` 后，必须实际读取本文件正文，不能只复述文件路径。
 - 本文件用于索引默认参考规则；如需继续展开，应按路径继续读取对应规则文件。
 
+- description: 配置项设计与联动校验规则
+- path: `.agents/rules/configuration-design.md`
+
 - description: 执行清单创建、更新与归档规则
 - path: `.agents/rules/execution-checklist.md`
 
 - description: Git 提交默认规范
 - path: `.agents/rules/git.md`
 
-- description: 心智模型构建与抽象压缩规则
+- description: 建立心智模型时使用的分析角度、抽象结构与保真规则
 - path: `.agents/rules/mental-modeling.md`
 
 - description: 通用安全约束
