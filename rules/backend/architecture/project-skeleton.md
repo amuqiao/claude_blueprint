@@ -39,6 +39,7 @@ app/
   core/
     settings.py
     logging.py
+    metrics.py
     time.py
   db/
     models/
@@ -58,6 +59,7 @@ app/
     ai/
     storage/
     callback/
+    artifact/
   cli/
     ops.py
   tests/
@@ -74,13 +76,13 @@ app/
 | --- | --- | --- |
 | `api/` | HTTP route、依赖注入、异常 handler、OpenAPI 投影 | 业务执行、SQL、外部服务协议 |
 | `schemas/` | envelope、错误、Job 壳、公共 schema 组合 | 业务流程、数据库模型 |
-| `core/` | Settings、日志、时间工具、进程内基础设施 | 具体业务接口和 Job handler |
+| `core/` | Settings、日志、metrics、时间工具、进程内基础设施 | 具体业务接口和 Job handler |
 | `db/` | ORM 模型、session、迁移入口 | 对外响应 schema、业务判断 |
 | `repositories/` | 数据读写、查询表达、CAS 更新 | HTTP、Typer 输出、外部 API 调用 |
 | `services/` | 用例编排、事务边界、业务判断 | 直接读取 HTTP request 或直接拼 SQL |
 | `jobs/` | Job 生命周期、publisher、恢复扫描、handler registry 接入 | 具体 AI 能力逻辑、执行器事实源 |
 | `workflows/` | `job_type` handler、params/result schema、执行计划 | 通用 Job 状态机和 HTTP envelope |
-| `integrations/` | AI、对象存储、callback、第三方协议 adapter | 对外错误结构和 Job 状态机 |
+| `integrations/` | AI、artifact/对象存储、callback、第三方协议 adapter | 对外错误结构和 Job 状态机 |
 | `cli/` | Typer 命令、格式化、只读排障入口 | 直接修 DB、重定义业务状态 |
 | `tests/contracts/` | envelope、OpenAPI/schema、Job/callback、日志字段契约测试 | 大而全的端到端回归替代品 |
 
@@ -113,10 +115,13 @@ app/
 稳定骨架至少提供以下验证：
 
 - Settings 初始化和配置机器检查。
+- 错误码、operation、schema version 和 `job_type` registry 检查。
 - OpenAPI/schema 快照。
 - 全局异常转换测试。
-- Job 生命周期和 CAS 状态迁移测试。
+- Job 生命周期、复杂执行计划和 CAS 状态迁移测试。
 - 新 `job_type` 的 params/result/callback schema contract tests。
 - Typer 只读排障命令的 JSON 输出和退出码测试。
+- Metrics 最小指标和高基数标签检查。
+- Artifact 引用、hash、权限和过期策略检查；未启用时声明不启用。
 
 如果项目暂时不启用某一能力，应在 README 或架构说明中标注未启用，而不是保留空实现、默认 fallback 或无法验证的半成品入口。

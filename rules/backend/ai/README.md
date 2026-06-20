@@ -21,4 +21,5 @@ description: 后端 AI 能力服务规则索引
 3. `../jobs/workflow-handler.md`：当 AI 能力通过异步 `job_type` 暴露时确定 handler、params/result schema 和结果映射。
 4. `../persistence/database.md`：当 AI Job 需要持久化状态、CAS 迁移、事件表、timeline 或 artifact 引用时读取。
 5. `../integrations/external-service.md`：确定通用外部 client、失败分类和环境保护。
-6. `capability-service.md`：确定 AI 专属的 Prompt、模型、结构化输出、成本和容量约束。
+6. `../integrations/artifact-storage.md`：当 AI 结果包含大文本、大 JSON、模型中间产物或可下载文件时读取。
+7. `capability-service.md`：确定 AI 专属的 Prompt、模型、结构化输出、成本和容量约束。
