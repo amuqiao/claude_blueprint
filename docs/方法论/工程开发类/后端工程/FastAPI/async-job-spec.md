@@ -1,7 +1,7 @@
-# AI 异步 Job 系统设计规范
+# FastAPI + Celery AI 异步 Job 参考实现
 
 
-> 规则真源：短版可执行约束维护在 [`../../../../../rules/backend/fastapi/jobs/async-job.md`](../../../../../rules/backend/fastapi/jobs/async-job.md)。本文保留长版背景、参考模式和实现说明。
+> 规则真源：通用短版可执行约束维护在 [`../../../../../rules/backend/jobs/async-job.md`](../../../../../rules/backend/jobs/async-job.md)，Celery 映射规则维护在 [`../../../../../rules/backend/jobs/executors/celery.md`](../../../../../rules/backend/jobs/executors/celery.md)。本文保留 FastAPI + Celery 长版背景、参考模式和实现说明，不作为通用 Job 规则真源。
 
 **版本**：v1.1 · 最后更新：2026-06-13
 
@@ -10,7 +10,7 @@
 | v1.1 | 2026-06-13 | 补充 API 创建三步流程（4.4）、水平扩展约束与参考配置（4.5）、MAX_ACTIVE_JOBS 软限制声明、孤儿扫描双层防线说明、Checklist 扩容项 |
 | v1.0 | 2026-06-13 | 初始版本，基于内部项目实践提炼 |
 
-本规范定义在 FastAPI + Celery + PostgreSQL + Redis 栈上构建可靠 AI 异步 Job 系统的核心模式，解决 LLM 调用超时、任务幂等、消息可靠性和服务恢复问题。
+本文记录在 FastAPI + Celery + PostgreSQL + Redis 栈上构建可靠 AI 异步 Job 系统的一套参考实现，解决 LLM 调用超时、任务幂等、消息可靠性和服务恢复问题。跨项目必须规则以 `rules/backend/jobs/` 为准。
 
 **技术栈**：FastAPI / Celery / PostgreSQL / Redis，LLM 调用使用 litellm 或原生 async SDK（openai-python、anthropic 等）。
 
@@ -20,13 +20,13 @@
 
 ## 文档定位
 
-**适用场景**：
+**参考场景**：
 - Job 执行时间 10s~30min 的 AI 工作负载
 - 调用方需要 callback 推送 + 轮询两种感知方式
 - 技术栈：FastAPI / Celery / PostgreSQL / Redis
 - LLM 调用：litellm 或原生 async SDK（openai-python、anthropic 等）
 
-**不适用**：
+**不作为规则真源的场景**：
 - 亚秒级任务（用同步接口即可）
 - 不使用 Celery 的项目
 - 流式/SSE 响应（本规范聚焦非流式 Job）

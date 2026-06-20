@@ -19,7 +19,7 @@ description: 后端项目开发入口与服务生命周期脚本规则
 
 不要把本地开发、生产发布、旧工程清理、数据库重置和远程环境操作塞进同一个入口。
 
-当脚本数量增长时，入口脚本应保持为稳定门面，具体实现下沉到职责明确的子目录。脚本拆分规则见 [`script-topology.md`](script-topology.md)。
+当脚本数量增长时，入口脚本应保持为稳定门面，具体实现下沉到职责明确的子目录。脚本拆分规则见 [`script-topology.md`](script-topology.md)。进入 Pod、容器或远端环境后执行的只读排障命令，读取 [`runtime-troubleshooting.md`](runtime-troubleshooting.md)。
 
 ## 命令契约
 
@@ -46,7 +46,7 @@ description: 后端项目开发入口与服务生命周期脚本规则
 - 健康检查或状态探测入口。
 - 外部依赖状态摘要。
 
-具体技术栈的排障信号由对应专项规则定义。FastAPI 服务读取 `../fastapi/observability/logging.md`，部署后验收读取 `../deployment/service-deployment.md`。
+具体技术栈的排障信号由对应专项规则定义。FastAPI 服务读取 `../fastapi/observability/logging.md`，部署后验收读取 `../deployment/service-deployment.md`，运行时诊断入口读取 [`runtime-troubleshooting.md`](runtime-troubleshooting.md)。
 
 ## 保护边界
 

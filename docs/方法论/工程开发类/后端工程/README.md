@@ -24,7 +24,7 @@
 ### FastAPI 服务
 
 - [`FastAPI独立服务接口与任务架构方法论.md`](FastAPI独立服务接口与任务架构方法论.md)
-  用于指导小型 FastAPI 独立服务在同步请求、同步 batch、异步任务、任务队列和工作流升级之间建立稳定架构判断。异步 Job 规则真源见 [`rules/backend/fastapi/jobs/async-job.md`](../../../../rules/backend/fastapi/jobs/async-job.md)。
+  用于指导小型 FastAPI 独立服务在同步请求、同步 batch、异步任务、任务队列和工作流升级之间建立稳定架构判断。异步 Job 通用规则真源见 [`rules/backend/jobs/async-job.md`](../../../../rules/backend/jobs/async-job.md)，FastAPI HTTP 接入规则见 [`rules/backend/fastapi/jobs/async-job.md`](../../../../rules/backend/fastapi/jobs/async-job.md)。
 
 - [`FastAPI服务鉴权与接入边界方法论.md`](FastAPI服务鉴权与接入边界方法论.md)
   用于指导轻量 FastAPI 服务判断接口暴露面、服务角色与状态属性、调用主体、有无用户系统、凭证模式、密钥与会话生命周期、授权限流、CORS/CSRF、HTTPS、身份透传、长连接、文件产物、审计日志、失败可观测和阶段演进边界。规则真源见 [`rules/backend/fastapi/security/access-boundary.md`](../../../../rules/backend/fastapi/security/access-boundary.md)。
@@ -49,7 +49,7 @@
 ### 规范与案例
 
 - [`FastAPI/async-job-spec.md`](FastAPI/async-job-spec.md)
-  保留为 AI 异步 Job 系统长版规范和参考实现说明；短规则真源维护在 [`rules/backend/fastapi/jobs/async-job.md`](../../../../rules/backend/fastapi/jobs/async-job.md)。
+  保留为 FastAPI + Celery AI 异步 Job 系统长版规范和参考实现说明；通用短规则真源维护在 [`rules/backend/jobs/async-job.md`](../../../../rules/backend/jobs/async-job.md)，Celery 映射规则维护在 [`rules/backend/jobs/executors/celery.md`](../../../../rules/backend/jobs/executors/celery.md)。
 
 - [`FastAPI/deploy/ci-dockerfile-config-standard.md`](FastAPI/deploy/ci-dockerfile-config-standard.md)
   保留为 CI 与 Dockerfile 长版规范；test/master 发布链路的短规则真源维护在 [`rules/backend/deployment/ci-dockerfile.md`](../../../../rules/backend/deployment/ci-dockerfile.md)，不约束本地 dev Dockerfile。
@@ -78,7 +78,7 @@
 | 触发条件 | 内置 | [`新服务架构龙骨与能力装配方法论.md`](新服务架构龙骨与能力装配方法论.md) | 判断哪些需求信号触发能力积木 |
 | 架构权重 | 内置 | [`新服务架构龙骨与能力装配方法论.md`](新服务架构龙骨与能力装配方法论.md) | 判断能力是骨架级、结构级还是增强级 |
 | 装配顺序 | 内置 | [`新服务架构龙骨与能力装配方法论.md`](新服务架构龙骨与能力装配方法论.md) | 判断能力积木接入服务龙骨的先后关系 |
-| 接口任务 | 已有 | [`FastAPI独立服务接口与任务架构方法论.md`](FastAPI独立服务接口与任务架构方法论.md) | 处理 sync、batch、job、task_id、状态查询、结果查询和队列升级边界 |
+| 接口任务 | 已有 | [`FastAPI独立服务接口与任务架构方法论.md`](FastAPI独立服务接口与任务架构方法论.md) | 处理 sync、batch、job、job_id、状态查询、结果查询和队列升级边界 |
 | 运行日志与排障 | 已有 | [`FastAPI服务运行日志与排障可观测性方法论.md`](FastAPI服务运行日志与排障可观测性方法论.md) | 处理 stdout/stderr、统一 logging、request_id、中间件请求日志、业务摘要和敏感信息边界 |
 | 技术栈开发手册 | 已有 | [`../技术栈开发手册成型方法论.md`](../技术栈开发手册成型方法论.md) | 处理认知模型、架构模型、技术选型、工程规范和 AI 实现协议 |
 | 开发入口 | 已有 | [`项目开发入口设计方法论.md`](项目开发入口设计方法论.md) | 处理启动、验证、生成、清理、构建和命令契约 |
@@ -87,7 +87,7 @@
 | 发布脚本 | 已有 | [`环境发布脚本构建方法论.md`](环境发布脚本构建方法论.md) | 处理测试或预发环境的发布脚本入口、工作区隔离、风险文件保护、状态判断和失败恢复 |
 | 后端分层与数据访问 | 占位 | 后端分层与数据访问方法论 | 适合沉淀 API、Service、Repository、DB、ORM 边界和 Alembic 迁移 |
 | 前后端接口契约 | 占位 | 前后端接口契约方法论 | 适合沉淀 API 路径、请求响应、错误结构、状态同步和类型边界 |
-| 任务队列与工作流 | 占位 | 任务队列与工作流方法论 | 适合沉淀 Celery、步骤状态、进度感知、重试和工作流编排 |
+| 任务队列与工作流 | 占位 | 任务队列与工作流方法论 | 适合沉淀通用 Job / workflow 契约、步骤状态、进度感知、重试和执行器映射 |
 | 文件存储与产物生命周期 | 占位 | 文件存储与产物生命周期方法论 | 适合沉淀上传、输出文件、路径、下载、清理和部署挂载 |
 | API 认证鉴权与限流 | 已有 | [`FastAPI服务鉴权与接入边界方法论.md`](FastAPI服务鉴权与接入边界方法论.md) | 适合沉淀 X-API-Key、JWT、限流、防滥用、CORS、HTTPS 和对外接入边界 |
 | 项目文档骨架治理 | 占位 | 项目文档骨架治理方法论 | 适合沉淀 README、架构、接口、部署、实施清单和复盘之间的职责边界 |

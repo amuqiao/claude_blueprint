@@ -1,118 +1,72 @@
 ---
-description: FastAPI 异步 Job、Celery、状态机、幂等与恢复规则
+description: FastAPI 异步 Job HTTP 接入、schema、依赖初始化与请求追踪规则
 ---
 
-# FastAPI 异步 Job 规则
+# FastAPI Job 接入规则
 
-本规则适用于 FastAPI + Celery + PostgreSQL + Redis 的异步 Job 系统，尤其是 10 秒到 30 分钟的 AI 工作负载。亚秒级任务、纯同步接口和流式/SSE 响应不默认使用本规则。
+本规则只说明 FastAPI 服务如何接入通用异步 Job 系统。Job 生命周期、状态权威、投递、恢复、运行时快照和进程边界由 `../../jobs/async-job.md` 定义；Celery 或 Taskiq 的执行器细节由 `../../jobs/executors/` 下的专项规则定义。
 
-异步 Job 规则负责 Job 生命周期、状态权威、可靠投递、并发积压、超时链路、恢复和运行时快照。多 `job_type` handler 细节见 [`workflow-handler.md`](workflow-handler.md)，外部 client 和对外写入副作用见 `../../integrations/external-service.md`，部署形态和迁移执行见 `../../deployment/service-deployment.md`。
+FastAPI 规则不得重新定义 Job 状态机，也不得把 Celery、Taskiq 或其他执行器设为默认事实源。
 
-## 选择原则
+## 适用边界
 
-优先同步接口。只有满足以下信号时才引入异步 Job：
+适用场景：
 
-- 请求耗时不可控或调用方不应等待。
-- 需要 task_id、状态查询、结果恢复或 callback。
-- 需要后台排队、并发控制、重试或失败恢复。
-- 批量规模会导致同步接口超时或部分失败难以表达。
+- FastAPI 服务需要通过 HTTP 创建异步 Job。
+- 调用方需要查询 Job 状态、结果或 callback 投递状态。
+- FastAPI API 进程需要完成请求校验、幂等识别、Job 入库和执行器投递。
 
-Canvas / workflow 不是默认起点。只有子任务可并行、有明确 finalize、需要步骤状态，且团队能维护 Celery Canvas 时才引入。
+不适用场景：
 
-当一个 Job 服务需要支持多个 `job_type` 或可插拔执行器时，加载 [`workflow-handler.md`](workflow-handler.md)，不要把业务分支硬编码在 API route 或 Celery task 中。
+- 纯同步接口。
+- 只有 Typer CLI 或内部 worker，没有 HTTP API。
+- 执行器 worker 的 task 实现细节。
 
-## 接口契约
+## HTTP 契约
 
-异步 Job 至少提供：
+FastAPI 服务的 Job HTTP 接口应映射通用 Job 契约：
 
-- `POST /jobs` 创建任务，成功返回 `202 Accepted`。
+- `POST /jobs` 创建任务，成功返回 `202 Accepted` 和 `job_id`。
 - `GET /jobs/{job_id}` 查询状态和结果。
 - 可选 callback 只作为补充通知，不替代轮询。
 - 可选 `client_request_id` 用于请求级幂等。
 
-状态字段必须稳定：
+HTTP 响应模型只能暴露通用 Job 规则允许的稳定字段。执行器 task id、broker 状态、worker 位置等过程信息默认不进入公开响应；如确实需要展示，应标记为诊断旁证。
 
-```text
-queued -> running -> succeeded
-queued -> running -> failed
-```
+## Schema 边界
 
-`succeeded` 和 `failed` 是不可变终态。消费层必须实现终态幂等守卫，防止消息重投递覆盖终态。
+Pydantic schema 负责 HTTP 入参、公开响应和错误 envelope，不负责定义 Job 状态语义。
 
-## 状态权威
+`CreateJobRequest` 顶层字段应保持少量稳定字段，例如 `client_request_id`、`job_type`、`job_params`、`callback`、`metadata`、`options`。具体业务参数由 `../../jobs/workflow-handler.md` 中的 handler 契约定义，FastAPI route 只调用已注册 handler 做校验和规范化。
 
-DB 是状态权威，Redis 只是消息投递通道。不要依赖 Celery result backend 表达业务状态。
+`JobView` 必须来自 Job 持久化状态，不得直接读取执行器 result backend 作为业务结果事实源。
 
-创建 Job 必须遵守可靠投递流程。推荐顺序：
+## 依赖与配置
 
-1. 在 DB 写入 `queued` 任务。
-2. 预生成 `celery_task_id` 或等价消息标识。
-3. 将消息标识写入 DB 并提交。
-4. 投递 Celery task。
-5. 投递成功后回写 `celery_published_at` 或等价发布确认字段。
+FastAPI 进程启动时必须完成：
 
-如果 API 在提交后、投递前崩溃，必须能通过 `queued + task_id exists + published_at is null` 补偿投递。如果投递成功但消息重复，Worker 必须校验消息 task id 与 DB task id 一致，并通过 CAS 状态转移防止双执行。
+- Settings 初始化和启动校验，规则见 `../configuration/settings.md`。
+- Job repository、执行器 publisher、handler registry 的依赖装配。
+- 所选执行器规则的必要配置校验，例如 Celery 或 Taskiq broker、worker 和 timeout 映射。
 
-Job 创建阶段只负责校验、入库和投递。callback 发送和第三方写入只能发生在后续阶段；对外副作用协议见 `../../integrations/external-service.md`。
+配置错误必须阻止 FastAPI 进程启动。不要让 API 先监听、接单或投递消息，再在业务路径里发现 Job 配置不可用。
 
-## 并发与积压
+## API 进程边界
 
-AI 任务应显式控制并发和积压：
+FastAPI route 只负责：
 
-- `CELERY_WORKER_CONCURRENCY` 控制单 worker 并发。
-- Worker Pod 数控制水平扩展容量。
-- `MAX_ACTIVE_JOBS` 控制 queued + running 积压上限。
-- 队列满应返回 503，而不是无限接单。
+- 鉴权和请求校验。
+- 规范化入参和生成运行时快照。
+- 写入 Job 记录。
+- 投递执行器消息。
+- 返回可查询的 Job 视图。
 
-`MAX_ACTIVE_JOBS` 是软限制，不等价于严格分布式锁。需要强一致容量控制时，应引入数据库锁或专门队列治理。
+FastAPI API 进程不得执行长任务正文，不得在请求处理中发送终态 callback 或第三方写回。终态副作用由通用 Job 和外部集成规则约束。
 
-## 超时链路
+## 可观测性
 
-不要只依赖 SDK timeout。完整链路应至少区分：
+FastAPI Job 接口必须接入请求追踪和结构化日志，规则见 `../observability/logging.md`。
 
-- 模型调用主截断。
-- Celery soft time limit。
-- Celery hard time limit。
-- stale running 扫描阈值。
+日志可以记录 `request_id`、`trace_id`、`job_id`、`job_type`、状态迁移事件和错误分类。不要记录密钥、完整请求体、隐私文本、完整供应商响应或大文件内容。
 
-超时配置必须单调递增，并保留 buffer。非法超时配置必须启动失败。
-
-## 恢复机制
-
-必须实现至少一层恢复：
-
-- Worker 启动扫描孤儿 queued 和僵死 running。
-- 长时间运行进程推荐增加定期扫描。
-- 生产环境可使用单实例 Celery Beat，但不得与普通 Worker Deployment 混合。
-
-扫描规则必须幂等。恢复动作不得覆盖终态任务。
-
-恢复扫描至少区分：
-
-- 未分配 task id 的 orphan queued。
-- 已分配 task id 但未确认发布的 queued。
-- 超过 stale 阈值的 running。
-- 到期未送达的 callback。
-- 已过期且生命周期收敛的终态 Job。
-
-多 Worker 并发恢复时，应使用数据库锁、CAS 更新或 `skip locked` 避免重复补偿。
-
-## 运行时快照
-
-异步 Job 的执行语义应在创建时固定。任务执行依赖的规范化入参、执行模式、模型、Prompt、外部目标、输出目标等应进入运行时快照或等价结构。
-
-运行时快照必须可校验：
-
-- 保存 Job 类型或执行模式。
-- 保存规范化入参引用和 hash。
-- 保存会影响历史执行语义的运行时字段。
-- 保存输出目标。
-- Worker 读取时校验 hash、类型和引用结构。
-
-不要让长期排队的历史 Job 在执行时被当前 settings 的语义变化意外影响。多个 `job_type` 的 handler 如何生成 `runtime_fields`，由 [`workflow-handler.md`](workflow-handler.md) 负责补充。
-
-## 进程边界
-
-API、Worker、Beat 应有清晰进程或 Deployment 边界。API 和 Worker 可以水平扩展；Beat 如启用必须单实例。
-
-本节只规定 Job 系统需要哪些进程边界，不规定具体 Docker、Compose、K8s 或迁移执行方式。部署形态、健康检查和新环境迁移执行由 `../../deployment/service-deployment.md` 负责。
+运行时排障脚本可以查询 FastAPI 请求追踪信号，但 Job 状态字段必须读取 `../../jobs/async-job.md`，多 `job_type` 字段必须读取 `../../jobs/workflow-handler.md`。

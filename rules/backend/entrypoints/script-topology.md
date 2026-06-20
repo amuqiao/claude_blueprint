@@ -30,6 +30,7 @@ scripts/
   verify.sh           一次性验证入口
   qa.sh               按环境编排验证入口，可选
   deploy.sh           compose 或部署形态入口
+  ops.sh              运行时只读排障入口，可选
   lib/common.sh       shell 公共函数
   dev/                本地服务原子能力
   verify/             验证原子脚本和 fixtures
@@ -63,6 +64,7 @@ scripts/
 | `scripts/qa.sh` | 按 `local/test/prod` 编排已有验证能力 | 实现测试逻辑、替代 `verify.sh` 原子入口 |
 | `scripts/deploy.sh` | compose 或已验收部署形态门面 | 本地开发服务生命周期、生产平台点击操作 |
 | `scripts/deploy/*.sh` | 固定分支、固定环境或固定发布链路原子步骤 | 日常 dev 工作流、通用开发入口 |
+| `scripts/ops.sh` | Pod、容器或远端运行环境中的只读排障门面，可转发到 Typer CLI | 修复 Job、修改 DB、替代部署或回滚入口、复制 Typer 命令实现 |
 
 同一能力只能有一个事实入口。README、AGENTS.md 和部署文档应链接入口，不重复维护脚本正文。
 
@@ -71,6 +73,8 @@ scripts/
 脚本拓扑遇到以下问题时只引用外部规则，不在本文件重复定义：
 
 - 命令契约、状态输出和危险命令命名：见 [`project-entrypoints.md`](project-entrypoints.md)。
+- 运行时只读排障脚本、Pod 内诊断和 Job 生命周期查询：见 [`runtime-troubleshooting.md`](runtime-troubleshooting.md)。
+- Python 排障 CLI 的命令实现、输出格式和退出码：见 `../typer/ops-cli.md`。
 - 部署形态、Compose 配置顺序和发布后验收：见 `../deployment/service-deployment.md`。
 - 生产真实调用、生产写入、跳过 TLS 校验等外部风险保护：见 `../integrations/external-service.md`。
 
