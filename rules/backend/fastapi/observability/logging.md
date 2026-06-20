@@ -4,7 +4,7 @@ description: FastAPI 日志、请求追踪、业务摘要与排障信号规则
 
 # FastAPI 可观测规则
 
-FastAPI 服务必须从第一天建立最小可观测性，让本地、容器和 K8s 环境都能直接排查问题。可观测规则定义服务应暴露哪些信号；部署后是否通过验收由 `../../deployment/service-deployment.md` 负责。
+FastAPI 服务必须从第一天建立最小可观测性，让本地、容器和 K8s 环境都能直接排查问题。可观测规则定义 FastAPI 如何接入可观测信号；服务级结构化日志主字段、错误码字段和输入输出 envelope 由 `../../contracts/service-contract.md` 负责。部署后是否通过验收由 `../../deployment/service-deployment.md` 负责。
 
 ## 日志出口
 
@@ -30,6 +30,8 @@ FastAPI 服务必须从第一天建立最小可观测性，让本地、容器和
 - 调用方摘要。
 - 业务任务 id 或 job id。
 
+结构化日志字段必须与 `../../contracts/service-contract.md` 保持一致。FastAPI middleware 或 exception handler 只负责写入这些字段，不另行定义字段含义。
+
 ## 业务摘要
 
 业务日志记录“发生了什么”，不要记录完整敏感输入。推荐记录：
@@ -50,12 +52,14 @@ FastAPI 服务必须从第一天建立最小可观测性，让本地、容器和
 - 不吞掉异常。
 - 不把内部堆栈、密钥、供应商响应原文暴露给外部调用方。
 
+稳定错误结构指 `../../contracts/service-contract.md` 定义的 `code/msg/data/request_id/server_time` envelope 和错误码分层。FastAPI 的全局 exception handler 应集中完成异常转换。
+
 ## 排障信号
 
 每个 FastAPI 服务至少应暴露以下排障信号：
 
 - `/health` 或等价健康检查。
-- `/docs` 或 `/openapi.json`。
+- `/docs` 或 `/openapi.json`，其接口描述应是服务契约的框架投影。
 - 应用日志。
 - 容器或 Pod 状态可关联到服务名。
 - 关键业务接口的冒烟请求。

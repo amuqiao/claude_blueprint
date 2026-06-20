@@ -96,7 +96,7 @@ ops version
 
 ## 输出字段
 
-排障输出字段必须来自对应能力的事实源，不在排障脚本中重新定义业务语义。通用输出至少包含查询对象、查询时间窗、执行环境和证据完整性；FastAPI 请求追踪字段读取 `../fastapi/observability/logging.md`，异步 Job 字段读取 `../jobs/async-job.md`，多 `job_type` 和执行计划字段读取 `../jobs/workflow-handler.md`。Python 排障 CLI 的 Typer 实现规则读取 `../typer/ops-cli.md`。
+排障输出字段必须来自对应能力的事实源，不在排障脚本中重新定义业务语义。通用输出至少包含查询对象、查询时间窗、执行环境和证据完整性；服务级 envelope、错误码和公开结果字段读取 `../contracts/service-contract.md`，FastAPI 请求追踪字段读取 `../fastapi/observability/logging.md`，异步 Job 字段读取 `../jobs/async-job.md`，多 `job_type` 和执行计划字段读取 `../jobs/workflow-handler.md`。Python 排障 CLI 的 Typer 实现规则读取 `../typer/ops-cli.md`。
 
 按能力适用时，输出可包含：
 

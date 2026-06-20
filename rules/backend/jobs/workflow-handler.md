@@ -35,7 +35,7 @@ create job
   -> public result / callback
 ```
 
-创建入口的顶层字段应保持少量稳定字段，例如 `client_request_id`、`job_type`、`job_params`、`callback`、`metadata`、`options`。具体业务入参由 `job_type` 对应的 `job_params` schema 定义。
+创建入口的顶层字段应保持少量稳定字段，例如 `client_request_id`、`job_type`、`job_params`、`callback`、`metadata`、`options`。具体业务入参由 `job_type` 对应的 `job_params` schema 定义。对调用方可见的输入输出 envelope、错误码和 callback 顶层字段由 `../contracts/service-contract.md` 统一定义。
 
 ## Handler 契约
 
@@ -46,7 +46,8 @@ create job
 - `runtime_job_fields`：生成执行时需要的模型、Prompt、外部服务目标或其他运行时字段。
 - `build_execution_plan`：返回 `single` 或 `chunked` 等执行计划。
 - `canonical_result_schema`：服务内部完整结果契约。
-- `public_result_schema`：对调用方暴露的结果契约；允许显式为 `null`。
+- `public_result_schema`：具体 `job_type` 的公开业务结果契约，由轮询 `GET /jobs/{job_id}.data.result` 默认引用；允许显式为 `null`。
+- `callback_data_schema`：callback `data` 的结果契约；未声明时 `CallbackEnvelope.data` 默认引用同一个 `public_result_schema`。
 - `allow_callback`：声明该 `job_type` 是否支持 callback。
 
 handler 注册必须有统一入口。创建入口、Worker、scheduler 和排障命令都必须读取同一份已注册 handler 契约。
@@ -101,7 +102,12 @@ Handler 生成的运行时字段至少应满足：
 | 层级 | 职责 |
 | --- | --- |
 | canonical result | 服务内部完整结果、审计信息、第三方写回记录、调试 artifact |
-| public result | 对调用方公开的稳定结果，可为 `null` |
+| public result | 具体 `job_type` 的公开业务结果，轮询 `data.result` 默认引用它，可为 `null` |
+| callback data | 终态 callback 对调用方公开的事件数据，默认引用 public result，允许显式投影 |
+
+如果 `public result` 显式为 `null`，handler 契约必须说明调用方通过哪个稳定渠道获得业务结果，例如 callback `data`、第三方写回或对象存储引用。通用 Job 规则不得要求所有成功终态都有非空公开结果。
+
+如果 `callback_data_schema` 与 `public_result_schema` 不一致，handler 契约必须说明二者如何从同一份 `canonical_result_schema` 派生，且 callback 数据不得与轮询结果冲突。通用 `JobView` 和 `CallbackEnvelope` 不拥有业务 result 结构；新增 `job_type` 时维护 handler 的 result schema，而不是修改通用外壳。轮询与 callback 的对外关系由 `../contracts/service-contract.md` 定义。
 
 大文本、大 JSON 或可下载产物应写入对象存储或等价存储，JobView 中只返回引用、hash、大小和类型。不要把大产物默认塞进数据库响应。
 

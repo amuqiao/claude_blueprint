@@ -4,7 +4,7 @@ description: Typer 运行时排障 CLI 命令、输出与只读边界规则
 
 # Typer 运行时排障 CLI 规则
 
-Typer CLI 负责把 `../entrypoints/runtime-troubleshooting.md` 定义的运行时排障命令实现为稳定 Python CLI。它只消费 Job、可观测、部署和集成规则中的事实源，不重新定义业务状态、Job 生命周期或修复流程。
+Typer CLI 负责把 `../entrypoints/runtime-troubleshooting.md` 定义的运行时排障命令实现为稳定 Python CLI。它只消费服务契约、Job、可观测、部署和集成规则中的事实源，不重新定义业务状态、Job 生命周期、公开响应字段或修复流程。
 
 ## 命令边界
 
@@ -24,7 +24,7 @@ Typer 命令可以展示执行器 task id、broker 状态或 worker 信息，但
 
 ## 输出与退出码
 
-Typer CLI 应同时支持人读和机读输出，例如 `--format table` 与 `--format json`。JSON 字段必须稳定，便于 CI、AI 分析或运维平台消费。
+Typer CLI 应同时支持人读和机读输出，例如 `--format table` 与 `--format json`。JSON 字段必须稳定，便于 CI、AI 分析或运维平台消费；字段语义优先引用 `../contracts/service-contract.md` 和运行时排障规则，不在 Typer 文档里另行定义。
 
 退出码应稳定：
 

@@ -14,7 +14,7 @@ description: 后端服务龙骨、分层架构与目录边界规则
 | --- | --- | --- | --- |
 | 服务定位 | 这个服务解决什么，不解决什么 | 定位说明和不做清单 | 本文 |
 | 能力边界 | 对外提供哪些能力，调用方是谁 | 能力清单 | 本文 |
-| 接口入口 | 调用方如何进入能力 | API、CLI、文件或内部函数入口 | 框架或 API 文档 |
+| 接口入口 | 调用方如何进入能力 | API、CLI、文件或内部函数入口 | `../contracts/service-contract.md`、框架或 API 文档 |
 | 配置入口 | 配置从哪里来，默认值如何覆盖 | 配置来源说明 | `../deployment/service-deployment.md`、框架配置规则 |
 | 运行入口 | 本地、容器、依赖服务如何启动 | 命令或脚本 | `../entrypoints/project-entrypoints.md`、部署规则 |
 | 验证入口 | 如何证明主路径成立 | 测试、curl、冒烟脚本或验收命令 | 入口规则、部署规则、框架可观测规则 |
@@ -45,7 +45,7 @@ Service -> Infrastructure clients
 - Repository 不调用 API 层或任务层。
 - Service 不直接读取 HTTP request、response、headers。
 - API 层不直接写 SQL、不编排复杂业务流程。
-- ORM 对象不应泄漏为对外响应契约。
+- ORM 对象不应泄漏为对外响应契约；对外输入输出骨架由 `../contracts/service-contract.md` 定义。
 
 ## Repository 与数据访问
 

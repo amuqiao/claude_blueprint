@@ -54,7 +54,7 @@ POST /jobs
 - 简单项目可以在文档中列出每个 `job_type` 的 `job_params` schema。
 - 复杂项目可以由 handler registry 生成 OpenAPI 补充说明或文档片段。
 
-OpenAPI 展示不应成为 handler 契约事实源。handler 契约仍由通用 workflow 规则和项目 registry 定义。
+OpenAPI 展示不应成为 handler 契约事实源，也不应成为服务契约事实源。调用方可见的 envelope 和示例规则来自 `../../contracts/service-contract.md`；handler 契约仍由通用 workflow 规则和项目 registry 定义。
 
 ## 排障与结果
 
