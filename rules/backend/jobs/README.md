@@ -4,7 +4,7 @@ description: 后端异步 Job 通用规则索引与执行器边界
 
 # 异步 Job 规则
 
-本目录维护与 Web 框架和队列执行器无关的异步 Job 规则。Job 规则先定义生命周期、状态权威、投递、恢复、运行时快照和 workflow 执行语义；Celery、Taskiq、FastAPI 或 Typer 只能接入这些事实源，不反向定义 Job 语义。对调用方公开的输入输出和错误 envelope 由 `../contracts/service-contract.md` 定义。
+本目录维护与 Web 框架和队列执行器无关的异步 Job 规则。Job 规则先定义生命周期、状态权威、投递、恢复、生命周期事件、运行时快照和 workflow 执行语义；Celery、Taskiq、FastAPI 或 Typer 只能接入这些事实源，不反向定义 Job 语义。对调用方公开的输入输出和错误 envelope 由 `../contracts/service-contract.md` 定义。数据库持久化、Repository、CAS 更新、事件表和索引由 `../persistence/database.md` 定义。
 
 ## 子树边界
 
@@ -21,9 +21,10 @@ description: 后端异步 Job 通用规则索引与执行器边界
 
 1. `../contracts/service-contract.md`：当 Job 有公开创建、查询或 callback 接口时先读取。
 2. `async-job.md`：所有异步 Job 服务必须读取。
-3. `workflow-handler.md`：当服务需要多个 `job_type`、可插拔 handler 或分片执行计划时读取。
-4. `executors/celery.md` 或 `executors/taskiq.md`：按项目选型读取一个执行器规则。
-5. `../fastapi/jobs/async-job.md`：当 API 框架是 FastAPI 时读取。
-6. `../typer/ops-cli.md`：当运行时排障或运维命令使用 Typer 时读取。
+3. `../persistence/database.md`：当 Job 使用数据库作为状态权威、需要 CAS 状态迁移、timeline 或审计表时读取。
+4. `workflow-handler.md`：当服务需要多个 `job_type`、可插拔 handler 或分片执行计划时读取。
+5. `executors/celery.md` 或 `executors/taskiq.md`：按项目选型读取一个执行器规则。
+6. `../fastapi/jobs/async-job.md`：当 API 框架是 FastAPI 时读取。
+7. `../typer/ops-cli.md`：当运行时排障或运维命令使用 Typer 时读取。
 
 执行器可以替换，Job 生命周期事实源不能替换。项目从 Celery 切到 Taskiq 时，只替换执行器规则和实现映射，不重写状态机、投递、恢复或运行时快照。

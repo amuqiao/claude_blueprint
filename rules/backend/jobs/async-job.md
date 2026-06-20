@@ -45,6 +45,35 @@ queued -> running -> failed
 
 `succeeded` 和 `failed` 是不可变终态。消费层必须实现终态幂等守卫，防止消息重投递、重复扫描或手动补偿覆盖终态。
 
+## 生命周期分层
+
+Job 生命周期至少分为四层，不要把所有运行细节都塞进公开 `status`：
+
+| 层级 | 作用 | 示例 |
+| --- | --- | --- |
+| 公开状态 | 调用方判断任务是否完成 | `queued`、`running`、`succeeded`、`failed` |
+| 进度阶段 | 说明正在做什么，不作为终态判断 | `fetching_input`、`calling_model`、`writing_result` |
+| 生命周期事件 | 排障、审计、恢复和 timeline 的事实来源 | `job.created`、`job.started`、`job.failed` |
+| 副作用状态 | callback、第三方写回或对象存储交付状态 | `pending`、`delivered`、`retrying`、`failed` |
+
+公开状态必须少而稳定；新增处理阶段或执行器旁证时，优先扩展进度阶段、事件或诊断字段，不扩展公开状态机。
+
+生命周期事件至少覆盖：
+
+- `job.created`：Job 持久化记录创建完成。
+- `job.publish_requested`：已生成消息标识，准备投递执行器。
+- `job.published`：执行器消息投递确认完成。
+- `job.started`：Worker 通过 CAS 从 `queued` 领取到 `running`。
+- `job.progressed`：进度阶段、work item 或摘要发生变化。
+- `job.succeeded`：成功终态写入完成。
+- `job.failed`：失败终态写入完成。
+- `job.recovered`：恢复扫描执行了补偿或收敛动作。
+- `callback.scheduled`：终态 callback 或写回副作用已排队。
+- `callback.delivered`：callback 或写回确认成功。
+- `callback.failed`：callback 或写回失败并记录可恢复信息。
+
+事件记录应包含事件名、Job 标识、状态迁移、时间、触发来源、错误分类和必要摘要。Typer `timeline`、运行时排障脚本和审计视图应读取事件或等价持久化事实，不从普通日志里临时反推生命周期。
+
 ## 状态权威
 
 持久化 Job 记录是状态权威。队列、执行器 result backend、日志、trace、Pod 状态和本地缓存只能作为过程旁证。

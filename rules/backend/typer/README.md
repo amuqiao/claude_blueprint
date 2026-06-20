@@ -14,4 +14,4 @@ description: Typer CLI 规则索引
 
 ## 加载顺序
 
-当项目需要 Python 运行时排障 CLI 时，先读取 `../entrypoints/runtime-troubleshooting.md`，再读取 `ops-cli.md`。如果 CLI 展示异步 Job 信息，还必须读取 `../jobs/async-job.md` 和按需读取 `../jobs/workflow-handler.md`。
+当项目需要 Python 运行时排障 CLI 时，先读取 `../entrypoints/runtime-troubleshooting.md`，再读取 `ops-cli.md`。如果 CLI 展示异步 Job 信息，还必须读取 `../jobs/async-job.md` 和按需读取 `../jobs/workflow-handler.md`。如果 CLI 展示 DB-backed Job、timeline、事件表或审计证据，还必须读取 `../persistence/database.md`。

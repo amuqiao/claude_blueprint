@@ -22,6 +22,8 @@ description: 后端服务龙骨、分层架构与目录边界规则
 
 服务无法说清定位、入口、配置、运行和验证方式时，不应先讨论数据库、队列或复杂目录结构。
 
+当服务明确需要 FastAPI、异步 Job、Typer、数据库和 AI 集成共同演进时，应读取 [`project-skeleton.md`](project-skeleton.md)，先固定 API、schema、service、repository、job、workflow、integration 和 CLI 的落点，再实现具体能力。
+
 ## 分层规则
 
 按复杂度渐进分层：
@@ -60,7 +62,7 @@ Repository 只负责数据读写和查询表达，不负责业务判断。事务
 
 ## 迁移边界
 
-数据库字段会长期演进时，必须引入迁移机制。架构规则只判断是否需要迁移边界；迁移在部署链路中的执行和验证由部署规则负责。
+数据库字段会长期演进时，必须引入迁移机制。架构规则只判断是否需要迁移边界；数据库配置、连接生命周期、Repository / Unit of Work、迁移细节、Job 持久化事实源、CAS 状态迁移和索引规则由 `../persistence/database.md` 负责；迁移在部署链路中的执行和验证由部署规则负责。
 
 使用 Alembic 等迁移工具时：
 
