@@ -21,6 +21,7 @@ description: 后端工程规则索引与职责边界
 | 接口模板 | `contracts/api-operation-template.md` | 新接口文档字段表、必选/可选、类型、约束、示例、错误码和验收 | 具体业务字段定义 |
 | 操作入口 | `entrypoints/project-entrypoints.md` | 开发者和 Agent 看到的本地开发、启动、停止、验证入口契约 | 脚本目录拓扑和部署平台流程 |
 | 脚本拓扑 | `entrypoints/script-topology.md` | 脚本数量增长后的门面脚本、原子脚本、公共函数拆分 | 具体业务验证逻辑和发布平台说明 |
+| 脚本输出 | `entrypoints/script-output.md` | 脚本面向人的可视化输出、状态词、中英文边界、失败提示、工具输出透传和脱敏规则 | 具体脚本业务逻辑、应用结构化日志和机器输出协议 |
 | 运行时排障 | `entrypoints/runtime-troubleshooting.md` | Pod、容器或远端运行环境中的只读诊断脚本契约 | K8s 平台点击手册、Job 状态机、修复 runbook |
 | 持久化 | `persistence/database.md` | 数据库配置、Repository、Unit of Work、迁移、Job 持久化事实源和 CAS 状态迁移 | HTTP envelope、Job 公开状态机、具体 ORM 教程 |
 | 异步 Job | `jobs/` | Job 生命周期、状态机、投递、恢复、运行时快照和 workflow 执行语义 | Celery / Taskiq API、FastAPI route、Typer 命令实现、服务级 envelope |
@@ -47,20 +48,21 @@ description: 后端工程规则索引与职责边界
 7. `contracts/api-operation-template.md`：新增接口时确定字段说明、必选/可选、类型、约束、示例、错误码和验收。
 8. `entrypoints/project-entrypoints.md`：确定本地开发、服务生命周期和操作入口。
 9. `entrypoints/script-topology.md`：当脚本变多时确定门面脚本、子目录和公共函数边界。
-10. `entrypoints/runtime-troubleshooting.md`：当服务需要在 Pod、容器或远端环境中执行稳定只读排障命令时加载。
-11. `persistence/database.md`：当服务需要数据库、Repository、迁移、Job 持久化事实源或 CAS 状态迁移时加载。
-12. `jobs/async-job.md`：当服务需要异步 Job、Worker、状态查询或恢复机制时加载。
-13. `jobs/workflow-handler.md`：当服务需要多个 `job_type`、可插拔 handler 或分片执行计划时加载。
-14. `jobs/complex-workflow.md`：当单个 Job 内部需要分片、并行、merge、finalize 或执行器编排时加载。
-15. `jobs/executors/celery.md` 或 `jobs/executors/taskiq.md`：按执行器选型加载。
-16. `typer/ops-cli.md`：当 Python CLI 或运行时排障命令使用 Typer 时加载。
-17. `typer/admin-cli.md`：当 Typer 需要创建 Job、重试、补偿、callback 重放或 canary 等写入动作时加载。
-18. `deployment/service-deployment.md`：确定配置注入、部署形态和部署后验证。
-19. `deployment/ci-dockerfile.md`：当项目使用固定 GitLab CI 镜像构建模板时加载。
-20. `integrations/external-service.md`：当服务调用第三方或上游业务系统时加载。
-21. `integrations/artifact-storage.md`：当服务交付大文本、大 JSON、模型中间产物或可下载文件时加载。
-22. `ai/capability-service.md`：当服务调用模型供应商、Prompt 或结构化 AI 输出时加载。
-23. `fastapi/`：当后端服务使用 FastAPI 时加载。
+10. `entrypoints/script-output.md`：当脚本需要对人输出检查、启动、状态、部署或排障结果时加载。
+11. `entrypoints/runtime-troubleshooting.md`：当服务需要在 Pod、容器或远端环境中执行稳定只读排障命令时加载。
+12. `persistence/database.md`：当服务需要数据库、Repository、迁移、Job 持久化事实源或 CAS 状态迁移时加载。
+13. `jobs/async-job.md`：当服务需要异步 Job、Worker、状态查询或恢复机制时加载。
+14. `jobs/workflow-handler.md`：当服务需要多个 `job_type`、可插拔 handler 或分片执行计划时加载。
+15. `jobs/complex-workflow.md`：当单个 Job 内部需要分片、并行、merge、finalize 或执行器编排时加载。
+16. `jobs/executors/celery.md` 或 `jobs/executors/taskiq.md`：按执行器选型加载。
+17. `typer/ops-cli.md`：当 Python CLI 或运行时排障命令使用 Typer 时加载。
+18. `typer/admin-cli.md`：当 Typer 需要创建 Job、重试、补偿、callback 重放或 canary 等写入动作时加载。
+19. `deployment/service-deployment.md`：确定配置注入、部署形态和部署后验证。
+20. `deployment/ci-dockerfile.md`：当项目使用固定 GitLab CI 镜像构建模板时加载。
+21. `integrations/external-service.md`：当服务调用第三方或上游业务系统时加载。
+22. `integrations/artifact-storage.md`：当服务交付大文本、大 JSON、模型中间产物或可下载文件时加载。
+23. `ai/capability-service.md`：当服务调用模型供应商、Prompt 或结构化 AI 输出时加载。
+24. `fastapi/`：当后端服务使用 FastAPI 时加载。
 
 方法论负责判断何时引入规则；规则负责落地时必须遵守的工程契约。案例和扫盲文档不得反向成为规则真源。
 
