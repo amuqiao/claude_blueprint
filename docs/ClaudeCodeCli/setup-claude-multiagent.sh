@@ -301,7 +301,7 @@ if $DRY_RUN; then
   else
     echo -e "  ${YELLOW}[dry-run]${NC} 未检测到 CLAUDE.md → 将新建"
   fi
-  echo -e "  ${YELLOW}[dry-run]${NC} 写入 $CLAUDE_MD（${MODE} 版本）"
+  echo -e "  ${YELLOW}[dry-run]${NC} 写入 ${CLAUDE_MD}（${MODE} 版本）"
 else
   mkdir -p "$HOME/.claude"
   if [ -f "$CLAUDE_MD" ]; then

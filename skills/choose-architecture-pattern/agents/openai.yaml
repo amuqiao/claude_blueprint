@@ -1,0 +1,4 @@
+interface:
+  display_name: "选择架构模式"
+  short_description: "翻译真实需求并匹配成熟生产架构模式"
+  default_prompt: "使用 $choose-architecture-pattern 先翻译我的真实需求，再匹配成熟生产架构模式。"
