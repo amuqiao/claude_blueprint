@@ -1,6 +1,6 @@
 ---
 name: document-writing
-description: "文档写作与 Markdown 文档结构优化 skill。Use when Codex needs to create, rewrite, restructure, review, or polish README、索引页、docs index、安装说明、setup guide、使用说明、usage guide、说明文档、explanation docs、方法论文档、architecture notes 或其他长期维护文档，尤其是需要明确读者心智模型、章节顺序、边界、相对链接和文件命名时。不要用于普通聊天回复、简短 final answer、纯代码注释，或已有更具体 skill 负责的 API contract/current/plans 文档，除非仍需要本 skill 处理表达结构。"
+description: "文档写作与 Markdown 文档结构优化 skill。Use when creating, rewriting, restructuring, reviewing, or polishing README、索引页、docs index、安装说明、setup guide、使用说明、usage guide、说明文档、explanation docs、方法论文档、architecture notes 或其他长期维护文档，尤其是需要明确读者心智模型、章节顺序、边界、相对链接和文件命名时。不要用于普通聊天回复、简短 final answer、纯代码注释，或已有更具体 skill 负责的 API contract/current/plans 文档，除非仍需要本 skill 处理表达结构。"
 ---
 
 # Document Writing Skill

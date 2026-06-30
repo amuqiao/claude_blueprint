@@ -1,6 +1,6 @@
 ---
 name: implementation-contract-plans
-description: Use when Codex needs to organize, create, repair, or review documentation that separates current implementation facts, external API or capability contracts, and future plans. Trigger for API docs, route/capability contract docs, current architecture docs, roadmap/plan cleanup, code-vs-doc drift checks, or converting scattered agent notes into maintainable current/contract/plan documentation.
+description: Use when organizing, creating, repairing, or reviewing documentation that separates current implementation facts, external API or capability contracts, and future plans. Trigger for API docs, route/capability contract docs, current architecture docs, roadmap/plan cleanup, code-vs-doc drift checks, or converting scattered agent notes into maintainable current/contract/plan documentation.
 ---
 
 # Implementation Contract Plans
