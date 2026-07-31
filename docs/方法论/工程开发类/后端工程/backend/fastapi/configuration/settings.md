@@ -6,7 +6,7 @@ description: FastAPI Pydantic Settings 配置分层、派生配置与启动校�
 
 FastAPI 配置规则负责应用进程内的 Pydantic Settings 语义：用少量配置表达部署、安全和业务意图，在 Settings 内集中派生实现参数，并在启动阶段完成统一校验。
 
-本文只定义 FastAPI / Pydantic Settings 的字段语义、生命周期、派生方式、启动校验和机器检查。配置文件真源、运行环境注入和覆盖顺序由 `../../deployment/service-deployment.md` 定义；跨框架的配置设计原则由 `../../../configuration-design.md` 定义，本文不重复维护。
+本文只定义 FastAPI / Pydantic Settings 的字段语义、生命周期、派生方式、启动校验和机器检查。配置文件真源、运行环境注入和覆盖顺序由 `../../deployment/service-deployment.md` 定义。
 
 ## Settings 入口与生命周期
 
@@ -18,7 +18,7 @@ Settings 入口必须满足：
 - API、Worker、Beat 和脚本任务使用同一套应用配置语义。
 - `.env.example` 定义应用配置键集合、必需项和语义模板。
 - 密钥和环境差异通过配置注入进入进程，不写入代码、镜像或前端产物。
-- 运行形态、脚本专用变量和 SDK 自动读取的环境变量与应用 Settings 字段分开维护，并进入明确允许清单。
+- 运行形态、SDK 自动读取的环境变量和脚本私有变量与应用 Settings 字段分开维护；脚本私有变量只进入非应用配置规则说明，不进入 Settings 映射。
 
 Settings 对象应在进程启动时初始化一次。初始化或校验失败必须阻止 API、Worker、Beat 和脚本任务继续启动；不要让入口先开始监听、接单或执行副作用，再在业务路径里发现配置错误。
 
@@ -110,9 +110,21 @@ AppSettings
 
 `.env.example` 不保存真实密钥、真实连接串或可调用凭证，只保存不可用占位符和语义说明。实际环境值属于具体运行环境，不反向定义应用配置语义。
 
-`.env.example` 不约束所有进程环境变量，只约束应用配置键。SDK、HTTP 客户端、运行平台或启动脚本自动读取的环境变量，如果不由 Settings 消费，不应强行加入应用 Settings；但必须进入单独允许清单，并说明 key 名称、消费方、是否可选、影响范围，以及是否允许出现在 `.env`、`.env.*` 或部署模板中。例如 `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY` 这类代理变量可以作为 SDK / HTTP 客户端环境变量列入允许清单，而不是伪装成应用派生配置。
+`.env.example` 不约束所有进程环境变量，只约束应用配置键。SDK、HTTP 客户端或运行平台自动读取的环境变量，如果不由 Settings 消费，不应强行加入应用 Settings；但必须进入单独允许清单，并说明 key 名称、消费方、是否可选、影响范围，以及是否允许出现在 `.env`、`.env.*` 或部署模板中。例如 `HTTP_PROXY`、`HTTPS_PROXY`、`NO_PROXY` 这类代理变量可以作为 SDK / HTTP 客户端环境变量列入允许清单，而不是伪装成应用派生配置。
 
 如果项目把代理、证书、SDK 行为或平台开关设计成显式产品能力或稳定部署承诺，应改为可选 `env-driven` 应用配置，并进入 `.env.example`。例如项目主动支持 OpenAI 出站代理时，可以定义可选 `OPENAI_PROXY_URL`；未配置表示不启用代理，代码应显式决定是否传给 client。
+
+`.env` 只表达应用运行时事实；脚本运行参数由脚本自身维护，允许 shell env 临时覆盖，但不得反向污染应用配置真源。
+
+脚本私有变量必须满足：
+
+- 不进入 `.env.example`，也不另建脚本专用 env 文件。
+- 由脚本内常量、动态推导或临时 shell env 覆盖维护，例如 `API_PORT=8111 ./scripts/dev.sh start api`。
+- 只能影响脚本编排、端口映射、容器项目名、smoke 参数、临时调试开关等脚本行为，不作为应用 Settings 字段。
+- 脚本可以读取 `.env` 中的应用配置来启动或检查应用，例如 `DATABASE__URL`、`TASKIQ__BROKER_KIND`。
+- 应用必需配置缺失必须快速失败；只有脚本私有参数缺失时，脚本才可以使用自身默认值。
+
+按这个边界收敛时，`API_HOST`、`API_PORT`、`API_HOST_PORT`、`POSTGRES_HOST_PORT`、`REDIS_HOST_PORT`、`RABBITMQ_HOST_PORT`、`RABBITMQ_MANAGEMENT_HOST_PORT`、`COMPOSE_PROJECT_NAME` 以及 OSS smoke 变量不应作为应用配置保留在 `.env.example`。脚本可以继续用内部默认值和临时 shell env 覆盖支持本地开发、端口映射和 smoke 场景。
 
 ## Env Key 映射
 
@@ -124,7 +136,8 @@ Settings 字段和 env key 的映射必须集中、稳定、可机器检查。�
 - 每个进入 `.env.example` 的应用配置键都能映射到 Settings 字段。
 - 可选 `tunable constants` 只有需要外部调优时才暴露 env key，并说明调优影响。
 - `derived` 字段没有 env key，也不出现在 Secret、ConfigMap、Compose environment 或测试 env 模板中。
-- 运行形态、脚本专用变量和 SDK 自动读取的环境变量不映射到应用 Settings 字段，只能进入单独允许清单。
+- 运行形态和 SDK 自动读取的环境变量不映射到应用 Settings 字段，只能进入单独允许清单。
+- 脚本私有变量不映射到应用 Settings 字段，也不要求出现在 Settings 映射清单中；它们只受非应用配置规则约束。
 - 已废弃或已移除的 env key 必须进入拒绝清单，出现时检查失败。
 
 未知 env key 应报错，或进入明确允许清单。不要静默忽略未知键，也不要保留旧 key 到新 key 的 silent fallback。确实需要迁移窗口时，应显式记录旧 key、截止版本和失败提示，并通过机器检查推动移除。
@@ -193,7 +206,8 @@ Settings 字段和 env key 的映射必须集中、稳定、可机器检查。�
 - 未知配置键必须报错或进入明确允许清单。
 - 已废弃或已移除的配置键必须被拒绝，避免 silent fallback。
 - 派生字段不得出现在 `.env`、`.env.example` 或项目维护的配置模板中。
-- 运行形态、脚本专用变量和 SDK 自动读取的环境变量应单独列入允许清单，不混入应用 Settings 语义。
+- 配置机器检查只约束应用配置 key；脚本私有 shell env 只进入非应用配置规则说明，不混入应用 Settings 语义。
+- 运行形态和 SDK 自动读取的环境变量应单独列入允许清单，不混入应用 Settings 语义。
 - `verify.sh check`、测试或 CI 至少有一个入口执行配置检查。
 
 机器检查至少应有明确输入清单：
@@ -203,8 +217,9 @@ Settings 字段和 env key 的映射必须集中、稳定、可机器检查。�
 - Settings 字段到 env key 的映射清单。
 - `.env.example`。
 - 部署 env 模板、Secret / ConfigMap 模板或 Compose environment 中的应用配置键。
-- 运行形态或脚本专用变量允许清单。
+- 运行形态变量允许清单。
 - SDK、HTTP 客户端或平台自动读取的环境变量允许清单。
+- 脚本私有变量的非应用配置规则说明。
 - 废弃键拒绝清单。
 
 这些清单可以由代码反射、结构化配置或测试 fixture 生成，但不能只靠人工阅读文档维护。检查失败时应给出具体 key、来源文件和违反的规则，便于维护者直接修复。
@@ -217,6 +232,7 @@ Settings 字段和 env key 的映射必须集中、稳定、可机器检查。�
 - [ ] 字段到 env key 的映射清单已同步；新增派生字段没有 env key。
 - [ ] 如果修改的是运行时配置必需项，`.env.example` 和所有部署环境 env 模板已同步。
 - [ ] 如果新增 SDK、HTTP 客户端或平台自动读取的 env key，已进入允许清单并说明消费方和影响范围。
+- [ ] 如果新增脚本私有变量，它没有进入 `.env.example`、Settings 字段或 Settings 映射清单，只在脚本内默认值、动态推导或临时 shell env 覆盖中维护。
 - [ ] 如果删除或改名配置键，旧 key 已进入废弃键拒绝清单。
 - [ ] 派生关系和派生后断言已更新。
 - [ ] 机器检查脚本已覆盖新增、改名、删除和派生字段禁区。
