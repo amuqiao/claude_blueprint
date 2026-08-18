@@ -148,7 +148,7 @@ voltagent-codex-v1/
   setup-codex-subagents-v1.sh
     从 GitHub 上游安装 Codex custom agents
 
-  AGENTS_80.md / AGENTS_51.md
+  AGENTS_80.md / AGENTS_51.md（在 legacy 目录）
     历史模板参考，不是默认入口
 ```
 

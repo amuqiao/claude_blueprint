@@ -24,8 +24,8 @@
 | [AGENTS.md](./AGENTS.md) | Codex 多 agent 工作流规则模板 | 不直接执行，由脚本复制 |
 | [setup-codex-workflow.sh](./setup-codex-workflow.sh) | 安装 `~/.codex/AGENTS.md` 或项目 `AGENTS.md` | 是 |
 | [setup-codex-subagents-v1.sh](./setup-codex-subagents-v1.sh) | 从 GitHub 上游安装 `~/.codex/agents/*.toml` 或项目 `.codex/agents/*.toml` | 是 |
-| [AGENTS_80.md](./AGENTS_80.md) | 旧整理过程中的 80 路由模板参考 | 否 |
-| [AGENTS_51.md](./AGENTS_51.md) | 旧整理过程中的 51 路由模板参考 | 否 |
+| [AGENTS_80.md](../voltagent-codex-legacy/AGENTS_80.md)（在 legacy 目录） | 旧整理过程中的 80 路由模板参考 | 否 |
+| [AGENTS_51.md](../voltagent-codex-legacy/AGENTS_51.md)（在 legacy 目录） | 旧整理过程中的 51 路由模板参考 | 否 |
 
 ## 最短复现路径
 
