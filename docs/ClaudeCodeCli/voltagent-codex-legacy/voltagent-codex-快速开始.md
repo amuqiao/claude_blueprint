@@ -6,7 +6,7 @@
 
 你正在使用 Codex CLI，并希望获得与 VoltAgent Claude Code 三个插件包对齐的专项 agents。
 
-如果你用的是 Claude Code CLI，改看 `voltagent-claude-code-快速开始.md`。
+如果你用的是 Claude Code CLI，改看 `../voltagent-claude-code-快速开始.md`。
 
 ## 关键区别
 
@@ -30,18 +30,21 @@ Codex 路线安装的是 Codex 原生 custom agents：
 先预览：
 
 ```bash
+cd docs/ClaudeCodeCli/voltagent-codex-legacy
 bash setup-codex-multiagent.sh --dry-run
 ```
 
 全局安装：
 
 ```bash
+cd docs/ClaudeCodeCli/voltagent-codex-legacy
 bash setup-codex-multiagent.sh
 ```
 
 项目级安装：
 
 ```bash
+cd docs/ClaudeCodeCli/voltagent-codex-legacy
 bash setup-codex-multiagent.sh --project
 ```
 
@@ -118,18 +121,21 @@ Codex 版本没有 `voltagent-lang:`、`voltagent-core-dev:`、`voltagent-qa-sec
 更新前建议先预览：
 
 ```bash
+cd docs/ClaudeCodeCli/voltagent-codex-legacy
 bash setup-codex-multiagent.sh --dry-run
 ```
 
 然后重新运行安装脚本：
 
 ```bash
+cd docs/ClaudeCodeCli/voltagent-codex-legacy
 bash setup-codex-multiagent.sh
 ```
 
 项目级安装则加：
 
 ```bash
+cd docs/ClaudeCodeCli/voltagent-codex-legacy
 bash setup-codex-multiagent.sh --project
 ```
 
