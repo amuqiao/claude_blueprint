@@ -298,9 +298,10 @@ def render_flat_entrypoint(standard_content: str, agents: list[CodexAgent]) -> s
     )
 
 
-def render_preset_metadata(count: int) -> str:
+def render_preset_metadata(count: int, preset_id: str) -> str:
+    preset_name = "专家角色全量模式" if preset_id.endswith("-full") else "专家角色模式"
     return (
-        "name: 专家角色模式\n"
+        f"name: {preset_name}\n"
         "description: 基于 DeepSeek Harness 原生 agent preset / tool-subagent / persona 机制，"
         f"预置 {count} 个固定专家子 agent 角色。\n"
     )
@@ -355,7 +356,7 @@ def write_generated_preset(
     standard_content = (standard_preset / "agent.cordis.yml").read_text(encoding="utf-8")
     shutil.copy2(standard_preset / "agent.cordis.yml", temp / "base" / "standard.agent.cordis.yml")
     (temp / "agent.cordis.yml").write_text(render_flat_entrypoint(standard_content, agents), encoding="utf-8")
-    (temp / "preset.yml").write_text(render_preset_metadata(len(agents)), encoding="utf-8")
+    (temp / "preset.yml").write_text(render_preset_metadata(len(agents), preset_id), encoding="utf-8")
     (temp / "agent-role-map.md").write_text(render_role_map(agents, source_dir, preset_id), encoding="utf-8")
     (temp / "agents" / "index.cordis.yml").write_text(render_agent_index(agents), encoding="utf-8")
     for agent in agents:

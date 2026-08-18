@@ -1,6 +1,6 @@
 # Codex 与 DeepSeek Harness 多角色 Agent 机制映射
 
-本文面向只知道“大模型可以问答”的读者。目标不是讲源码细节，而是讲清楚 Codex 和 DeepSeek Harness 这两套 agent runtime 如何组装多角色子 agent 协作，以及本目录为什么要生成 `~/.dsh/.agent-presets/codex-roles`。
+本文面向只知道“大模型可以问答”的读者。目标不是讲源码细节，而是讲清楚 Codex 和 DeepSeek Harness 这两套 agent runtime 如何组装多角色子 agent 协作，以及本目录为什么要生成 `~/.dsh/.agent-presets/codex-roles` 或 `~/.dsh/.agent-presets/codex-roles-full`。
 
 如果你只想复制命令安装，读 [快速开始](./voltagent-deepseek-harness-快速开始.md)。
 
@@ -317,6 +317,7 @@ Web UI 里你看到的：
 标准模式
 PTC 模式
 专家角色模式
+专家角色全量模式
 ```
 
 本质上就是不同 preset。
@@ -340,12 +341,14 @@ agent preset
 
 ```text
 ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
 ```
 
 它在 Web UI 中显示为：
 
 ```text
 专家角色模式
+专家角色全量模式
 ```
 
 ### Persona 是什么
@@ -425,7 +428,7 @@ persona 是长期身份
 | 规则放哪里 | `AGENTS.md` | `~/.dsh/AGENTS.md` 或项目 `AGENTS.md` |
 | 专家身份放哪里 | `~/.codex/agents/*.toml` | `agent.cordis.yml` 里的 `tool-subagent + persona` |
 | 专家如何出现 | Codex runtime 扫描 `.toml` | Harness preset 注册 tool |
-| 用户如何启用 | 进入 Codex runtime | Web UI 选择「专家角色模式」 |
+| 用户如何启用 | 进入 Codex runtime | Web UI 选择「专家角色模式」或「专家角色全量模式」 |
 | API 设计专家叫法 | `api-designer` | `subagent_api_designer` |
 | 代码审查专家叫法 | `code-reviewer` | `subagent_code_reviewer` |
 
@@ -479,13 +482,15 @@ VoltAgent/awesome-codex-subagents/categories/**/*.toml
 本目录的转换流程是：
 
 ```text
-setup-deepseek-harness-codex-agents.sh
+codex-roles/setup-deepseek-harness-codex-agents.sh
+或 codex-roles-full/setup-deepseek-harness-codex-agents.sh
   ↓ clone/update
 ~/.dsh/_awesome-codex-subagents/
   ↓ 读取 categories/**/*.toml
-convert-codex-agents-to-dsh-preset.py
+common/convert-codex-agents-to-dsh-preset.py
   ↓ 生成 Harness preset
 ~/.dsh/.agent-presets/codex-roles/
+或 ~/.dsh/.agent-presets/codex-roles-full/
 ```
 
 上游一个 TOML 角色：
@@ -556,20 +561,27 @@ dotnet-framework-4.8-expert   -> subagent_dotnet_framework_4_8_expert
 ```text
 ~/.dsh/
   AGENTS.md
-    由 setup-deepseek-harness-workflow.sh 写入
+    由 codex-roles/setup-deepseek-harness-workflow.sh
+    或 codex-roles-full/setup-deepseek-harness-workflow.sh 写入
     规则层：告诉主 agent 如何工作
 
   _awesome-codex-subagents/
-    由 setup-deepseek-harness-codex-agents.sh clone/update
+    由 preset 安装脚本 clone/update
     来源层：缓存上游 TOML 角色素材
 
   .agent-presets/
     codex-roles/
-      由 setup-deepseek-harness-codex-agents.sh 生成
+      由 codex-roles/setup-deepseek-harness-codex-agents.sh 生成
       能力层：让 Harness 看到固定专家工具
 
+    codex-roles-full/
+      由 codex-roles-full/setup-deepseek-harness-codex-agents.sh 生成
+      能力层：独立的全量专家角色 preset
+
+  每个 preset 目录内部都有：
+
       preset.yml
-        UI 展示名，例如「专家角色模式」
+        UI 展示名，例如「专家角色模式」或「专家角色全量模式」
 
       agent.cordis.yml
         runtime 真正加载的入口
@@ -589,6 +601,9 @@ dotnet-framework-4.8-expert   -> subagent_dotnet_framework_4_8_expert
 
 ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
   没有它：主 agent 看不到固定专家工具
+
+~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
+  全量模式入口；Web UI 选择「专家角色全量模式」时加载
 ```
 
 ## 一次任务实际如何运行
@@ -604,9 +619,10 @@ dotnet-framework-4.8-expert   -> subagent_dotnet_framework_4_8_expert
 ```text
 1. dsh web 已启动
    ↓
-2. 当前会话选择「专家角色模式」
+2. 当前会话选择「专家角色模式」或「专家角色全量模式」
    ↓
-3. Harness 加载 codex-roles/agent.cordis.yml
+3. Harness 加载 ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+   或 ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
    ↓
 4. 主 agent 看到 subagent_api_designer 工具
    ↓
@@ -625,7 +641,7 @@ dotnet-framework-4.8-expert   -> subagent_dotnet_framework_4_8_expert
 11. 主 agent 汇总，继续 review / verify
 ```
 
-如果没有选择「专家角色模式」：
+如果没有选择「专家角色模式」或「专家角色全量模式」：
 
 ```text
 主 agent 可能仍有通用 subagent
@@ -660,7 +676,7 @@ agent.cordis.yml
 
 ```text
 Web UI 看得到 preset
-选择「专家角色模式」时 mount 失败
+选择「专家角色模式」或「专家角色全量模式」时 mount 失败
 UI 回退到「标准模式」
 ```
 
@@ -729,7 +745,7 @@ DeepSeek Harness 提供的子 agent 工具有不同用途：
 不对。它们是人读拆分文件。运行时入口是：
 
 ```text
-codex-roles/agent.cordis.yml
+~/.dsh/.agent-presets/<preset-id>/agent.cordis.yml
 ```
 
 ### 误解 4：`~/.codex/agents` 是本方案默认来源
@@ -761,6 +777,26 @@ voltagent-deepseek-harness-快速开始.md
 
 Codex 与 DeepSeek Harness 多角色 Agent 机制映射.md
   详细机制说明：为什么这样做，各部件如何组装
+
+common/
+  公共转换器
+
+codex-roles/
+  默认专家角色模式的独立脚本和 AGENTS.md
+
+codex-roles-full/
+  全量专家角色模式的独立脚本、AGENTS.md 和 ROLE_INDEX.md
+```
+
+`codex-roles` 和 `codex-roles-full` 使用同一个上游来源，都会把当前 `VoltAgent/awesome-codex-subagents` 中可解析的角色注册成 Harness 工具。它们的核心差异在规则层：
+
+```text
+codex-roles
+  最终 AGENTS.md 是精简路由规则
+
+codex-roles-full
+  最终 AGENTS.md = AGENTS.md + ROLE_INDEX.md
+  主 agent 能在规则文件里直接看到完整角色索引
 ```
 
 维护原则：
@@ -792,7 +828,8 @@ README 写“先读哪里”
 
 能力层：
   ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+  或 ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
 
 使用入口：
-  dsh web -> 新建会话 -> 专家角色模式
+  dsh web -> 新建会话 -> 专家角色模式 / 专家角色全量模式
 ```

@@ -16,13 +16,13 @@ err() { echo -e "${RED}✗${NC}  $*" >&2; }
 step() { echo -e "\n${BOLD}${CYAN}[$1]${NC} $2"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONVERTER="$SCRIPT_DIR/convert-codex-agents-to-dsh-preset.py"
+CONVERTER="$SCRIPT_DIR/../common/convert-codex-agents-to-dsh-preset.py"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 
 DRY_RUN=false
 FORCE=false
 VERIFY=false
-PRESET_ID="codex-roles"
+PRESET_ID="codex-roles-full"
 DSH_HOME_VALUE="${DSH_HOME:-$HOME/.dsh}"
 STANDARD_PRESET_DIR=""
 REPO_URL="https://github.com/VoltAgent/awesome-codex-subagents.git"
@@ -38,7 +38,7 @@ usage() {
   --dry-run                    只预览，不写入 ~/.dsh
   --force                      允许覆盖已存在的 Harness preset，覆盖前生成 .bak 备份
   --verify                     生成后检查 dsh 命令可用并提示重启 Web UI
-  --preset-id=ID               Harness preset id；默认 codex-roles
+  --preset-id=ID               Harness preset id；默认 codex-roles-full
   --repo-url=URL               上游仓库；默认 VoltAgent/awesome-codex-subagents
   --repo-cache=PATH            上游仓库缓存目录；默认 <dsh-home>/_awesome-codex-subagents
   --source-dir=PATH            跳过 git clone/pull，直接从该目录读取 .toml 角色
@@ -75,7 +75,7 @@ fi
 
 echo -e "${BOLD}"
 echo "╔════════════════════════════════════════════════════════════╗"
-echo "║   DeepSeek Harness Expert Role Preset 安装                ║"
+echo "║   DeepSeek Harness Full Expert Role Preset 安装           ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 echo -e "  DSH home   : ${CYAN}${DSH_HOME_VALUE}${NC}"
@@ -198,7 +198,7 @@ if $VERIFY && ! $DRY_RUN; then
   step "verify" "检查 dsh web 是否可用"
   if command -v dsh >/dev/null 2>&1; then
     ok "dsh $(dsh --version)"
-    echo "请重启 dsh web，然后在 Web UI 新建会话时选择「专家角色模式」。"
+    echo "请重启 dsh web，然后在 Web UI 新建会话时选择「专家角色全量模式」。"
   else
     warn "未检测到全局 dsh；preset 已生成，但无法检查 dsh 命令"
   fi
@@ -212,7 +212,7 @@ cat <<EOF
 
 在 Web UI 新建会话时选择：
 
-  专家角色模式
+  专家角色全量模式
 
 工具命名规则：
 
