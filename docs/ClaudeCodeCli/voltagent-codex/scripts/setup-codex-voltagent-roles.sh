@@ -111,7 +111,7 @@ usage() {
   --project             安装到当前 Git 项目的 .codex/agents/，默认安装到 ~/.codex/agents/
   --force               显式确认覆盖同名未登记 agent
   --verify              安装后检查 codex 命令是否可用
-  --list                列出当前模式将安装的角色，不复制文件
+  --list                列出将全量安装的角色，不复制文件
   --repo-url=URL        上游仓库；默认 VoltAgent/awesome-codex-subagents
   --repo-cache=PATH     上游仓库缓存目录；默认 <codex-home>/_awesome-codex-subagents
   --local-source=PATH   离线安装：使用本地 awesome-codex-subagents 源码目录，跳过 git
@@ -124,13 +124,13 @@ usage() {
   项目：<project-root>/.codex/agents/*.toml
 
 示例:
-  # 推荐：安装 lite 专家角色
+  # 推荐：安装全量专家角色池，使用 lite 工作流路由
   ./setup-codex-voltagent-roles.sh --preset-dir=voltagent-roles-lite
 
-  # 安装默认专家角色
+  # 安装全量专家角色池，使用默认专家工作流路由
   ./setup-codex-voltagent-roles.sh --preset-dir=voltagent-roles
 
-  # 安装全量专家角色
+  # 安装全量专家角色池，使用全量专家工作流路由
   ./setup-codex-voltagent-roles.sh --preset-dir=voltagent-roles-full
 
   # 离线安装：从本地 awesome-codex-subagents 源码目录读取角色
@@ -176,12 +176,7 @@ if [ ! -d "$PRESET_DIR" ]; then
 fi
 
 PRESET_NAME="$(preset_display_name "$PRESET_DIR")"
-ROLE_ALLOWLIST="$PRESET_DIR/ROLE_ALLOWLIST.txt"
-if [ ! -f "$ROLE_ALLOWLIST" ]; then
-  err "未找到 ROLE_ALLOWLIST.txt: $ROLE_ALLOWLIST"
-  err "当前安装入口要求每个 preset 配置目录显式声明角色清单，避免缺文件时意外安装全量角色"
-  exit 1
-fi
+ROUTE_ALLOWLIST="$PRESET_DIR/ROUTE_ALLOWLIST.txt"
 
 if [ -n "$SOURCE_DIR" ]; then
   SOURCE_DIR="$(expand_leading_tilde "$SOURCE_DIR")"
@@ -201,8 +196,10 @@ else
 fi
 REPO_CACHE="$(expand_leading_tilde "$REPO_CACHE")"
 MANIFEST="$AGENTS_DIR/.voltagent-codex-subagents-v1.txt"
-
-EXPECTED_COUNT="$(grep -v '^[[:space:]]*#' "$ROLE_ALLOWLIST" | grep -v '^[[:space:]]*$' | wc -l | tr -d ' ')"
+ROUTE_COUNT=""
+if [ -f "$ROUTE_ALLOWLIST" ]; then
+  ROUTE_COUNT="$(grep -v '^[[:space:]]*#' "$ROUTE_ALLOWLIST" | grep -v '^[[:space:]]*$' | wc -l | tr -d ' ')"
+fi
 
 echo -e "${BOLD}"
 echo "╔══════════════════════════════════════════════════════╗"
@@ -212,8 +209,13 @@ echo -e "${NC}"
 echo -e "  Preset dir : ${CYAN}${PRESET_DIR}${NC}"
 echo -e "  Mode       : ${CYAN}${PRESET_NAME}${NC}"
 echo -e "  安装范围 : ${CYAN}${SCOPE_LABEL}${NC}"
-echo -e "  Allowlist  : ${CYAN}${ROLE_ALLOWLIST}${NC}"
-echo -e "  角色数量 : ${CYAN}${EXPECTED_COUNT}${NC}"
+echo -e "  安装策略 : ${CYAN}全量安装上游 .toml agents${NC}"
+if [ -f "$ROUTE_ALLOWLIST" ]; then
+  echo -e "  Route list : ${CYAN}${ROUTE_ALLOWLIST}${NC}"
+  echo -e "  路由参考 : ${CYAN}${ROUTE_COUNT}${NC}"
+else
+  warn "未找到 ROUTE_ALLOWLIST.txt；继续全量安装 agents，但无法显示该模式的路由参考数量"
+fi
 if [ -n "$SOURCE_DIR" ]; then
   echo -e "  Source mode: ${CYAN}${SOURCE_MODE}${NC}"
   echo -e "  Source dir : ${CYAN}${SOURCE_DIR}${NC}"
@@ -222,7 +224,7 @@ else
   echo -e "  Repo       : ${CYAN}${REPO_URL}${NC}"
   echo -e "  Repo cache : ${CYAN}${REPO_CACHE}${NC}"
 fi
-$LIST_ONLY && echo -e "  模式     : ${CYAN}只列出 roles${NC}"
+$LIST_ONLY && echo -e "  模式     : ${CYAN}只列出全量安装 roles${NC}"
 $FORCE && warn "--force 已启用：允许覆盖同名未登记 agent"
 $DRY_RUN && warn "DRY-RUN 模式，不会写入任何文件"
 
@@ -239,7 +241,9 @@ else
   command -v git >/dev/null 2>&1 || { err "需要 git 获取 VoltAgent/awesome-codex-subagents"; exit 1; }
   ok "git 已安装"
 fi
-ok "角色清单存在: $EXPECTED_COUNT 个"
+if [ -f "$ROUTE_ALLOWLIST" ]; then
+  ok "路由参考清单存在: $ROUTE_COUNT 个"
+fi
 
 step "1/4" "获取 VoltAgent/awesome-codex-subagents"
 if [ -n "$SOURCE_DIR" ]; then
@@ -281,7 +285,7 @@ if $SKIP_INSTALL; then
     warn "dry-run 未实际 clone，无法列出远程角色"
     exit 0
   fi
-  ok "待安装 agents: $EXPECTED_COUNT"
+  ok "待安装 agents: 全量上游角色"
 else
   SRC_ROOT="$SOURCE_DIR"
   if [ -d "$SOURCE_DIR/categories" ]; then
@@ -300,29 +304,8 @@ else
     exit 1
   fi
 
-  : > "$SELECTED_LIST"
-  while IFS= read -r role || [ -n "$role" ]; do
-    case "$role" in
-      ""|\#*) continue ;;
-    esac
-    match="$(find "$SRC_ROOT" -type f -name "${role}.toml" | sort)"
-    if [ -z "$match" ]; then
-      err "ROLE_ALLOWLIST 中的角色不存在: $role"
-      exit 1
-    fi
-    if [ "$(echo "$match" | wc -l | tr -d ' ')" -ne 1 ]; then
-      err "角色文件名不唯一: $role"
-      echo "$match" >&2
-      exit 1
-    fi
-    echo "$match" >> "$SELECTED_LIST"
-  done < "$ROLE_ALLOWLIST"
-
+  cp "$ALL_LIST" "$SELECTED_LIST"
   SELECTED_COUNT="$(wc -l < "$SELECTED_LIST" | tr -d ' ')"
-  if [ "$SELECTED_COUNT" != "$EXPECTED_COUNT" ]; then
-    err "解析出的角色数量不匹配: expected=$EXPECTED_COUNT selected=$SELECTED_COUNT"
-    exit 1
-  fi
 
   while IFS= read -r file; do
     basename "$file"
@@ -349,7 +332,7 @@ fi
 
 step "3/4" "安装 .toml agents"
 if $SKIP_INSTALL; then
-  echo -e "  ${YELLOW}[dry-run]${NC} 将从 $SRC_ROOT 复制 allowlist 中的 .toml 到 $AGENTS_DIR"
+  echo -e "  ${YELLOW}[dry-run]${NC} 将从 $SRC_ROOT 复制全部 .toml 到 $AGENTS_DIR"
 else
   if $DRY_RUN; then
     echo -e "  ${YELLOW}[dry-run]${NC} mkdir -p $AGENTS_DIR"
@@ -410,11 +393,11 @@ elif $DRY_RUN; then
 else
   INSTALLED_COUNT="$(find "$AGENTS_DIR" -maxdepth 1 -type f -name '*.toml' | wc -l | tr -d ' ')"
   MANIFEST_COUNT="$(wc -l < "$MANIFEST" | tr -d ' ')"
-  if [ "$MANIFEST_COUNT" != "$EXPECTED_COUNT" ]; then
-    err "manifest 角色数量不匹配: expected=$EXPECTED_COUNT manifest=$MANIFEST_COUNT"
+  if [ "$MANIFEST_COUNT" != "$SELECTED_COUNT" ]; then
+    err "manifest 角色数量不匹配: expected=$SELECTED_COUNT manifest=$MANIFEST_COUNT"
     exit 1
   fi
-  ok "manifest 角色数量: $MANIFEST_COUNT / $EXPECTED_COUNT"
+  ok "manifest 角色数量: $MANIFEST_COUNT / $SELECTED_COUNT"
   ok "当前 agents 目录 .toml 数量: $INSTALLED_COUNT"
 fi
 

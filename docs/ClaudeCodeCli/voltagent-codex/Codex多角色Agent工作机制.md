@@ -120,31 +120,27 @@ scripts/voltagent-roles-full/AGENTS.md
   项目级 custom agents，只在当前项目可用，通常优先级更高
 ```
 
-## `ROLE_ALLOWLIST.txt` 是什么
+## `ROUTE_ALLOWLIST.txt` 是什么
 
-`ROLE_ALLOWLIST.txt` 不是 Codex runtime 的配置文件。它只给本目录的安装脚本读取。
+`ROUTE_ALLOWLIST.txt` 不是 Codex runtime 的配置文件，也不是安装清单。它是对应模式 `AGENTS.md` 的路由参考真源。
 
 ```text
-ROLE_ALLOWLIST.txt
-  ↓
-setup-codex-voltagent-roles.sh
-  ↓
-从 VoltAgent/awesome-codex-subagents/categories/**/*.toml 中筛选角色
-  ↓
-复制到 ~/.codex/agents/*.toml 或 .codex/agents/*.toml
+ROUTE_ALLOWLIST.txt
+  记录这个模式的 AGENTS.md 应重点覆盖哪些 agent 名称
+  用于维护路由规则，不用于限制安装
 ```
 
 也就是说：
 
 ```text
-ROLE_ALLOWLIST.txt
-  决定安装哪些角色
+ROUTE_ALLOWLIST.txt
+  决定该模式的 AGENTS.md 应重点提示哪些角色
 
 AGENTS.md
   决定主 agent 如何使用这些角色
 
 agents/*.toml
-  Codex runtime 真正加载的 custom agent 定义
+  Codex runtime 真正加载的 custom agent 定义；本方案默认全量安装
 ```
 
 ## 本目录如何使用上游仓库
@@ -162,11 +158,9 @@ clone/update 上游仓库
   ↓
 读取 categories/**/*.toml
   ↓
-按当前模式的 ROLE_ALLOWLIST.txt 过滤
-  ↓
 检查 name、description、instructions 字段
   ↓
-复制到 ~/.codex/agents/ 或 .codex/agents/
+全量复制到 ~/.codex/agents/ 或 .codex/agents/
   ↓
 写入 .voltagent-codex-subagents-v1.txt 安装清单
 ```
@@ -214,19 +208,19 @@ Codex runtime
 
 ```text
 voltagent-roles-lite
-  ROLE_ALLOWLIST.txt: 67 个常用专家
-  AGENTS.md: Codex 精简工作流规则
+  ROUTE_ALLOWLIST.txt: 67 个常用路由角色
+  AGENTS.md: Codex lite 工作流规则
 
 voltagent-roles
-  ROLE_ALLOWLIST.txt: 172 个当前全量专家
-  AGENTS.md: Codex 精简工作流规则
+  ROUTE_ALLOWLIST.txt: 80 个高频路由角色
+  AGENTS.md: Codex 标准专家工作流规则
 
 voltagent-roles-full
-  ROLE_ALLOWLIST.txt: 172 个当前全量专家
+  ROUTE_ALLOWLIST.txt: 172 个全量路由角色
   AGENTS.md: 可单独维护全量专家模式规则
 ```
 
-注意：Codex runtime 会读取 `.toml` 中的 `description` 判断是否适合派发某个 custom agent。`AGENTS.md` 不需要重复列出完整 agent 名录；如果你希望某个模式更强调完整路由，可以只调整该模式目录下的 `AGENTS.md`。
+注意：三种模式都会全量安装上游 `.toml`。Codex runtime 会读取 `.toml` 中的 `description` 判断是否适合派发某个 custom agent。`AGENTS.md` 不需要重复列出完整 agent 名录；如果你希望某个模式更强调完整路由，可以只调整该模式目录下的 `AGENTS.md` 和 `ROUTE_ALLOWLIST.txt`。
 
 ## 安装后的目录关系
 
@@ -301,5 +295,5 @@ voltagent-roles-full
 | TOML | Codex custom agent 使用的配置格式 |
 | `~/.codex/agents` | 全局 custom agents 目录 |
 | `.codex/agents` | 项目级 custom agents 目录 |
-| `ROLE_ALLOWLIST.txt` | 本方案的安装清单输入，不是 Codex runtime 配置 |
+| `ROUTE_ALLOWLIST.txt` | 本方案的路由参考清单，不是 Codex runtime 配置，也不限制安装 |
 | Manifest | 安装清单；本方案中是 `.voltagent-codex-subagents-v1.txt` |

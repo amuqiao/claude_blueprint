@@ -23,11 +23,22 @@
 | [Codex多角色Agent工作机制.md](./Codex%E5%A4%9A%E8%A7%92%E8%89%B2Agent%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6.md) | Codex 多角色机制、目录关系、常见误解 | 阅读 |
 | [scripts/setup-codex-workflow.sh](./scripts/setup-codex-workflow.sh) | 公共工作流规则安装入口，通过 `--preset-dir` 选择模式配置目录 | 是 |
 | [scripts/setup-codex-voltagent-roles.sh](./scripts/setup-codex-voltagent-roles.sh) | 公共专家角色安装入口，通过 `--preset-dir` 选择模式配置目录 | 是 |
-| [scripts/voltagent-roles-lite/](./scripts/voltagent-roles-lite/) | 推荐日常使用的 lite 专家角色配置，按 `ROLE_ALLOWLIST.txt` 安装较少但覆盖常用领域的 `.toml` agents | 否 |
-| [scripts/voltagent-roles/](./scripts/voltagent-roles/) | 默认专家角色配置，`ROLE_ALLOWLIST.txt` 固定全量角色集，`AGENTS.md` 保持精简路由规则 | 否 |
-| [scripts/voltagent-roles-full/](./scripts/voltagent-roles-full/) | 全量专家角色配置，`ROLE_ALLOWLIST.txt` 固定全量角色集，`AGENTS.md` 可单独维护全量模式规则 | 否 |
+| [scripts/voltagent-roles-lite/](./scripts/voltagent-roles-lite/) | 推荐日常使用的 lite 工作流配置，`ROUTE_ALLOWLIST.txt` 记录 67 个路由参考角色 | 否 |
+| [scripts/voltagent-roles/](./scripts/voltagent-roles/) | 默认专家工作流配置，`ROUTE_ALLOWLIST.txt` 记录 80 个高频路由参考角色 | 否 |
+| [scripts/voltagent-roles-full/](./scripts/voltagent-roles-full/) | 全量专家工作流配置，`ROUTE_ALLOWLIST.txt` 记录 172 个全量路由参考角色 | 否 |
 
-三个模式目录都从 `VoltAgent/awesome-codex-subagents` 读取角色源，并通过各自的 `ROLE_ALLOWLIST.txt` 明确声明要安装哪些 Codex custom agents。`voltagent-roles-lite` 当前是 67 个常用专家；`voltagent-roles` 和 `voltagent-roles-full` 当前是 172 个全量专家。
+Codex 版本采用“全量安装、规则分层”的设计：三个模式都会从 `VoltAgent/awesome-codex-subagents` 安装全部 `.toml` custom agents；模式差异由各自的 `AGENTS.md` 控制。`ROUTE_ALLOWLIST.txt` 不是安装输入，而是对应 `AGENTS.md` 的路由参考真源：
+
+```text
+voltagent-roles-lite
+  ROUTE_ALLOWLIST.txt: 67 个常用路由角色
+
+voltagent-roles
+  ROUTE_ALLOWLIST.txt: 80 个高频路由角色
+
+voltagent-roles-full
+  ROUTE_ALLOWLIST.txt: 172 个全量路由角色
+```
 
 ## 最短复现路径
 
@@ -55,7 +66,7 @@ cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-cod
   --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents
 ```
 
-脚本按内容保证幂等：重复执行同样输入时，`AGENTS.md` 内容一致会 no-op；roles 安装会根据 manifest 管理本脚本安装过的 `.toml`。覆盖同名未登记 agent 或内容不同的 `AGENTS.md` 时，需要显式加 `--force`。
+脚本按内容保证幂等：重复执行同样输入时，`AGENTS.md` 内容一致会 no-op；roles 安装会全量安装上游 `.toml`，并根据 manifest 管理本脚本安装过的文件。覆盖同名未登记 agent 或内容不同的 `AGENTS.md` 时，需要显式加 `--force`。
 
 最后重启或刷新 Codex 会话。
 
@@ -74,7 +85,7 @@ Codex 自身读取 `AGENTS.md` 作为工作规则，读取 agents 目录中的 `
   仅在线安装模式使用；离线安装时由 --local-source 指定源码目录
 
 ~/.codex/agents/*.toml
-  由 ./scripts/setup-codex-voltagent-roles.sh 从上游 categories/**/*.toml 复制
+  由 ./scripts/setup-codex-voltagent-roles.sh 从上游 categories/**/*.toml 全量复制
   作用：Codex custom agent 身份定义
 
 ~/.codex/agents/.voltagent-codex-subagents-v1.txt

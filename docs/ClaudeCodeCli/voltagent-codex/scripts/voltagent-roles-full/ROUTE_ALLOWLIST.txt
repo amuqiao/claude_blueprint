@@ -1,5 +1,5 @@
-# Codex VoltAgent roles full allowlist.
-# Source role names must match VoltAgent/awesome-codex-subagents TOML `name` fields.
+# Codex VoltAgent roles full route allowlist.
+# Route names must match VoltAgent/awesome-codex-subagents TOML `name` fields.
 
 ab-test-analysis
 accessibility-tester

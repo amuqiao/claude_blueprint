@@ -13,13 +13,13 @@
 
 选择 scripts/ 下的模式目录
   scripts/voltagent-roles-lite/
-    推荐日常使用，安装 67 个常用专家
+    推荐日常使用，AGENTS.md 路由 67 个常用专家
 
   scripts/voltagent-roles/
-    默认专家模式，安装 172 个专家，AGENTS.md 保持精简路由
+    默认专家模式，AGENTS.md 路由 80 个高频专家
 
   scripts/voltagent-roles-full/
-    全量专家模式，安装 172 个专家，AGENTS.md 可单独维护全量规则
+    全量专家模式，AGENTS.md 可单独维护 172 个全量路由
 
 安装工作流规则
   scripts/setup-codex-workflow.sh
@@ -31,7 +31,7 @@
     ↓ 通过 --preset-dir 读取对应模式目录
     ↓ 在线：clone/update VoltAgent/awesome-codex-subagents
     ↓ 离线：读取 --local-source 指定的本地源码目录
-    ↓ 按 ROLE_ALLOWLIST.txt 复制 .toml 到 ~/.codex/agents/
+    ↓ 全量复制 .toml 到 ~/.codex/agents/
 
 使用
   重启或刷新 Codex 会话
@@ -81,22 +81,22 @@ voltagent-codex/
       公共专家角色安装入口，通过 --preset-dir 选择模式配置目录
 
     voltagent-roles-lite/
-      ROLE_ALLOWLIST.txt
-        lite 模式固定专家角色清单
+      ROUTE_ALLOWLIST.txt
+        lite 模式路由参考清单，当前 67 个
 
       AGENTS.md
         要安装到 ~/.codex/AGENTS.md 的 lite 工作流规则模板
 
     voltagent-roles/
-      ROLE_ALLOWLIST.txt
-        默认模式固定专家角色清单
+      ROUTE_ALLOWLIST.txt
+        默认模式路由参考清单，当前 80 个
 
       AGENTS.md
         要安装到 ~/.codex/AGENTS.md 的工作流规则模板
 
     voltagent-roles-full/
-      ROLE_ALLOWLIST.txt
-        全量模式固定专家角色清单
+      ROUTE_ALLOWLIST.txt
+        全量模式路由参考清单，当前 172 个
 
       AGENTS.md
         全量模式独立工作流规则模板
@@ -111,7 +111,7 @@ lite 模式会安装：
 ~/.codex/agents/*.toml
 ```
 
-它会从 `VoltAgent/awesome-codex-subagents` 读取角色源，但只按 `voltagent-roles-lite/ROLE_ALLOWLIST.txt` 安装常用专家。这个模式适合日常使用：仍然是专家模式，但不会把全部上游角色都复制进 `~/.codex/agents`。
+它会从 `VoltAgent/awesome-codex-subagents` 全量安装 Codex custom agents；`voltagent-roles-lite/ROUTE_ALLOWLIST.txt` 只记录 `AGENTS.md` 中建议优先路由的 67 个常用专家。这个模式适合日常使用：专家池完整，但工作流规则保持轻量。
 
 执行前可以先查看脚本内置示例：
 
@@ -140,7 +140,7 @@ cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-cod
 
 ## 安装默认专家角色模式
 
-默认模式按 `voltagent-roles/ROLE_ALLOWLIST.txt` 安装当前固定的全量角色集，但 `AGENTS.md` 保持精简路由规则。
+默认模式同样全量安装上游 `.toml`，但 `voltagent-roles/AGENTS.md` 保持 80 个高频专家路由。`voltagent-roles/ROUTE_ALLOWLIST.txt` 是这 80 个路由角色的参考真源。
 
 ```bash
 cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-codex/scripts
@@ -158,7 +158,7 @@ cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-cod
 
 ## 安装全量专家角色模式
 
-全量模式按 `voltagent-roles-full/ROLE_ALLOWLIST.txt` 安装当前固定的全量角色集。它和默认模式的区别在规则层：你可以单独维护 `voltagent-roles-full/AGENTS.md`，让它更偏向全量专家路由；Codex runtime 仍然直接读取 `.toml` 身份定义。
+全量模式同样全量安装上游 `.toml`。它和默认模式的区别在规则层：你可以单独维护 `voltagent-roles-full/AGENTS.md`，让它更偏向 172 个全量专家路由；Codex runtime 仍然直接读取 `.toml` 身份定义。
 
 ```bash
 cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-codex/scripts
@@ -202,7 +202,7 @@ cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-cod
 
 默认模式和全量模式使用同样参数，只需要改 `--preset-dir`。
 
-脚本会在前置检查阶段确认本地目录存在，并统计 `.toml` 角色文件数量。三种模式都会按 `--preset-dir` 指向目录下的 `ROLE_ALLOWLIST.txt` 过滤；`ROLE_ALLOWLIST.txt` 缺失时脚本会直接失败。如果 allowlist 中的角色在本地源码里不存在，脚本也会直接失败，不会静默少装。
+脚本会在前置检查阶段确认本地目录存在，并统计 `.toml` 角色文件数量。三种模式都会全量安装上游 `.toml`；`--preset-dir` 只决定显示哪个模式、读取哪个 `AGENTS.md` 工作流模板，以及展示哪个 `ROUTE_ALLOWLIST.txt` 路由参考数量。
 
 ## `~/.codex` 生成结果
 
@@ -256,7 +256,7 @@ test -f ~/.codex/agents/code-reviewer.toml
 wc -l ~/.codex/agents/.voltagent-codex-subagents-v1.txt
 ```
 
-最后一条应输出对应 `ROLE_ALLOWLIST.txt` 当前有效角色数量，例如 lite 模式是 `67`，默认和全量模式是 `172`。
+最后一条应输出当前上游全量角色数量，例如当前是 `172`。`ROUTE_ALLOWLIST.txt` 不影响安装数量，只用于维护对应模式的 `AGENTS.md` 路由范围。
 
 验证本地源码中可安装角色：
 
@@ -306,13 +306,13 @@ cd /path/to/target-project
 
 Codex 会看到 `.toml` custom agents，但主 agent 不一定按你期望的流程先问工作流、再 review/verify。建议两个脚本都执行。
 
-### `ROLE_ALLOWLIST.txt` 是给 Codex 读取的吗
+### `ROUTE_ALLOWLIST.txt` 是给 Codex 读取的吗
 
-不是。它是给安装脚本读取的清单，用来决定从上游复制哪些 `.toml`。Codex runtime 真正读取的是最终安装到 `~/.codex/agents/*.toml` 的文件。
+不是。它是给人和维护脚本看的路由参考真源，用来说明当前模式的 `AGENTS.md` 应重点覆盖哪些专家。Codex runtime 真正读取的是最终安装到 `~/.codex/agents/*.toml` 的文件；安装脚本会全量复制上游 `.toml`。
 
 ### 切换模式是否会重复安装
 
-不会按目录重复安装；三种模式都写入同一个目标 `agents/` 目录。脚本会根据 manifest 删除上次由本脚本安装但不在当前 allowlist 中的角色，再复制当前 allowlist 中的角色。
+不会按目录重复安装；三种模式都写入同一个目标 `agents/` 目录。脚本会根据 manifest 管理本脚本安装过的 `.toml`，并全量复制当前上游角色。
 
 ### 如何停用
 
