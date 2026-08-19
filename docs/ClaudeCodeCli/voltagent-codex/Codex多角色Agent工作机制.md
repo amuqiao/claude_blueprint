@@ -1,8 +1,8 @@
 # Codex 多角色 Agent 工作机制
 
-本文解释 Codex 为什么可以通过 `AGENTS.md + agents/*.toml` 实现多角色 agent 协作。它不是安装手册；只想复制命令安装时，读 [快速开始](./voltagent-codex-快速开始v1.md)。
+本文解释 Codex 为什么可以通过 `AGENTS.md + agents/*.toml` 实现多角色 agent 协作。它不是安装手册；只想复制命令安装时，读 [快速开始](./voltagent-codex-快速开始.md)。
 
-## 先理解：大模型不是完整的 agent 系统
+## 先理解这件事
 
 大模型本身只负责根据上下文生成文本。真正决定“读哪些文件、用什么工具、派发哪个专家、最后怎么验证”的，是 Codex 这样的 agent runtime。
 
@@ -17,11 +17,11 @@ Codex runtime
 
 配置文件
   AGENTS.md                 工作规则
-  ~/.codex/agents/*.toml    custom agent 身份定义
+  ~/.codex/agents/*.toml    全局 custom agent 身份定义
   .codex/agents/*.toml      项目级 custom agent 身份定义
 ```
 
-所以，`VoltAgent/awesome-codex-subagents` 在 Codex 里不需要“转换成插件”。它本身提供的就是 Codex 可读取的 `.toml` custom agent 定义。
+所以，`VoltAgent/awesome-codex-subagents` 在 Codex 里不需要转换成插件，也不需要转换成 `agent.cordis.yml`。它提供的就是 Codex 可读取的 `.toml` custom agent 定义。
 
 ## Codex 的心智模型
 
@@ -59,7 +59,25 @@ subagent 按自己的 .toml 身份处理专项任务
 
 `AGENTS.md` 是给主 agent 的工作规则。它不是 agent 名录，也不是插件安装文件。
 
-在本目录中，`AGENTS.md` 负责规定：
+在本目录中，各模式目录都有自己的 `AGENTS.md`：
+
+```text
+scripts/voltagent-roles-lite/AGENTS.md
+scripts/voltagent-roles/AGENTS.md
+scripts/voltagent-roles-full/AGENTS.md
+```
+
+公共脚本会把你选择的那个模板复制到：
+
+```text
+~/.codex/AGENTS.md
+  全局规则，所有 Codex 项目可用
+
+项目根目录/AGENTS.md
+  项目级规则，只影响当前项目
+```
+
+这些规则负责规定：
 
 ```text
 任务开始前：
@@ -76,16 +94,6 @@ subagent 按自己的 .toml 身份处理专项任务
 
 完成前：
   必须 review 和 verify
-```
-
-这类规则适合放在：
-
-```text
-~/.codex/AGENTS.md
-  全局规则，所有 Codex 项目可用
-
-项目根目录/AGENTS.md
-  项目级规则，只影响当前项目
 ```
 
 ## `agents/*.toml` 是什么
@@ -112,9 +120,36 @@ subagent 按自己的 .toml 身份处理专项任务
   项目级 custom agents，只在当前项目可用，通常优先级更高
 ```
 
+## `ROLE_ALLOWLIST.txt` 是什么
+
+`ROLE_ALLOWLIST.txt` 不是 Codex runtime 的配置文件。它只给本目录的安装脚本读取。
+
+```text
+ROLE_ALLOWLIST.txt
+  ↓
+setup-codex-voltagent-roles.sh
+  ↓
+从 VoltAgent/awesome-codex-subagents/categories/**/*.toml 中筛选角色
+  ↓
+复制到 ~/.codex/agents/*.toml 或 .codex/agents/*.toml
+```
+
+也就是说：
+
+```text
+ROLE_ALLOWLIST.txt
+  决定安装哪些角色
+
+AGENTS.md
+  决定主 agent 如何使用这些角色
+
+agents/*.toml
+  Codex runtime 真正加载的 custom agent 定义
+```
+
 ## 本目录如何使用上游仓库
 
-`setup-codex-subagents-v1.sh` 的源头是：
+`setup-codex-voltagent-roles.sh` 的源头是：
 
 ```text
 https://github.com/VoltAgent/awesome-codex-subagents.git
@@ -126,6 +161,8 @@ https://github.com/VoltAgent/awesome-codex-subagents.git
 clone/update 上游仓库
   ↓
 读取 categories/**/*.toml
+  ↓
+按当前模式的 ROLE_ALLOWLIST.txt 过滤
   ↓
 检查 name、description、instructions 字段
   ↓
@@ -144,7 +181,7 @@ DeepSeek Harness:
   需要把上游 TOML 转成 Harness agent preset / Cordis plugin 配置
 ```
 
-## 为什么还需要工作流复制脚本
+## 为什么分成 workflow 和 roles 两个脚本
 
 只安装 `.toml`，Codex 就知道“有哪些专家”。但它不一定会自动按你想要的方式组织任务。
 
@@ -155,7 +192,7 @@ setup-codex-workflow.sh
   安装 AGENTS.md
   解决“主 agent 如何组织工作流”
 
-setup-codex-subagents-v1.sh
+setup-codex-voltagent-roles.sh
   安装 agents/*.toml
   解决“有哪些专家可以派发”
 ```
@@ -173,6 +210,24 @@ Codex runtime
   负责加载规则、识别 custom agents、派发 subagents、汇总结果
 ```
 
+## 三种模式的含义
+
+```text
+voltagent-roles-lite
+  ROLE_ALLOWLIST.txt: 67 个常用专家
+  AGENTS.md: Codex 精简工作流规则
+
+voltagent-roles
+  ROLE_ALLOWLIST.txt: 172 个当前全量专家
+  AGENTS.md: Codex 精简工作流规则
+
+voltagent-roles-full
+  ROLE_ALLOWLIST.txt: 172 个当前全量专家
+  AGENTS.md: 可单独维护全量专家模式规则
+```
+
+注意：Codex runtime 会读取 `.toml` 中的 `description` 判断是否适合派发某个 custom agent。`AGENTS.md` 不需要重复列出完整 agent 名录；如果你希望某个模式更强调完整路由，可以只调整该模式目录下的 `AGENTS.md`。
+
 ## 安装后的目录关系
 
 全局安装后：
@@ -183,7 +238,7 @@ Codex runtime
     工作流规则，由 setup-codex-workflow.sh 写入
 
   _awesome-codex-subagents/
-    上游仓库缓存，由 setup-codex-subagents-v1.sh clone/update
+    上游仓库缓存，由 setup-codex-voltagent-roles.sh clone/update
 
   agents/
     api-designer.toml
@@ -221,11 +276,13 @@ Codex runtime
 
 ### `AGENTS.md` 里要不要列出全部 172 个 agent
 
-不建议。`AGENTS.md` 应该写工作规则和高频路由，不应该复制完整 agent 名录。完整身份描述已经在 `.toml` 文件里，重复写入会增加上下文负担，也容易和上游更新不同步。
+默认不建议。`AGENTS.md` 应该写工作规则和高频路由，不应该无差别复制完整 agent 名录。完整身份描述已经在 `.toml` 文件里，重复写入会增加上下文负担，也容易和上游更新不同步。
+
+如果你确实想让某个模式暴露更完整的路由提示，建议只改 `scripts/voltagent-roles-full/AGENTS.md`，不要改公共脚本。
 
 ### 为什么不从旧版 `~/.codex/agents` 继续整理
 
-这套 v1 流程面向复现和分发，所以源头应该是 GitHub 上游仓库，而不是某台机器里的历史目录。本机目录可以用来验证，但不应该作为交付给其他人的安装源。
+这套流程面向复现和分发，所以源头应该是 GitHub 上游仓库或本地下载好的 `awesome-codex-subagents` 源码目录，而不是某台机器里的历史 `~/.codex/agents`。
 
 ### `.voltagent-codex-subagents-v1.txt` 是必须的吗
 
@@ -244,4 +301,5 @@ Codex runtime
 | TOML | Codex custom agent 使用的配置格式 |
 | `~/.codex/agents` | 全局 custom agents 目录 |
 | `.codex/agents` | 项目级 custom agents 目录 |
+| `ROLE_ALLOWLIST.txt` | 本方案的安装清单输入，不是 Codex runtime 配置 |
 | Manifest | 安装清单；本方案中是 `.voltagent-codex-subagents-v1.txt` |

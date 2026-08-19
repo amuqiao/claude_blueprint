@@ -6,7 +6,7 @@
 
 你正在使用 Claude Code CLI，并希望通过 VoltAgent 的 Claude Code plugin 包获得一批专项 subagents。
 
-如果你用的是 Codex，不走这份文档，改看 `voltagent-codex-v1/voltagent-codex-快速开始v1.md`。两者安装方式不同。
+如果你用的是 Codex，不走这份文档，改看 `../../voltagent-codex/voltagent-codex-快速开始.md`。两者安装方式不同。
 
 ## 推荐方式
 
