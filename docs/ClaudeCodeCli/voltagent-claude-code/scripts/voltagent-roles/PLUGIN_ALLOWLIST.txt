@@ -1,0 +1,11 @@
+# Claude Code VoltAgent plugins for default expert mode.
+voltagent-core-dev
+voltagent-lang
+voltagent-infra
+voltagent-qa-sec
+voltagent-data-ai
+voltagent-dev-exp
+voltagent-domains
+voltagent-biz
+voltagent-meta
+voltagent-research

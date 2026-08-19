@@ -1,0 +1,10 @@
+# Claude Code VoltAgent plugins for lite expert mode.
+# Keep common engineering/review/research plugins, exclude narrow domain/business packs.
+voltagent-core-dev
+voltagent-lang
+voltagent-infra
+voltagent-qa-sec
+voltagent-data-ai
+voltagent-dev-exp
+voltagent-meta
+voltagent-research

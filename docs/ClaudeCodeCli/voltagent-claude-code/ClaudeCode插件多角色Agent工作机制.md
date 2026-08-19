@@ -2,11 +2,29 @@
 
 本文解释 Claude Code 为什么可以通过 `CLAUDE.md + plugin subagents` 实现多角色 agent 协作。它不是安装手册；只想复制命令安装时，读 [快速开始](./voltagent-claude-code-快速开始.md)。
 
-## 先理解：Claude Code 的多角色从哪里来
+## 一句话心智模型
 
-Claude Code 不是只把用户消息发给模型。它是一个 agent runtime，会读取规则、管理工具、调用子 agent，并把子 agent 的结果汇总回主会话。
+```text
+CLAUDE.md 是交通规则
+Claude Code plugins 是专家名册
+Claude Code runtime 是调度系统
+主 agent 按规则选择专家，把子任务交给 plugin subagent，再汇总结果
+```
 
-这套机制可以分成三层：
+这和 Codex、DeepSeek Harness 的配置入口不同：
+
+```text
+Codex:
+  AGENTS.md + ~/.codex/agents/*.toml
+
+DeepSeek Harness:
+  AGENTS.md + ~/.dsh/.agent-presets/<preset>/agent.cordis.yml
+
+Claude Code:
+  CLAUDE.md + Claude Code plugins
+```
+
+## 三层关系
 
 ```text
 LLM / Model
@@ -22,6 +40,8 @@ Claude Code runtime
   Claude Code plugins
     subagent 身份定义和命名空间
 ```
+
+不要把这三层混在一起：`CLAUDE.md` 不安装 plugin；plugin 不决定你的工作流；runtime 负责把两者组合起来。
 
 ## `CLAUDE.md` 是什么
 
@@ -68,27 +88,46 @@ voltagent-core-dev:api-designer
 voltagent-qa-sec:code-reviewer
 ```
 
-这和 Codex 不同：
+这个 namespace 很重要。Claude Code plugin 方式下，不建议把 `voltagent-lang:typescript-pro` 省略成裸名 `typescript-pro`，因为裸名更像手动 `.claude/agents` 安装方式。
+
+## 本目录的模式配置是什么
+
+本目录把可复现配置分成公共脚本和模式目录：
 
 ```text
-Codex:
-  ~/.codex/agents/*.toml
-  agent 名称通常是 typescript-pro、code-reviewer
+scripts/
+  setup-claude-code-workflow.sh
+    读取 <preset-dir>/CLAUDE.md
+    写入 ~/.claude/CLAUDE.md 或项目 CLAUDE.md
 
-Claude Code plugin:
-  ~/.claude/plugins/...
-  agent 名称通常是 voltagent-lang:typescript-pro、voltagent-qa-sec:code-reviewer
+  setup-claude-code-voltagent-plugins.sh
+    读取 <preset-dir>/PLUGIN_ALLOWLIST.txt
+    调用 claude plugin marketplace / install / update
+
+  voltagent-roles-lite/
+    CLAUDE.md
+    PLUGIN_ALLOWLIST.txt
+
+  voltagent-roles/
+    CLAUDE.md
+    PLUGIN_ALLOWLIST.txt
+
+  voltagent-roles-full/
+    CLAUDE.md
+    PLUGIN_ALLOWLIST.txt
 ```
+
+`PLUGIN_ALLOWLIST.txt` 不是 Claude Code runtime 配置文件。它只是安装脚本的输入，用来显式控制要安装哪些 plugins，避免脚本在清单缺失时意外安装全量插件。
 
 ## 本目录如何使用上游仓库
 
-`setup-claude-code-subagents.sh` 的源头是：
+上游源是：
 
 ```text
 https://github.com/VoltAgent/awesome-claude-code-subagents
 ```
 
-脚本走 Claude Code 原生 plugin 命令：
+安装脚本走 Claude Code 原生 plugin 命令：
 
 ```text
 claude plugin marketplace add VoltAgent/awesome-claude-code-subagents
@@ -100,7 +139,7 @@ claude plugin install voltagent-lang@voltagent-subagents
 Claude Code 写入 ~/.claude/plugins/marketplaces 和 ~/.claude/plugins/cache
 ```
 
-本目录默认安装上游 marketplace 中的 10 个 VoltAgent plugins：
+lite 模式当前安装 8 个常用 plugins：
 
 ```text
 voltagent-core-dev
@@ -109,16 +148,15 @@ voltagent-infra
 voltagent-qa-sec
 voltagent-data-ai
 voltagent-dev-exp
-voltagent-domains
-voltagent-biz
 voltagent-meta
 voltagent-research
 ```
 
-只想安装旧版常用三件套时，可以用：
+默认模式和全量模式当前安装 10 个上游 plugins，在 lite 基础上增加：
 
-```bash
-./setup-claude-code-subagents.sh --plugins=voltagent-core-dev,voltagent-lang,voltagent-qa-sec
+```text
+voltagent-domains
+voltagent-biz
 ```
 
 ## 为什么还需要工作流复制脚本
@@ -132,7 +170,7 @@ setup-claude-code-workflow.sh
   安装 CLAUDE.md
   解决“主 agent 如何组织工作流”
 
-setup-claude-code-subagents.sh
+setup-claude-code-voltagent-plugins.sh
   安装或更新 Claude Code plugins
   解决“有哪些专家可以派发”
 ```
@@ -189,11 +227,11 @@ Claude Code runtime
 
 ### plugin 方式和手动 `.claude/agents` 方式一样吗
 
-不一样。plugin 方式由 Claude Code 管理安装、启用、禁用和更新，agent 名称带 plugin namespace。手动方式是把 `.md` agent 文件复制到 `~/.claude/agents/` 或项目 `.claude/agents/`，通常不带 plugin namespace。
+不一样。plugin 方式由 Claude Code 管理安装、启用、禁用和更新，agent 名称带 plugin namespace。手动方式是把 agent 文件复制到 `~/.claude/agents/` 或项目 `.claude/agents/`，通常不带 plugin namespace。
 
 本目录主路径使用 plugin 方式，因为它更契合 Claude Code 的插件机制。
 
-### `CLAUDE.md` 里要不要列出全部 154+ 个 agent
+### `CLAUDE.md` 里要不要列出全部 agent
 
 不建议。完整 agent 描述由 plugin 包提供。`CLAUDE.md` 应该写工作规则和高频路由，不应该复制完整 agent 名录。
 
@@ -202,8 +240,8 @@ Claude Code runtime
 只安装 plugin 可以让 Claude Code 看到专家角色，但不会自动建立“先选工作流、再派发、最后 review/verify”的规则。完整复现建议两个脚本都执行：
 
 ```bash
-./setup-claude-code-workflow.sh
-./setup-claude-code-subagents.sh
+./setup-claude-code-workflow.sh --preset-dir=voltagent-roles-lite
+./setup-claude-code-voltagent-plugins.sh --preset-dir=voltagent-roles-lite
 ```
 
 ## 术语清单
@@ -218,5 +256,6 @@ Claude Code runtime
 | Marketplace | plugin 来源仓库登记 |
 | Subagent | 被主 agent 派发的子 agent |
 | Namespace | plugin agent 的前缀，例如 `voltagent-lang:` |
+| `PLUGIN_ALLOWLIST.txt` | 本目录安装脚本读取的 plugin 清单，不是 runtime 配置 |
 | `~/.claude/plugins` | Claude Code 全局 plugin 目录 |
 | `~/.claude/agents` | 手动安装 subagent 文件时使用的目录 |
