@@ -26,9 +26,9 @@
 | [scripts/common/](./scripts/common/) | 公共转换器，把上游 TOML 转成 Harness `.cordis.yml` | 通常否 |
 | [scripts/voltagent-roles-lite/](./scripts/voltagent-roles-lite/) | 推荐日常使用的 lite 专家角色配置，按 `ROLE_ALLOWLIST.txt` 生成较少但覆盖常用领域的固定专家工具 | 否 |
 | [scripts/voltagent-roles/](./scripts/voltagent-roles/) | 默认专家角色配置，`ROLE_ALLOWLIST.txt` 固定全量角色集，`AGENTS.md` 保持精简路由规则 | 否 |
-| [scripts/voltagent-roles-full/](./scripts/voltagent-roles-full/) | 全量专家角色配置，`ROLE_ALLOWLIST.txt` 固定全量角色集，安装 workflow 时追加 `ROLE_INDEX.md` | 否 |
+| [scripts/voltagent-roles-full/](./scripts/voltagent-roles-full/) | 全量专家角色配置，`ROLE_ALLOWLIST.txt` 固定全量角色集，`AGENTS.md` 内置完整角色索引 | 否 |
 
-三个 preset 子目录都从 `VoltAgent/awesome-codex-subagents` 读取角色源，并通过各自的 `ROLE_ALLOWLIST.txt` 明确声明要注册哪些角色。`voltagent-roles-lite` 是 67 个常用专家；`voltagent-roles` 和 `voltagent-roles-full` 当前是 172 个全量专家。二者区别在规则层：`voltagent-roles` 让主 agent 按精简规则选择常见专家；`voltagent-roles-full` 把完整角色索引写入最终 `AGENTS.md`，方便主 agent 直接按全量表路由。
+三个 preset 子目录都从 `VoltAgent/awesome-codex-subagents` 读取角色源，并通过各自的 `ROLE_ALLOWLIST.txt` 明确声明要注册哪些角色。`voltagent-roles-lite` 是 67 个常用专家；`voltagent-roles` 和 `voltagent-roles-full` 当前是 172 个全量专家。二者区别在规则层：`voltagent-roles` 使用精简路由规则；`voltagent-roles-full` 的 `AGENTS.md` 直接内置完整角色索引，方便主 agent 按全量表路由。
 
 ## 最短复现路径
 

@@ -72,7 +72,7 @@ usage() {
   # 安装默认专家角色工作流规则
   ./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles
 
-  # 安装全量专家角色工作流规则，会追加 voltagent-roles-full/ROLE_INDEX.md
+  # 安装全量专家角色工作流规则
   ./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-full
 
   # 写入当前 Git 项目的 AGENTS.md，而不是 ~/.dsh/AGENTS.md
@@ -118,7 +118,6 @@ done
 
 PRESET_DIR="$(resolve_preset_dir "$PRESET_DIR_VALUE")"
 SOURCE_AGENTS="$PRESET_DIR/AGENTS.md"
-SOURCE_ROLE_INDEX="$PRESET_DIR/ROLE_INDEX.md"
 PRESET_NAME="$(preset_display_name "$PRESET_DIR")"
 
 if [ ! -d "$PRESET_DIR" ]; then
@@ -188,9 +187,6 @@ echo -e "${NC}"
 echo -e "  Preset dir : ${CYAN}${PRESET_DIR}${NC}"
 echo -e "  Mode       : ${CYAN}${PRESET_NAME}${NC}"
 echo -e "  安装范围 : ${CYAN}${SCOPE_LABEL}${NC}"
-if [ -f "$SOURCE_ROLE_INDEX" ]; then
-  echo -e "  Role index : ${CYAN}${SOURCE_ROLE_INDEX}${NC}"
-fi
 $FORCE && warn "--force 已启用：允许覆盖内容不同的目标 AGENTS.md"
 $CHECK_PROFILE && echo -e "  模式     : ${CYAN}只检查 profile，不写入 AGENTS.md${NC}"
 $DRY_RUN && warn "DRY-RUN 模式，不会写入任何文件"
@@ -232,15 +228,7 @@ if $DRY_RUN && [ -e "$TARGET_FILE" ]; then
 fi
 if ! $DRY_RUN; then
   TMP_EXPECTED="${TARGET_FILE}.expected.$$"
-  if [ -f "$SOURCE_ROLE_INDEX" ]; then
-    {
-      cat "$SOURCE_AGENTS"
-      echo ""
-      cat "$SOURCE_ROLE_INDEX"
-    } > "$TMP_EXPECTED"
-  else
-    cp "$SOURCE_AGENTS" "$TMP_EXPECTED"
-  fi
+  cp "$SOURCE_AGENTS" "$TMP_EXPECTED"
 fi
 
 if [ -e "$TARGET_FILE" ] && ! $DRY_RUN; then
@@ -263,13 +251,6 @@ fi
 
 if $ALREADY_CURRENT; then
   :
-elif [ -f "$SOURCE_ROLE_INDEX" ]; then
-  if $DRY_RUN; then
-    echo -e "  ${YELLOW}[dry-run]${NC} merge $SOURCE_AGENTS + $SOURCE_ROLE_INDEX > $TARGET_FILE"
-  else
-    mv "$TMP_EXPECTED" "$TARGET_FILE"
-    TMP_EXPECTED=""
-  fi
 else
   if $DRY_RUN; then
     echo -e "  ${YELLOW}[dry-run]${NC} install $SOURCE_AGENTS > $TARGET_FILE"

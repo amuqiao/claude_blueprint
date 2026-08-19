@@ -117,7 +117,6 @@ usage() {
   --repo-cache=PATH            上游仓库缓存目录；默认 <dsh-home>/_awesome-codex-subagents
   --local-source=PATH          离线安装：使用本地 awesome-codex-subagents 源码目录，跳过 git
   --source-dir=PATH            跳过 git clone/pull，直接从该目录读取 .toml 角色
-  --codex-agents-dir=PATH      兼容旧参数；等同 --source-dir=PATH
   --dsh-home=PATH              DeepSeek Harness home；默认 $DSH_HOME 或 ~/.dsh
   --standard-preset-dir=PATH   dsh 内置 standard preset 目录；默认自动定位全局 dsh 安装
   --help, -h                   显示帮助
@@ -159,7 +158,6 @@ for arg in "$@"; do
     --repo-cache=*) REPO_CACHE="${arg#--repo-cache=}" ;;
     --local-source=*) SOURCE_DIR="${arg#--local-source=}"; SOURCE_MODE="local"; STRICT_AWESOME_SOURCE=true ;;
     --source-dir=*) SOURCE_DIR="${arg#--source-dir=}"; SOURCE_MODE="local" ;;
-    --codex-agents-dir=*) SOURCE_DIR="${arg#--codex-agents-dir=}"; SOURCE_MODE="local" ;;
     --dsh-home=*) DSH_HOME_VALUE="${arg#--dsh-home=}" ;;
     --standard-preset-dir=*) STANDARD_PRESET_DIR="${arg#--standard-preset-dir=}" ;;
     --help|-h) usage; exit 0 ;;

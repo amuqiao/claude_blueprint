@@ -42,7 +42,7 @@ DEFAULT_SOURCE_DIR = "~/.dsh/_awesome-codex-subagents"
 
 
 @dataclass(frozen=True)
-class CodexAgent:
+class VoltAgentRole:
     source: Path
     name: str
     description: str
@@ -127,8 +127,8 @@ def discover_toml_files(source_dir: Path) -> list[Path]:
     return files
 
 
-def read_codex_agents(source_dir: Path) -> list[CodexAgent]:
-    agents: list[CodexAgent] = []
+def read_voltagent_roles(source_dir: Path) -> list[VoltAgentRole]:
+    agents: list[VoltAgentRole] = []
     names: set[str] = set()
     row_ids: set[str] = set()
     tool_names: set[str] = set()
@@ -155,7 +155,7 @@ def read_codex_agents(source_dir: Path) -> list[CodexAgent]:
         row_ids.add(row_id)
         tool_names.add(tool_name)
         agents.append(
-            CodexAgent(
+            VoltAgentRole(
                 source=source,
                 name=name,
                 description=description,
@@ -192,7 +192,7 @@ def read_role_allowlist(source: Path) -> list[str]:
     return roles
 
 
-def filter_agents_by_allowlist(agents: list[CodexAgent], role_names: list[str], source: Path) -> list[CodexAgent]:
+def filter_agents_by_allowlist(agents: list[VoltAgentRole], role_names: list[str], source: Path) -> list[VoltAgentRole]:
     by_name = {agent.name: agent for agent in agents}
     missing = [name for name in role_names if name not in by_name]
     if missing:
@@ -249,7 +249,7 @@ def indent_block(text: str, spaces: int) -> str:
     return "\n".join(f"{prefix}{line}" for line in lines)
 
 
-def persona_for(agent: CodexAgent) -> str:
+def persona_for(agent: VoltAgentRole) -> str:
     parts = [
         f'You are the DeepSeek Harness child-agent role "{agent.name}".',
         "",
@@ -277,7 +277,7 @@ def persona_for(agent: CodexAgent) -> str:
     return "\n".join(parts)
 
 
-def render_role_file(agent: CodexAgent) -> str:
+def render_role_file(agent: VoltAgentRole) -> str:
     return (
         f"# Generated from {agent.source.name}. Edit the source role and rerun the converter.\n"
         f"- id: {agent.row_id}\n"
@@ -292,7 +292,7 @@ def render_role_file(agent: CodexAgent) -> str:
     )
 
 
-def render_agent_index(agents: list[CodexAgent]) -> str:
+def render_agent_index(agents: list[VoltAgentRole]) -> str:
     lines = [
         "# Generated include list for fixed expert role tools.",
         "# Each included file contributes one @deepseek-ai/dsh-tool-subagent row.",
@@ -310,7 +310,7 @@ def render_agent_index(agents: list[CodexAgent]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def render_flat_entrypoint(standard_content: str, agents: list[CodexAgent]) -> str:
+def render_flat_entrypoint(standard_content: str, agents: list[VoltAgentRole]) -> str:
     role_rows = "\n".join(render_role_file(agent).rstrip() for agent in agents)
     return (
         "# DeepSeek Harness preset entrypoint.\n"
@@ -344,7 +344,7 @@ def escape_markdown_cell(value: str) -> str:
     return value.replace("|", "\\|").replace("\n", " ")
 
 
-def render_role_map(agents: list[CodexAgent], source_dir: Path, preset_id: str) -> str:
+def render_role_map(agents: list[VoltAgentRole], source_dir: Path, preset_id: str) -> str:
     lines = [
         "# DeepSeek Harness Expert Role Map",
         "",
@@ -368,7 +368,7 @@ def render_role_map(agents: list[CodexAgent], source_dir: Path, preset_id: str) 
 def write_generated_preset(
     target: Path,
     standard_preset: Path,
-    agents: list[CodexAgent],
+    agents: list[VoltAgentRole],
     source_dir: Path,
     preset_id: str,
     force: bool,
@@ -438,7 +438,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 """,
     )
     parser.add_argument("--source-dir", default=DEFAULT_SOURCE_DIR, help="Source directory containing categories/**/*.toml or *.toml role files.")
-    parser.add_argument("--codex-agents-dir", help="Deprecated alias for --source-dir; kept for old local ~/.codex/agents input.")
     parser.add_argument("--dsh-home", default=os.environ.get("DSH_HOME", "~/.dsh"))
     parser.add_argument("--preset-id", default=DEFAULT_PRESET_ID)
     parser.add_argument("--standard-preset-dir")
@@ -456,11 +455,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
-    source_dir = expand_path(args.codex_agents_dir or args.source_dir)
+    source_dir = expand_path(args.source_dir)
     dsh_home = expand_path(args.dsh_home)
     target = expand_path(args.output_dir) if args.output_dir else dsh_home / ".agent-presets" / args.preset_id
     standard_preset = locate_standard_preset(args.standard_preset_dir)
-    agents = read_codex_agents(source_dir)
+    agents = read_voltagent_roles(source_dir)
     if args.include_roles_file:
         include_roles_file = expand_path(args.include_roles_file)
         role_names = read_role_allowlist(include_roles_file)

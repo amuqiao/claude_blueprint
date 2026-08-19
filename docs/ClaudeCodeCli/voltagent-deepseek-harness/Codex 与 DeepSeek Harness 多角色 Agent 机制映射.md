@@ -769,7 +769,7 @@ https://github.com/VoltAgent/awesome-codex-subagents
 ~/.dsh/_awesome-codex-subagents
 ```
 
-`--codex-agents-dir` 只是兼容旧流程和调试用途。
+本方案不保留旧参数兼容；离线安装统一使用 `--local-source` 或 `--source-dir` 指向上游源码目录。
 
 ## 文档职责
 
@@ -804,7 +804,7 @@ scripts/voltagent-roles/
   默认专家角色配置：AGENTS.md 和 ROLE_ALLOWLIST.txt
 
 scripts/voltagent-roles-full/
-  全量专家角色配置：AGENTS.md、ROLE_ALLOWLIST.txt 和 ROLE_INDEX.md
+  全量专家角色配置：AGENTS.md 和 ROLE_ALLOWLIST.txt
 ```
 
 三个模式都使用同一个上游来源，并通过各自的 `ROLE_ALLOWLIST.txt` 明确声明要注册哪些角色。`voltagent-roles-lite` 注册较少常用角色；`voltagent-roles` 和 `voltagent-roles-full` 当前注册同一份全量角色集。`voltagent-roles` 和 `voltagent-roles-full` 的核心差异在规则层：
@@ -814,8 +814,8 @@ voltagent-roles
   最终 AGENTS.md 是精简路由规则
 
 voltagent-roles-full
-  最终 AGENTS.md = AGENTS.md + ROLE_INDEX.md
-  主 agent 能在规则文件里直接看到完整角色索引
+  最终 AGENTS.md 直接来自 voltagent-roles-full/AGENTS.md
+  该文件内置完整角色索引，主 agent 能在规则文件里直接看到全量路由表
 ```
 
 维护原则：

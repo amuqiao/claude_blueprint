@@ -132,10 +132,7 @@ voltagent-deepseek-harness/
         全量模式固定专家角色清单
 
       AGENTS.md
-        全量模式独立工作流规则模板
-
-      ROLE_INDEX.md
-        全量固定专家角色索引；安装 workflow 时由公共脚本追加到最终 AGENTS.md
+        全量模式独立工作流规则模板，内置完整角色索引
 ```
 
 ## 安装推荐 lite 专家角色模式
@@ -219,7 +216,7 @@ Web UI 中选择：
 ~/.dsh/.agent-presets/voltagent-roles-full
 ```
 
-它和默认模式的区别在规则层：全量模式的 workflow 安装脚本会把 `voltagent-roles-full/ROLE_INDEX.md` 追加到最终生效的 `AGENTS.md`，让主 agent 在规则文件里直接看到完整角色路由索引。工具层同样按 `voltagent-roles-full/ROLE_ALLOWLIST.txt` 注册当前固定的全量角色。
+它和默认模式的区别在规则层：全量模式的 `voltagent-roles-full/AGENTS.md` 直接内置完整角色路由索引，让主 agent 在规则文件里看到完整角色表。工具层同样按 `voltagent-roles-full/ROLE_ALLOWLIST.txt` 注册当前固定的全量角色。
 
 执行：
 
