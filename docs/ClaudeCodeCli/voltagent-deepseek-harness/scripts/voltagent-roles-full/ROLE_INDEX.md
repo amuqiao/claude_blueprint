@@ -1,7 +1,7 @@
 <!-- FULL_ROLE_INDEX_START -->
 ## 全量固定专家角色索引
 
-本索引只用于 `codex-roles-full` 全量模式。安装脚本会把本文件追加到最终生效的 `AGENTS.md`，让主 agent 在规则层看到完整路由表。
+本索引只用于 `voltagent-roles-full` 全量模式。安装脚本会把本文件追加到最终生效的 `AGENTS.md`，让主 agent 在规则层看到完整路由表。
 
 调用原则：
 

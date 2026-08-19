@@ -10,38 +10,88 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 ok() { echo -e "${GREEN}✓${NC}  $*"; }
-info() { echo -e "${BLUE}→${NC}  $*"; }
 warn() { echo -e "${YELLOW}!${NC}  $*"; }
 err() { echo -e "${RED}✗${NC}  $*" >&2; }
 step() { echo -e "\n${BOLD}${CYAN}[$1]${NC} $2"; }
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 DRY_RUN=false
 PROJECT_SCOPE=false
 FORCE=false
 VERIFY=false
 CHECK_PROFILE=false
+PRESET_DIR_VALUE="${DSH_PRESET_DIR:-voltagent-roles-lite}"
 DSH_HOME_OVERRIDE=""
 DSH_PACKAGE="@deepseek-ai/dsh@0.1.0-rc.7"
 
+expand_leading_tilde() {
+  case "$1" in
+    "~") echo "$HOME" ;;
+    "~/"*) echo "$HOME/${1#~/}" ;;
+    *) echo "$1" ;;
+  esac
+}
+
+resolve_preset_dir() {
+  local value
+  value="$(expand_leading_tilde "$1")"
+  case "$value" in
+    /*) echo "$value" ;;
+    *) echo "$SCRIPT_DIR/$value" ;;
+  esac
+}
+
+preset_display_name() {
+  case "$(basename "$1")" in
+    *-full) echo "专家角色全量模式" ;;
+    *-lite) echo "专家角色精简模式" ;;
+    *) echo "专家角色模式" ;;
+  esac
+}
+
 usage() {
   cat <<'USAGE'
-用法: bash setup-deepseek-harness-workflow.sh [--dry-run] [--project] [--force] [--verify] [--check-profile] [--dsh-home=PATH] [--dsh-package=SPEC]
+用法: bash setup-deepseek-harness-workflow.sh [options]
 
 选项:
-  --dry-run        只预览，不写入文件
-  --project        写入当前 Git 项目的 AGENTS.md；默认写入 ~/.dsh/AGENTS.md
-  --force          允许覆盖目标 AGENTS.md；覆盖前会生成 .bak 备份
-  --verify         写入后运行 dsh web --dump-config 并检查 subagent/workflow 关键行
-  --check-profile  只检查 dsh web profile，不写入 AGENTS.md
-  --dsh-home=PATH  指定 DeepSeek Harness home；默认使用 $DSH_HOME 或 ~/.dsh
-  --dsh-package=SPEC
-                  指定 npx 包版本；默认 @deepseek-ai/dsh@0.1.0-rc.7
-  --help, -h       显示帮助
+  --preset-dir=PATH  模式配置目录；默认 $DSH_PRESET_DIR 或 voltagent-roles-lite
+  --dry-run          只预览，不写入文件
+  --project          写入当前 Git 项目的 AGENTS.md；默认写入 ~/.dsh/AGENTS.md
+  --force            显式确认覆盖内容不同的 AGENTS.md；覆盖前会生成 .bak 备份
+  --verify           写入后运行 dsh web --dump-config 并检查 subagent/workflow 关键行
+  --check-profile    只检查 dsh web profile，不写入 AGENTS.md
+  --dsh-home=PATH    指定 DeepSeek Harness home；默认使用 $DSH_HOME 或 ~/.dsh
+  --dsh-package=SPEC 指定 npx 包版本；默认 @deepseek-ai/dsh@0.1.0-rc.7
+  --help, -h         显示帮助
+
+示例:
+  # 推荐：安装 lite 工作流规则到 ~/.dsh/AGENTS.md
+  ./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-lite
+
+  # 安装默认专家角色工作流规则
+  ./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles
+
+  # 安装全量专家角色工作流规则，会追加 voltagent-roles-full/ROLE_INDEX.md
+  ./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-full
+
+  # 写入当前 Git 项目的 AGENTS.md，而不是 ~/.dsh/AGENTS.md
+  ./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-lite --project
+
+  # 预览安装，不写入文件
+  ./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-lite --dry-run
+
+  # 目标内容不同时显式确认覆盖，覆盖前会生成 .bak 备份
+  ./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-lite --force
+
+  # 只检查 dsh web profile 是否包含 subagent/workflow 关键配置
+  ./setup-deepseek-harness-workflow.sh --check-profile
 USAGE
 }
 
 for arg in "$@"; do
   case "$arg" in
+    --preset-dir=*) PRESET_DIR_VALUE="${arg#--preset-dir=}" ;;
     --dry-run) DRY_RUN=true ;;
     --project) PROJECT_SCOPE=true ;;
     --force) FORCE=true ;;
@@ -66,8 +116,15 @@ for arg in "$@"; do
   esac
 done
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SOURCE_AGENTS="$SCRIPT_DIR/AGENTS.md"
+PRESET_DIR="$(resolve_preset_dir "$PRESET_DIR_VALUE")"
+SOURCE_AGENTS="$PRESET_DIR/AGENTS.md"
+SOURCE_ROLE_INDEX="$PRESET_DIR/ROLE_INDEX.md"
+PRESET_NAME="$(preset_display_name "$PRESET_DIR")"
+
+if [ ! -d "$PRESET_DIR" ]; then
+  err "未找到 preset 配置目录: $PRESET_DIR"
+  exit 1
+fi
 
 if [ ! -f "$SOURCE_AGENTS" ]; then
   err "未找到模板文件: $SOURCE_AGENTS"
@@ -128,8 +185,13 @@ echo "╔═══════════════════════�
 echo "║   DeepSeek Harness Multi-Agent Workflow 安装              ║"
 echo "╚════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
+echo -e "  Preset dir : ${CYAN}${PRESET_DIR}${NC}"
+echo -e "  Mode       : ${CYAN}${PRESET_NAME}${NC}"
 echo -e "  安装范围 : ${CYAN}${SCOPE_LABEL}${NC}"
-$FORCE && warn "--force 已启用：允许覆盖目标 AGENTS.md"
+if [ -f "$SOURCE_ROLE_INDEX" ]; then
+  echo -e "  Role index : ${CYAN}${SOURCE_ROLE_INDEX}${NC}"
+fi
+$FORCE && warn "--force 已启用：允许覆盖内容不同的目标 AGENTS.md"
 $CHECK_PROFILE && echo -e "  模式     : ${CYAN}只检查 profile，不写入 AGENTS.md${NC}"
 $DRY_RUN && warn "DRY-RUN 模式，不会写入任何文件"
 
@@ -162,28 +224,66 @@ step "1/3" "准备目标位置"
 TARGET_DIR="$(dirname "$TARGET_FILE")"
 run mkdir -p "$TARGET_DIR"
 
-if [ -e "$TARGET_FILE" ] && ! $FORCE; then
-  if $DRY_RUN; then
-    warn "目标已存在；真实安装会停止: $TARGET_FILE"
-    warn "确认要覆盖时请加 --force；或使用 --project 写入项目级 AGENTS.md"
-    exit 0
+step "2/3" "写入 AGENTS.md"
+TMP_EXPECTED=""
+ALREADY_CURRENT=false
+if $DRY_RUN && [ -e "$TARGET_FILE" ]; then
+  warn "目标已存在；真实执行会先比较内容，相同则 no-op，内容不同且未加 --force 会停止"
+fi
+if ! $DRY_RUN; then
+  TMP_EXPECTED="${TARGET_FILE}.expected.$$"
+  if [ -f "$SOURCE_ROLE_INDEX" ]; then
+    {
+      cat "$SOURCE_AGENTS"
+      echo ""
+      cat "$SOURCE_ROLE_INDEX"
+    } > "$TMP_EXPECTED"
   else
-    err "目标已存在: $TARGET_FILE"
-    err "确认要覆盖时请加 --force；或使用 --project 写入项目级 AGENTS.md"
-    exit 1
+    cp "$SOURCE_AGENTS" "$TMP_EXPECTED"
   fi
 fi
 
-step "2/3" "写入 AGENTS.md"
 if [ -e "$TARGET_FILE" ] && ! $DRY_RUN; then
-  BACKUP_FILE="${TARGET_FILE}.bak.$(date +%Y%m%d%H%M%S)"
-  cp "$TARGET_FILE" "$BACKUP_FILE"
-  ok "已备份旧文件: $BACKUP_FILE"
+  if cmp -s "$TMP_EXPECTED" "$TARGET_FILE"; then
+    [ -n "$TMP_EXPECTED" ] && rm -f "$TMP_EXPECTED"
+    TMP_EXPECTED=""
+    ALREADY_CURRENT=true
+    ok "目标已是最新: $TARGET_FILE"
+  elif ! $FORCE; then
+    [ -n "$TMP_EXPECTED" ] && rm -f "$TMP_EXPECTED"
+    err "目标已存在且内容不同: $TARGET_FILE"
+    err "确认要覆盖内容时请加 --force；或使用 --project 写入项目级 AGENTS.md"
+    exit 1
+  else
+    BACKUP_FILE="${TARGET_FILE}.bak.$(date +%Y%m%d%H%M%S)"
+    cp "$TARGET_FILE" "$BACKUP_FILE"
+    ok "已备份旧文件: $BACKUP_FILE"
+  fi
 fi
 
-run cp "$SOURCE_AGENTS" "$TARGET_FILE"
+if $ALREADY_CURRENT; then
+  :
+elif [ -f "$SOURCE_ROLE_INDEX" ]; then
+  if $DRY_RUN; then
+    echo -e "  ${YELLOW}[dry-run]${NC} merge $SOURCE_AGENTS + $SOURCE_ROLE_INDEX > $TARGET_FILE"
+  else
+    mv "$TMP_EXPECTED" "$TARGET_FILE"
+    TMP_EXPECTED=""
+  fi
+else
+  if $DRY_RUN; then
+    echo -e "  ${YELLOW}[dry-run]${NC} install $SOURCE_AGENTS > $TARGET_FILE"
+  else
+    mv "$TMP_EXPECTED" "$TARGET_FILE"
+    TMP_EXPECTED=""
+  fi
+fi
+[ -n "$TMP_EXPECTED" ] && rm -f "$TMP_EXPECTED"
+
 if $DRY_RUN; then
   ok "预览写入: $TARGET_FILE"
+elif $ALREADY_CURRENT; then
+  ok "无需写入: $TARGET_FILE"
 else
   ok "已写入: $TARGET_FILE"
 fi
@@ -201,7 +301,7 @@ echo "  grep -E 'id: tool-subagent-fork$|toolName: subagent_fork$' /tmp/dsh-web-
 echo "  grep -E 'id: tool-workflow$|name: .+dsh-tool-workflow' /tmp/dsh-web-config.yml"
 echo "  grep -E 'id: agent-presets$|default: standard' /tmp/dsh-web-config.yml"
 echo ""
-echo "Web UI 中优先选择「专家角色模式」复现固定角色子 agent；只验证通用 subagent/workflow 时可用「标准模式」或「PTC 模式」。"
+echo "Web UI 中选择「${PRESET_NAME}」复现固定角色子 agent。"
 echo "不要用「极简模式」复现多 agent 工作流。"
 echo "如果已有 dsh web 会话正在运行，请重启或新建会话后再验证 AGENTS.md 行为。"
 

@@ -3,7 +3,7 @@
 
 本文件用于在 DeepSeek Harness 中复现多 agent 协作工作流。规则目标是固定协作流程；如果当前会话使用带固定角色工具的 preset，还可以调用 `subagent_<role>` 形式的专家子 agent 工具。
 
-DeepSeek Harness 的子 agent 能力来自当前 agent preset 暴露的工具，例如 `subagent`、`subagent_fork`、`list_agents`、`send_message`、`interrupt_agent` 和 `workflow`。如果使用 `codex-roles-full` 这类固定角色 preset，还会看到按 `subagent_<role_name>` 命名的专家工具，例如 `subagent_api_designer`、`subagent_code_reviewer`、`subagent_typescript_pro`。如果通用子 agent 工具不可见，应切换到标准模式、PTC 模式或固定角色 preset；如果固定专家工具不可见，应切换到「专家角色全量模式」。
+DeepSeek Harness 的子 agent 能力来自当前 agent preset 暴露的工具，例如 `subagent`、`subagent_fork`、`list_agents`、`send_message`、`interrupt_agent` 和 `workflow`。如果使用 `voltagent-roles-full` 这类固定角色 preset，还会看到按 `subagent_<role_name>` 命名的专家工具，例如 `subagent_api_designer`、`subagent_code_reviewer`、`subagent_typescript_pro`。如果通用子 agent 工具不可见，应切换到标准模式、PTC 模式或固定角色 preset；如果固定专家工具不可见，应切换到「专家角色全量模式」。
 
 ### 任务开始前必须选择工作流
 
@@ -82,7 +82,7 @@ Plan 阶段默认由主 agent 完成。只在确有必要时派发少数只读�
 - 有明确匹配时，优先调用固定专家工具，例如 API 合同设计用 `subagent_api_designer`，代码审查用 `subagent_code_reviewer`，安全审查用 `subagent_security_auditor`。
 - 没有明确匹配时，用通用 `subagent` 并在 prompt 中写清角色。
 - 固定专家工具只固定 persona 和工具名，不代表可以跳过任务边界说明；仍需在 prompt 中写清输入、范围、禁止事项和输出格式。
-- 本全量模式要求所有生成的固定专家角色都可被主 agent 主动路由。安装脚本会把同目录 `ROLE_INDEX.md` 追加到最终写入的 `~/.dsh/AGENTS.md` 或项目 `AGENTS.md`，作为完整角色索引。
+- 本全量模式要求所有生成的固定专家角色都可被主 agent 主动路由。公共 workflow 安装脚本会把同目录 `ROLE_INDEX.md` 追加到最终写入的 `~/.dsh/AGENTS.md` 或项目 `AGENTS.md`，作为完整角色索引。
 - 路由时优先参考最终 `AGENTS.md` 末尾的“全量固定专家角色索引”。索引中没有精确命中的场景，再使用通用 `subagent` 并在 prompt 中写清角色。
 
 #### Review 阶段
@@ -129,7 +129,7 @@ Review 发现的问题由主 agent 汇总判断；只修与当前任务相关的
 
 - 不在 Harness runtime 中直接使用 Codex 专用 `.codex/agents/*.toml`、Claude 插件命名空间或 VoltAgent namespace；如需复用这些角色定义，必须先整理为 Harness agent preset，并通过 `tool-subagent` + `persona` 暴露成 Harness 工具。
 - 不把“替换 LLM URL”当作多 agent 适配；多 agent 能力必须来自 DeepSeek Harness runtime 暴露的工具。
-- 不直接引用来源角色名，例如 `typescript-pro`、`code-reviewer`；在 `codex-roles-full` preset 中应调用对应 Harness 工具名 `subagent_typescript_pro`、`subagent_code_reviewer`。
+- 不直接引用来源角色名，例如 `typescript-pro`、`code-reviewer`；在 `voltagent-roles-full` preset 中应调用对应 Harness 工具名 `subagent_typescript_pro`、`subagent_code_reviewer`。
 - subagents 只在用户选择工作流 1 或后续明确要求时使用。
 - 保持改动小范围、可验证、可回滚；不要引入无关重构、依赖升级或目录迁移。
 

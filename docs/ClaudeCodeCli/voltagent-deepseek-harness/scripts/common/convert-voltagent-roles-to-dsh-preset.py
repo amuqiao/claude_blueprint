@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
-"""Generate a DeepSeek Harness agent preset from Codex-style TOML roles.
+"""Generate a DeepSeek Harness agent preset from VoltAgent TOML roles.
 
 The generated preset uses Harness-native composition files:
 
   agent.cordis.yml
     -> flattened runtime composition:
-       official standard preset rows + one role row per Codex agent
+       official standard preset rows + one role row per upstream role
   agents/<role>.cordis.yml
     -> readable source fragments for each generated role
 
 Each role file contributes one @deepseek-ai/dsh-tool-subagent row with a fixed
 toolName and persona. The primary source is the upstream
-VoltAgent/awesome-codex-subagents repository, usually its categories/**/*.toml
-files. The Harness-required preset entrypoint is deliberately flattened because
+VoltAgent/awesome-codex-subagents repository, whose role files use Codex-style
+TOML. The Harness-required preset entrypoint is deliberately flattened because
 one user preset is loaded from one agent.cordis.yml composition entrypoint.
 """
 
 from __future__ import annotations
 
 import argparse
+import filecmp
 import json
 import os
 import re
@@ -36,7 +37,7 @@ except ModuleNotFoundError:
     tomllib = None
 
 
-DEFAULT_PRESET_ID = "codex-roles"
+DEFAULT_PRESET_ID = "voltagent-roles"
 DEFAULT_SOURCE_DIR = "~/.dsh/_awesome-codex-subagents"
 
 
@@ -144,7 +145,7 @@ def read_codex_agents(source_dir: Path) -> list[CodexAgent]:
         tool_name = f"subagent_{tool_suffix}"
 
         if name in names:
-            raise ValueError(f"duplicate Codex agent name: {name}")
+            raise ValueError(f"duplicate upstream role name: {name}")
         if row_id in row_ids:
             raise ValueError(f"duplicate generated row id: {row_id}")
         if tool_name in tool_names:
@@ -371,13 +372,10 @@ def write_generated_preset(
     source_dir: Path,
     preset_id: str,
     force: bool,
-) -> Tuple[Path, Optional[Path]]:
+) -> Tuple[Path, Optional[Path], bool]:
     stamp = datetime.now().strftime("%Y%m%d%H%M%S")
     temp = target.parent / f".{target.name}.tmp.{os.getpid()}.{stamp}"
     backup = target.with_name(f"{target.name}.bak.{stamp}")
-
-    if target.exists() and not force:
-        raise ValueError(f"target preset already exists: {target}\nRe-run with --force to replace it with a backup.")
 
     if temp.exists():
         shutil.rmtree(temp)
@@ -395,13 +393,50 @@ def write_generated_preset(
         (temp / "agents" / f"{agent.file_stem}.cordis.yml").write_text(render_role_file(agent), encoding="utf-8")
 
     if target.exists():
+        if same_tree(temp, target):
+            shutil.rmtree(temp)
+            return target, None, True
+        if not force:
+            shutil.rmtree(temp)
+            raise ValueError(f"target preset already exists and differs: {target}\nRe-run with --force to replace it with a backup.")
         target.rename(backup)
     temp.rename(target)
-    return target, backup if backup.exists() else None
+    return target, backup if backup.exists() else None, False
+
+
+def same_tree(left: Path, right: Path) -> bool:
+    if not left.is_dir() or not right.is_dir():
+        return False
+    comparison = filecmp.dircmp(left, right)
+    if comparison.left_only or comparison.right_only or comparison.funny_files:
+        return False
+    _, mismatch, errors = filecmp.cmpfiles(left, right, comparison.common_files, shallow=False)
+    if mismatch or errors:
+        return False
+    return all(same_tree(left / name, right / name) for name in comparison.common_dirs)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate a DeepSeek Harness expert-role preset from Codex-style TOML roles.")
+    parser = argparse.ArgumentParser(
+        description="Generate a DeepSeek Harness expert-role preset from VoltAgent / Codex-style TOML roles.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""Examples:
+  # Preview a lite preset without writing files.
+  python3 common/convert-voltagent-roles-to-dsh-preset.py \\
+    --source-dir=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents \\
+    --preset-id=voltagent-roles-lite \\
+    --include-roles-file=voltagent-roles-lite/ROLE_ALLOWLIST.txt \\
+    --dry-run
+
+  # Generate a preview directory for inspection.
+  python3 common/convert-voltagent-roles-to-dsh-preset.py \\
+    --source-dir=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents \\
+    --output-dir=/tmp/voltagent-roles-lite-preview \\
+    --preset-id=voltagent-roles-lite \\
+    --include-roles-file=voltagent-roles-lite/ROLE_ALLOWLIST.txt \\
+    --force
+""",
+    )
     parser.add_argument("--source-dir", default=DEFAULT_SOURCE_DIR, help="Source directory containing categories/**/*.toml or *.toml role files.")
     parser.add_argument("--codex-agents-dir", help="Deprecated alias for --source-dir; kept for old local ~/.codex/agents input.")
     parser.add_argument("--dsh-home", default=os.environ.get("DSH_HOME", "~/.dsh"))
@@ -456,7 +491,7 @@ def main(argv: list[str]) -> int:
         print("DRY-RUN: no files written.")
         return 0
 
-    written, backup = write_generated_preset(
+    written, backup, unchanged = write_generated_preset(
         target=target,
         standard_preset=standard_preset,
         agents=agents,
@@ -465,7 +500,10 @@ def main(argv: list[str]) -> int:
         force=args.force,
     )
     print("")
-    print(f"Wrote preset : {written}")
+    if unchanged:
+        print(f"Already up to date: {written}")
+    else:
+        print(f"Wrote preset : {written}")
     if backup is not None:
         print(f"Backup      : {backup}")
     return 0

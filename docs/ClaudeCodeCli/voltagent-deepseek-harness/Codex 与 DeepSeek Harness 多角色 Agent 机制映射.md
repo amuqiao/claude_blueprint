@@ -1,6 +1,6 @@
 # Codex 与 DeepSeek Harness 多角色 Agent 机制映射
 
-本文面向只知道“大模型可以问答”的读者。目标不是讲源码细节，而是讲清楚 Codex 和 DeepSeek Harness 这两套 agent runtime 如何组装多角色子 agent 协作，以及本目录为什么要生成 `~/.dsh/.agent-presets/codex-roles` 或 `~/.dsh/.agent-presets/codex-roles-full`。
+本文面向只知道“大模型可以问答”的读者。目标不是讲源码细节，而是讲清楚 Codex 和 DeepSeek Harness 这两套 agent runtime 如何组装多角色子 agent 协作，以及本目录为什么要生成 `~/.dsh/.agent-presets/voltagent-roles` 或 `~/.dsh/.agent-presets/voltagent-roles-full`。
 
 如果你只想复制命令安装，读 [快速开始](./voltagent-deepseek-harness-快速开始.md)。
 
@@ -340,8 +340,8 @@ agent preset
 本方案生成：
 
 ```text
-~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
-~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
+~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
+~/.dsh/.agent-presets/voltagent-roles-full/agent.cordis.yml
 ```
 
 它在 Web UI 中显示为：
@@ -394,7 +394,7 @@ persona 是长期身份
 本方案里的关键入口是：
 
 ```text
-~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
 ```
 
 它里面会有很多类似这样的配置：
@@ -474,7 +474,7 @@ VoltAgent/awesome-codex-subagents/categories/**/*.toml
 转换后：
 
 ```text
-~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
 ```
 
 ## 本方案如何转换
@@ -482,15 +482,15 @@ VoltAgent/awesome-codex-subagents/categories/**/*.toml
 本目录的转换流程是：
 
 ```text
-codex-roles/setup-deepseek-harness-codex-agents.sh
-或 codex-roles-full/setup-deepseek-harness-codex-agents.sh
+scripts/setup-deepseek-harness-voltagent-roles.sh --preset-dir=<mode>
   ↓ clone/update
 ~/.dsh/_awesome-codex-subagents/
   ↓ 读取 categories/**/*.toml
-common/convert-codex-agents-to-dsh-preset.py
+scripts/common/convert-voltagent-roles-to-dsh-preset.py
   ↓ 生成 Harness preset
-~/.dsh/.agent-presets/codex-roles/
-或 ~/.dsh/.agent-presets/codex-roles-full/
+~/.dsh/.agent-presets/voltagent-roles-lite/
+或 ~/.dsh/.agent-presets/voltagent-roles/
+或 ~/.dsh/.agent-presets/voltagent-roles-full/
 ```
 
 上游一个 TOML 角色：
@@ -561,8 +561,7 @@ dotnet-framework-4.8-expert   -> subagent_dotnet_framework_4_8_expert
 ```text
 ~/.dsh/
   AGENTS.md
-    由 codex-roles/setup-deepseek-harness-workflow.sh
-    或 codex-roles-full/setup-deepseek-harness-workflow.sh 写入
+    由 scripts/setup-deepseek-harness-workflow.sh --preset-dir=<mode> 写入
     规则层：告诉主 agent 如何工作
 
   _awesome-codex-subagents/
@@ -570,12 +569,16 @@ dotnet-framework-4.8-expert   -> subagent_dotnet_framework_4_8_expert
     来源层：缓存上游 TOML 角色素材
 
   .agent-presets/
-    codex-roles/
-      由 codex-roles/setup-deepseek-harness-codex-agents.sh 生成
+    voltagent-roles-lite/
+      由 scripts/setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-lite 生成
+      能力层：lite 专家角色 preset
+
+    voltagent-roles/
+      由 scripts/setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles 生成
       能力层：让 Harness 看到固定专家工具
 
-    codex-roles-full/
-      由 codex-roles-full/setup-deepseek-harness-codex-agents.sh 生成
+    voltagent-roles-full/
+      由 scripts/setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-full 生成
       能力层：独立的全量专家角色 preset
 
   每个 preset 目录内部都有：
@@ -599,10 +602,10 @@ dotnet-framework-4.8-expert   -> subagent_dotnet_framework_4_8_expert
 ~/.dsh/AGENTS.md
   没有它：主 agent 不知道你的工作流规则
 
-~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
   没有它：主 agent 看不到固定专家工具
 
-~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
+~/.dsh/.agent-presets/voltagent-roles-full/agent.cordis.yml
   全量模式入口；Web UI 选择「专家角色全量模式」时加载
 ```
 
@@ -621,8 +624,8 @@ dotnet-framework-4.8-expert   -> subagent_dotnet_framework_4_8_expert
    ↓
 2. 当前会话选择「专家角色模式」或「专家角色全量模式」
    ↓
-3. Harness 加载 ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
-   或 ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
+3. Harness 加载 ~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
+   或 ~/.dsh/.agent-presets/voltagent-roles-full/agent.cordis.yml
    ↓
 4. 主 agent 看到 subagent_api_designer 工具
    ↓
@@ -663,21 +666,25 @@ Harness 的用户 preset 入口是：
 ~/.dsh/.agent-presets/<preset-id>/agent.cordis.yml
 ```
 
-早期尝试过让入口文件 include 子文件：
+不要把这个入口理解成一个会自动扫描子目录的目录清单。Harness 发现用户 preset 时，核心加载目标是这一个组合文件，而不是整个 preset 目录里的所有 `.cordis.yml` 文件。
+
+一种看起来更好维护、但不符合当前运行时入口模型的拆法是：
 
 ```text
 agent.cordis.yml
-  include standard
-  include agents/index.cordis.yml
-    include agents/*.cordis.yml
+  引用 standard 基底
+  引用 agents/index.cordis.yml
+  再由 agents/index.cordis.yml 引用 agents/*.cordis.yml
 ```
 
-但用户 preset 在 `~/.dsh/.agent-presets/...` 下，嵌套 include 的子文件里如果再引用 `@deepseek-ai/dsh-*` package，可能无法继承 Harness host 的 package resolution。结果是：
+问题在于：这些人读拆分文件不会因为放在 preset 目录里就被 Harness runtime 自动加载。真正进入会话的是 `agent.cordis.yml` 这个入口文件。入口文件里没有注册的插件行、工具行、persona 行，运行时就看不到。
+
+如果入口文件没有把需要的内容展开完整，结果通常是：
 
 ```text
 Web UI 看得到 preset
-选择「专家角色模式」或「专家角色全量模式」时 mount 失败
-UI 回退到「标准模式」
+但选择「专家角色模式」后没有预期专家工具
+或 preset mount 失败后 UI 回退到「标准模式」
 ```
 
 当前实现采用扁平化入口：
@@ -737,7 +744,7 @@ DeepSeek Harness 提供的子 agent 工具有不同用途：
 不对。`AGENTS.md` 只写规则。固定专家工具来自：
 
 ```text
-~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
 ```
 
 ### 误解 3：`agents/*.cordis.yml` 是 Harness 运行时入口
@@ -778,23 +785,35 @@ voltagent-deepseek-harness-快速开始.md
 Codex 与 DeepSeek Harness 多角色 Agent 机制映射.md
   详细机制说明：为什么这样做，各部件如何组装
 
-common/
+scripts/
+  可执行脚本和模式配置根目录
+
+scripts/common/
   公共转换器
 
-codex-roles/
-  默认专家角色模式的独立脚本和 AGENTS.md
+scripts/setup-deepseek-harness-workflow.sh
+  公共工作流规则安装入口，通过 --preset-dir 选择模式配置目录
 
-codex-roles-full/
-  全量专家角色模式的独立脚本、AGENTS.md 和 ROLE_INDEX.md
+scripts/setup-deepseek-harness-voltagent-roles.sh
+  公共专家角色 preset 安装入口，通过 --preset-dir 选择模式配置目录
+
+scripts/voltagent-roles-lite/
+  lite 专家角色配置：AGENTS.md 和 ROLE_ALLOWLIST.txt
+
+scripts/voltagent-roles/
+  默认专家角色配置：AGENTS.md 和 ROLE_ALLOWLIST.txt
+
+scripts/voltagent-roles-full/
+  全量专家角色配置：AGENTS.md、ROLE_ALLOWLIST.txt 和 ROLE_INDEX.md
 ```
 
-`codex-roles` 和 `codex-roles-full` 使用同一个上游来源，都会把当前 `VoltAgent/awesome-codex-subagents` 中可解析的角色注册成 Harness 工具。它们的核心差异在规则层：
+三个模式都使用同一个上游来源，并通过各自的 `ROLE_ALLOWLIST.txt` 明确声明要注册哪些角色。`voltagent-roles-lite` 注册较少常用角色；`voltagent-roles` 和 `voltagent-roles-full` 当前注册同一份全量角色集。`voltagent-roles` 和 `voltagent-roles-full` 的核心差异在规则层：
 
 ```text
-codex-roles
+voltagent-roles
   最终 AGENTS.md 是精简路由规则
 
-codex-roles-full
+voltagent-roles-full
   最终 AGENTS.md = AGENTS.md + ROLE_INDEX.md
   主 agent 能在规则文件里直接看到完整角色索引
 ```
@@ -827,8 +846,8 @@ README 写“先读哪里”
   ~/.dsh/_awesome-codex-subagents/categories/**/*.toml
 
 能力层：
-  ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
-  或 ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
+  ~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
+  或 ~/.dsh/.agent-presets/voltagent-roles-full/agent.cordis.yml
 
 使用入口：
   dsh web -> 新建会话 -> 专家角色模式 / 专家角色全量模式

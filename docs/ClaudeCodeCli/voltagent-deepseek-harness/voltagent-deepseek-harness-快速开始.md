@@ -12,26 +12,28 @@
   dsh web
     ↓ 初始化 ~/.dsh
 
-选择 preset 子目录
-  codex-roles-lite/
-    生成 ~/.dsh/.agent-presets/codex-roles-lite
+选择 scripts/ 下的 preset 子目录
+  scripts/voltagent-roles-lite/
+    生成 ~/.dsh/.agent-presets/voltagent-roles-lite
     推荐日常使用
 
-  codex-roles/
-    生成 ~/.dsh/.agent-presets/codex-roles
+  scripts/voltagent-roles/
+    生成 ~/.dsh/.agent-presets/voltagent-roles
 
-  codex-roles-full/
-    生成 ~/.dsh/.agent-presets/codex-roles-full
+  scripts/voltagent-roles-full/
+    生成 ~/.dsh/.agent-presets/voltagent-roles-full
 
 安装工作流规则
-  setup-deepseek-harness-workflow.sh
+  scripts/setup-deepseek-harness-workflow.sh
+    ↓ 通过 --preset-dir 读取对应模式目录
     ↓ 写入 ~/.dsh/AGENTS.md
 
 安装专家角色 preset
-  setup-deepseek-harness-codex-agents.sh
+  scripts/setup-deepseek-harness-voltagent-roles.sh
+    ↓ 通过 --preset-dir 读取对应模式目录
     ↓ 在线：clone/update VoltAgent/awesome-codex-subagents
     ↓ 离线：读取 --local-source 指定的本地源码目录
-    ↓ 调用 ../common/convert-codex-agents-to-dsh-preset.py
+    ↓ 调用 scripts/common/convert-voltagent-roles-to-dsh-preset.py
     ↓ 生成对应 ~/.dsh/.agent-presets/<preset-id>
 
 使用
@@ -100,45 +102,40 @@ voltagent-deepseek-harness/
   Codex 与 DeepSeek Harness 多角色 Agent 机制映射.md
     详细机制说明、心智模型、Codex 与 Harness 对照
 
-  common/
-    convert-codex-agents-to-dsh-preset.py
-      公共转换器，把上游 TOML 转成 Harness .cordis.yml
-
-  codex-roles-lite/
-    ROLE_ALLOWLIST.txt
-      lite 模式固定专家角色清单
-
-    AGENTS.md
-      要安装到 ~/.dsh/AGENTS.md 的 lite 工作流规则模板
-
+  scripts/
     setup-deepseek-harness-workflow.sh
-      安装 lite 工作流规则
+      公共工作流规则安装入口，通过 --preset-dir 选择模式配置目录
 
-    setup-deepseek-harness-codex-agents.sh
-      从 GitHub 上游按 ROLE_ALLOWLIST.txt 安装专家角色 preset：codex-roles-lite
+    setup-deepseek-harness-voltagent-roles.sh
+      公共专家角色 preset 安装入口，通过 --preset-dir 选择模式配置目录
 
-  codex-roles/
-    AGENTS.md
-      要安装到 ~/.dsh/AGENTS.md 的工作流规则模板
+    common/
+      convert-voltagent-roles-to-dsh-preset.py
+        公共转换器，把上游 TOML 转成 Harness .cordis.yml
 
-    setup-deepseek-harness-workflow.sh
-      安装工作流规则
+    voltagent-roles-lite/
+      ROLE_ALLOWLIST.txt
+        lite 模式固定专家角色清单
 
-    setup-deepseek-harness-codex-agents.sh
-      从 GitHub 上游安装专家角色 preset：codex-roles
+      AGENTS.md
+        要安装到 ~/.dsh/AGENTS.md 的 lite 工作流规则模板
 
-  codex-roles-full/
-    AGENTS.md
-      全量模式独立工作流规则模板
+    voltagent-roles/
+      ROLE_ALLOWLIST.txt
+        默认模式固定专家角色清单
 
-    ROLE_INDEX.md
-      全量固定专家角色索引；安装 workflow 时会追加到最终 AGENTS.md
+      AGENTS.md
+        要安装到 ~/.dsh/AGENTS.md 的工作流规则模板
 
-    setup-deepseek-harness-workflow.sh
-      安装工作流规则，并合并 ROLE_INDEX.md
+    voltagent-roles-full/
+      ROLE_ALLOWLIST.txt
+        全量模式固定专家角色清单
 
-    setup-deepseek-harness-codex-agents.sh
-      从 GitHub 上游安装全量专家角色 preset：codex-roles-full
+      AGENTS.md
+        全量模式独立工作流规则模板
+
+      ROLE_INDEX.md
+        全量固定专家角色索引；安装 workflow 时由公共脚本追加到最终 AGENTS.md
 ```
 
 ## 安装推荐 lite 专家角色模式
@@ -146,25 +143,34 @@ voltagent-deepseek-harness/
 lite 专家角色模式生成：
 
 ```text
-~/.dsh/.agent-presets/codex-roles-lite
+~/.dsh/.agent-presets/voltagent-roles-lite
 ```
 
-它会从 `VoltAgent/awesome-codex-subagents` 读取角色源，但只按 `codex-roles-lite/ROLE_ALLOWLIST.txt` 注册常用专家工具。这个模式适合日常使用：仍然是专家模式，但不会像全量模式一样把上游全部角色都注册进工具目录。
+它会从 `VoltAgent/awesome-codex-subagents` 读取角色源，但只按 `voltagent-roles-lite/ROLE_ALLOWLIST.txt` 注册常用专家工具。这个模式适合日常使用：仍然是专家模式，但不会像全量模式一样把上游全部角色都注册进工具目录。
+
+执行前也可以先查看脚本内置示例：
+
+```bash
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
+
+./setup-deepseek-harness-workflow.sh -h
+./setup-deepseek-harness-voltagent-roles.sh -h
+```
 
 执行：
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-lite
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
 
-./setup-deepseek-harness-workflow.sh
-./setup-deepseek-harness-codex-agents.sh
+./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-lite
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-lite
 ```
 
-如果目标文件或目录已存在，脚本会停止，避免覆盖。确认要更新时使用：
+脚本可以重复执行：如果目标内容已经一致，会直接提示已是最新，不会创建备份或重写。只有目标已存在且内容不同时，脚本才会停止；确认要覆盖旧配置时使用 `--force`：
 
 ```bash
-./setup-deepseek-harness-workflow.sh --force
-./setup-deepseek-harness-codex-agents.sh --force
+./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-lite --force
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-lite --force
 ```
 
 Web UI 中选择：
@@ -178,25 +184,25 @@ Web UI 中选择：
 默认专家角色模式生成：
 
 ```text
-~/.dsh/.agent-presets/codex-roles
+~/.dsh/.agent-presets/voltagent-roles
 ```
 
-它会从 `VoltAgent/awesome-codex-subagents` 生成当前上游全部角色工具，但最终 `AGENTS.md` 只保留精简路由规则，不把完整角色表塞进规则文件。
+它会从 `VoltAgent/awesome-codex-subagents` 读取角色源，并按 `voltagent-roles/ROLE_ALLOWLIST.txt` 注册当前固定的全量角色工具；最终 `AGENTS.md` 只保留精简路由规则，不把完整角色表塞进规则文件。
 
 执行：
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
 
-./setup-deepseek-harness-workflow.sh
-./setup-deepseek-harness-codex-agents.sh
+./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles
 ```
 
-如果目标文件或目录已存在，脚本会停止，避免覆盖。确认要更新时使用：
+脚本可以重复执行：如果目标内容已经一致，会直接提示已是最新，不会创建备份或重写。只有目标已存在且内容不同时，脚本才会停止；确认要覆盖旧配置时使用 `--force`：
 
 ```bash
-./setup-deepseek-harness-workflow.sh --force
-./setup-deepseek-harness-codex-agents.sh --force
+./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles --force
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles --force
 ```
 
 Web UI 中选择：
@@ -210,25 +216,25 @@ Web UI 中选择：
 全量专家角色模式生成：
 
 ```text
-~/.dsh/.agent-presets/codex-roles-full
+~/.dsh/.agent-presets/voltagent-roles-full
 ```
 
-它和默认模式的区别在规则层：全量模式的 workflow 安装脚本会把 `codex-roles-full/ROLE_INDEX.md` 追加到最终生效的 `AGENTS.md`，让主 agent 在规则文件里直接看到完整角色路由索引。
+它和默认模式的区别在规则层：全量模式的 workflow 安装脚本会把 `voltagent-roles-full/ROLE_INDEX.md` 追加到最终生效的 `AGENTS.md`，让主 agent 在规则文件里直接看到完整角色路由索引。工具层同样按 `voltagent-roles-full/ROLE_ALLOWLIST.txt` 注册当前固定的全量角色。
 
 执行：
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-full
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
 
-./setup-deepseek-harness-workflow.sh
-./setup-deepseek-harness-codex-agents.sh
+./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-full
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-full
 ```
 
-如果目标文件或目录已存在，脚本会停止，避免覆盖。确认要更新时使用：
+脚本可以重复执行：如果目标内容已经一致，会直接提示已是最新，不会创建备份或重写。只有目标已存在且内容不同时，脚本才会停止；确认要覆盖旧配置时使用 `--force`：
 
 ```bash
-./setup-deepseek-harness-workflow.sh --force
-./setup-deepseek-harness-codex-agents.sh --force
+./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-full --force
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-full --force
 ```
 
 Web UI 中选择：
@@ -253,37 +259,38 @@ awesome-codex-subagents/
 例如使用当前仓库内的离线源码目录安装 lite 模式：
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-lite
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
 
-./setup-deepseek-harness-workflow.sh --force
-./setup-deepseek-harness-codex-agents.sh \
-  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents \
-  --force
+./setup-deepseek-harness-workflow.sh --preset-dir=voltagent-roles-lite
+./setup-deepseek-harness-voltagent-roles.sh \
+  --preset-dir=voltagent-roles-lite \
+  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents
 ```
 
-默认模式和全量模式使用同样参数，只需要进入对应子目录：
+默认模式和全量模式使用同样参数，只需要改 `--preset-dir`：
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
 
-./setup-deepseek-harness-codex-agents.sh \
-  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents \
-  --force
+./setup-deepseek-harness-voltagent-roles.sh \
+  --preset-dir=voltagent-roles \
+  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents
 ```
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-full
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
 
-./setup-deepseek-harness-codex-agents.sh \
-  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents \
-  --force
+./setup-deepseek-harness-voltagent-roles.sh \
+  --preset-dir=voltagent-roles-full \
+  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents
 ```
 
-脚本会在前置检查阶段确认本地目录存在，并统计 `.toml` 角色文件数量。lite 模式还会继续按 `ROLE_ALLOWLIST.txt` 过滤；如果 allowlist 中的角色在本地源码里不存在，转换器会直接失败，不会静默少装。
+脚本会在前置检查阶段确认本地目录存在，并统计 `.toml` 角色文件数量。三种模式都会按 `--preset-dir` 指向目录下的 `ROLE_ALLOWLIST.txt` 过滤；`ROLE_ALLOWLIST.txt` 缺失时脚本会直接失败。如果 allowlist 中的角色在本地源码里不存在，转换器也会直接失败，不会静默少装。
+如果离线源码更新后生成内容和已有安装不同，重新执行时需要显式加 `--force`，脚本会先备份旧目录或旧 `AGENTS.md`。
 
 ## `~/.dsh` 生成结果
 
-执行某个 preset 子目录脚本后，会额外新增或更新对应内容。只运行 `codex-roles-lite/` 就只生成 `codex-roles-lite`；只运行 `codex-roles/` 就只生成 `codex-roles`；只运行 `codex-roles-full/` 就只生成 `codex-roles-full`。
+执行公共脚本并指定 `--preset-dir` 后，会额外新增或更新对应内容。`--preset-dir=voltagent-roles-lite` 只生成 `voltagent-roles-lite`；`--preset-dir=voltagent-roles` 只生成 `voltagent-roles`；`--preset-dir=voltagent-roles-full` 只生成 `voltagent-roles-full`。
 
 ```text
 ~/.dsh/
@@ -292,14 +299,14 @@ cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-dee
     作用：DeepSeek Harness 工作流规则
 
   _awesome-codex-subagents/
-    由 setup-deepseek-harness-codex-agents.sh clone/update
+    由 setup-deepseek-harness-voltagent-roles.sh clone/update
     作用：缓存 https://github.com/VoltAgent/awesome-codex-subagents.git
     仅在线安装模式使用；离线安装时读取 --local-source 指定目录
 
   .agent-presets/
     <preset-id>/
-      例如 codex-roles-lite、codex-roles 或 codex-roles-full
-      由当前执行的 preset 子目录决定
+      例如 voltagent-roles-lite、voltagent-roles 或 voltagent-roles-full
+      由 --preset-dir 指向的模式配置目录决定
 ```
 
 每个 preset 目录内部结构类似：
@@ -328,20 +335,20 @@ agent-role-map.md
 
 ## 转换器调试
 
-正常用户不需要手动运行转换器。调试 lite 转换逻辑时，可以从主目录执行：
+正常用户不需要手动运行转换器。调试 lite 转换逻辑时，可以从 `scripts/` 目录执行：
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
 
-python3 common/convert-codex-agents-to-dsh-preset.py \
+python3 common/convert-voltagent-roles-to-dsh-preset.py \
   --source-dir=~/.dsh/_awesome-codex-subagents \
-  --output-dir=/tmp/codex-roles-lite-preview \
-  --preset-id=codex-roles-lite \
-  --include-roles-file=codex-roles-lite/ROLE_ALLOWLIST.txt \
+  --output-dir=/tmp/voltagent-roles-lite-preview \
+  --preset-id=voltagent-roles-lite \
+  --include-roles-file=voltagent-roles-lite/ROLE_ALLOWLIST.txt \
   --force
 ```
 
-调试默认或全量模式时，不传 `--include-roles-file`，转换器会读取上游仓库中的全部角色。
+调试默认或全量模式时，把 `--preset-id` 和 `--include-roles-file` 换成对应目录即可。
 
 ## 启动和使用
 
@@ -382,9 +389,9 @@ grep -E 'id: agent-presets$|default: standard' /tmp/dsh-web-config.yml
 验证 lite 专家 preset：
 
 ```bash
-test -f ~/.dsh/.agent-presets/codex-roles-lite/agent.cordis.yml
-test -f ~/.dsh/.agent-presets/codex-roles-lite/preset.yml
-grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/codex-roles-lite/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/voltagent-roles-lite/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/voltagent-roles-lite/preset.yml
+grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/voltagent-roles-lite/agent.cordis.yml
 ```
 
 最后一条应输出 `ROLE_ALLOWLIST.txt` 当前有效角色数量，例如：
@@ -396,20 +403,20 @@ grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/codex-roles-lite/agen
 验证默认专家 preset：
 
 ```bash
-test -f ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
-test -f ~/.dsh/.agent-presets/codex-roles/preset.yml
-grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/voltagent-roles/preset.yml
+grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
 ```
 
 验证全量专家 preset：
 
 ```bash
-test -f ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
-test -f ~/.dsh/.agent-presets/codex-roles-full/preset.yml
-grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/voltagent-roles-full/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/voltagent-roles-full/preset.yml
+grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/voltagent-roles-full/agent.cordis.yml
 ```
 
-最后一条应输出上游仓库当前角色数量，例如：
+最后一条应输出对应 `ROLE_ALLOWLIST.txt` 当前有效角色数量，例如：
 
 ```text
 172
@@ -418,12 +425,12 @@ grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/codex-roles-full/agen
 验证没有运行时 include：
 
 ```bash
-grep -n '^- id: include-' ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
-grep -n '^- id: include-' ~/.dsh/.agent-presets/codex-roles-lite/agent.cordis.yml
-grep -n '^- id: include-' ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
+grep -n '^- id: include-' ~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
+grep -n '^- id: include-' ~/.dsh/.agent-presets/voltagent-roles-lite/agent.cordis.yml
+grep -n '^- id: include-' ~/.dsh/.agent-presets/voltagent-roles-full/agent.cordis.yml
 ```
 
-这些命令应该没有输出。当前方案要求 `agent.cordis.yml` 保持扁平化，避免用户 preset 子 include 的包解析问题。
+这些命令应该没有输出。当前方案要求 `agent.cordis.yml` 保持扁平化：Harness runtime 只把它作为 preset 入口加载，不会自动读取同目录下的人读拆分文件。
 
 ## 日常使用示例
 
@@ -463,10 +470,10 @@ API 合同设计：
 ~/.dsh/AGENTS.md
 ```
 
-如果要使用固定专家工具，还必须执行同一 preset 子目录下的：
+如果要使用固定专家工具，还必须执行公共 preset 安装脚本：
 
 ```text
-setup-deepseek-harness-codex-agents.sh
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=<mode>
 ```
 
 ### npm 安装时出现 warn 是否异常
@@ -501,9 +508,9 @@ http://127.0.0.1:3080
 确认对应 preset 文件存在：
 
 ```bash
-test -f ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
-test -f ~/.dsh/.agent-presets/codex-roles-lite/agent.cordis.yml
-test -f ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/voltagent-roles-lite/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/voltagent-roles-full/agent.cordis.yml
 ```
 
 然后重启 `dsh web` 并新建会话。
@@ -513,22 +520,22 @@ test -f ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
 通常表示 preset 被发现了，但 mount 失败。重新生成对应 preset：
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-lite
-./setup-deepseek-harness-codex-agents.sh --force
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-lite --force
 ```
 
 或：
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles
-./setup-deepseek-harness-codex-agents.sh --force
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles --force
 ```
 
 或：
 
 ```bash
-cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-full
-./setup-deepseek-harness-codex-agents.sh --force
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/scripts
+./setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-full --force
 ```
 
 然后重启 `dsh web` 并新建会话。
@@ -544,19 +551,19 @@ mv ~/.dsh/AGENTS.md.bak.YYYYMMDDHHMMSS ~/.dsh/AGENTS.md
 停用 lite 专家 preset：
 
 ```bash
-mv ~/.dsh/.agent-presets/codex-roles-lite ~/.dsh/.agent-presets/codex-roles-lite.disabled.YYYYMMDDHHMMSS
+mv ~/.dsh/.agent-presets/voltagent-roles-lite ~/.dsh/.agent-presets/voltagent-roles-lite.disabled.YYYYMMDDHHMMSS
 ```
 
 停用默认专家 preset：
 
 ```bash
-mv ~/.dsh/.agent-presets/codex-roles ~/.dsh/.agent-presets/codex-roles.disabled.YYYYMMDDHHMMSS
+mv ~/.dsh/.agent-presets/voltagent-roles ~/.dsh/.agent-presets/voltagent-roles.disabled.YYYYMMDDHHMMSS
 ```
 
 停用全量专家 preset：
 
 ```bash
-mv ~/.dsh/.agent-presets/codex-roles-full ~/.dsh/.agent-presets/codex-roles-full.disabled.YYYYMMDDHHMMSS
+mv ~/.dsh/.agent-presets/voltagent-roles-full ~/.dsh/.agent-presets/voltagent-roles-full.disabled.YYYYMMDDHHMMSS
 ```
 
 停用上游缓存：
