@@ -22,10 +22,11 @@
 | [voltagent-deepseek-harness-快速开始.md](./voltagent-deepseek-harness-快速开始.md) | 完整安装、验证、使用、排查流程 | 阅读 |
 | [Codex 与 DeepSeek Harness 多角色 Agent 机制映射.md](./Codex%20与%20DeepSeek%20Harness%20多角色%20Agent%20机制映射.md) | 详细机制说明、心智模型、Codex 与 Harness 对照 | 阅读 |
 | [common/](./common/) | 公共转换器，把上游 TOML 转成 Harness `.cordis.yml` | 通常否 |
+| [codex-roles-lite/](./codex-roles-lite/) | 推荐日常使用的 lite 专家角色模式，按 `ROLE_ALLOWLIST.txt` 生成较少但覆盖常用领域的固定专家工具 | 是 |
 | [codex-roles/](./codex-roles/) | 默认专家角色模式，生成 `~/.dsh/.agent-presets/codex-roles`；`AGENTS.md` 保持精简路由规则 | 是 |
 | [codex-roles-full/](./codex-roles-full/) | 全量专家角色模式，生成 `~/.dsh/.agent-presets/codex-roles-full`；安装时把完整 `ROLE_INDEX.md` 追加进最终 `AGENTS.md` | 是 |
 
-两个 preset 子目录都从 `VoltAgent/awesome-codex-subagents` 读取当前上游全部角色并注册为 Harness 工具。区别在规则层：`codex-roles` 让主 agent 按精简规则选择常见专家；`codex-roles-full` 把完整角色索引写入最终 `AGENTS.md`，方便主 agent 直接按全量表路由。
+三个 preset 子目录都从 `VoltAgent/awesome-codex-subagents` 读取角色源。`codex-roles-lite` 会按 `ROLE_ALLOWLIST.txt` 只注册常用专家角色；`codex-roles` 和 `codex-roles-full` 会注册当前上游全部角色。区别在规则层：`codex-roles` 让主 agent 按精简规则选择常见专家；`codex-roles-full` 把完整角色索引写入最终 `AGENTS.md`，方便主 agent 直接按全量表路由。
 
 ## 最短复现路径
 
@@ -35,6 +36,24 @@
 npm install -g @deepseek-ai/dsh@0.1.0-rc.7
 dsh web
 ```
+
+安装推荐的 lite 专家角色模式：
+
+```bash
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-lite
+
+./setup-deepseek-harness-workflow.sh
+./setup-deepseek-harness-codex-agents.sh
+```
+
+离线安装时，把第二条命令改为指定本地源码目录：
+
+```bash
+./setup-deepseek-harness-codex-agents.sh \
+  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents
+```
+
+`--local-source` 要求目录是 `VoltAgent/awesome-codex-subagents` 仓库根目录，并且包含 `categories/**/*.toml`。脚本会跳过 `git clone/pull`，直接读取本地角色文件。
 
 安装当前默认专家角色模式：
 
@@ -63,6 +82,7 @@ dsh web
 在 Web UI 新建会话时选择对应模式：
 
 ```text
+专家角色精简模式
 专家角色模式
 专家角色全量模式
 ```
@@ -73,13 +93,19 @@ dsh web
 
 ```text
 ~/.dsh/AGENTS.md
-  由 codex-roles/setup-deepseek-harness-workflow.sh
+  由 codex-roles-lite/setup-deepseek-harness-workflow.sh
+  或 codex-roles/setup-deepseek-harness-workflow.sh
   或 codex-roles-full/setup-deepseek-harness-workflow.sh 写入
   作用：工作流规则
 
 ~/.dsh/_awesome-codex-subagents/
   由 preset 安装脚本 clone/update
   作用：GitHub 上游仓库缓存
+  仅在线安装模式使用；离线安装时由 --local-source 指定源码目录
+
+~/.dsh/.agent-presets/codex-roles-lite/
+  由 codex-roles-lite/setup-deepseek-harness-codex-agents.sh 生成
+  作用：DeepSeek Harness lite 专家角色 preset
 
 ~/.dsh/.agent-presets/codex-roles/
   由 codex-roles/setup-deepseek-harness-codex-agents.sh 生成
@@ -96,7 +122,8 @@ dsh web
 AGENTS.md
   告诉主 agent 怎么工作
 
-~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+~/.dsh/.agent-presets/codex-roles-lite/agent.cordis.yml
+或 ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
 或 ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
   让主 agent 看到 subagent_api_designer、subagent_code_reviewer 等专家工具
 ```

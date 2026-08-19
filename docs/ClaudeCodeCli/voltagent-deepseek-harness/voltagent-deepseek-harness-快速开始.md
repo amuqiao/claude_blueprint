@@ -13,6 +13,10 @@
     ↓ 初始化 ~/.dsh
 
 选择 preset 子目录
+  codex-roles-lite/
+    生成 ~/.dsh/.agent-presets/codex-roles-lite
+    推荐日常使用
+
   codex-roles/
     生成 ~/.dsh/.agent-presets/codex-roles
 
@@ -25,7 +29,8 @@
 
 安装专家角色 preset
   setup-deepseek-harness-codex-agents.sh
-    ↓ clone/update VoltAgent/awesome-codex-subagents
+    ↓ 在线：clone/update VoltAgent/awesome-codex-subagents
+    ↓ 离线：读取 --local-source 指定的本地源码目录
     ↓ 调用 ../common/convert-codex-agents-to-dsh-preset.py
     ↓ 生成对应 ~/.dsh/.agent-presets/<preset-id>
 
@@ -99,6 +104,19 @@ voltagent-deepseek-harness/
     convert-codex-agents-to-dsh-preset.py
       公共转换器，把上游 TOML 转成 Harness .cordis.yml
 
+  codex-roles-lite/
+    ROLE_ALLOWLIST.txt
+      lite 模式固定专家角色清单
+
+    AGENTS.md
+      要安装到 ~/.dsh/AGENTS.md 的 lite 工作流规则模板
+
+    setup-deepseek-harness-workflow.sh
+      安装 lite 工作流规则
+
+    setup-deepseek-harness-codex-agents.sh
+      从 GitHub 上游按 ROLE_ALLOWLIST.txt 安装专家角色 preset：codex-roles-lite
+
   codex-roles/
     AGENTS.md
       要安装到 ~/.dsh/AGENTS.md 的工作流规则模板
@@ -121,6 +139,38 @@ voltagent-deepseek-harness/
 
     setup-deepseek-harness-codex-agents.sh
       从 GitHub 上游安装全量专家角色 preset：codex-roles-full
+```
+
+## 安装推荐 lite 专家角色模式
+
+lite 专家角色模式生成：
+
+```text
+~/.dsh/.agent-presets/codex-roles-lite
+```
+
+它会从 `VoltAgent/awesome-codex-subagents` 读取角色源，但只按 `codex-roles-lite/ROLE_ALLOWLIST.txt` 注册常用专家工具。这个模式适合日常使用：仍然是专家模式，但不会像全量模式一样把上游全部角色都注册进工具目录。
+
+执行：
+
+```bash
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-lite
+
+./setup-deepseek-harness-workflow.sh
+./setup-deepseek-harness-codex-agents.sh
+```
+
+如果目标文件或目录已存在，脚本会停止，避免覆盖。确认要更新时使用：
+
+```bash
+./setup-deepseek-harness-workflow.sh --force
+./setup-deepseek-harness-codex-agents.sh --force
+```
+
+Web UI 中选择：
+
+```text
+专家角色精简模式
 ```
 
 ## 安装默认专家角色模式
@@ -187,9 +237,53 @@ Web UI 中选择：
 专家角色全量模式
 ```
 
+## 离线安装 / 指定本地源码目录
+
+如果机器不能访问 GitHub，或你已经把 `VoltAgent/awesome-codex-subagents` 下载到本地，可以用 `--local-source` 指定源码目录。这个参数会跳过 `git clone/pull`。
+
+本地源码目录必须是仓库根目录，至少包含：
+
+```text
+awesome-codex-subagents/
+  categories/
+    ...
+      *.toml
+```
+
+例如使用当前仓库内的离线源码目录安装 lite 模式：
+
+```bash
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-lite
+
+./setup-deepseek-harness-workflow.sh --force
+./setup-deepseek-harness-codex-agents.sh \
+  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents \
+  --force
+```
+
+默认模式和全量模式使用同样参数，只需要进入对应子目录：
+
+```bash
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles
+
+./setup-deepseek-harness-codex-agents.sh \
+  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents \
+  --force
+```
+
+```bash
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-full
+
+./setup-deepseek-harness-codex-agents.sh \
+  --local-source=/Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/awesome-codex-subagents \
+  --force
+```
+
+脚本会在前置检查阶段确认本地目录存在，并统计 `.toml` 角色文件数量。lite 模式还会继续按 `ROLE_ALLOWLIST.txt` 过滤；如果 allowlist 中的角色在本地源码里不存在，转换器会直接失败，不会静默少装。
+
 ## `~/.dsh` 生成结果
 
-执行某个 preset 子目录脚本后，会额外新增或更新对应内容。只运行 `codex-roles/` 就只生成 `codex-roles`；只运行 `codex-roles-full/` 就只生成 `codex-roles-full`。
+执行某个 preset 子目录脚本后，会额外新增或更新对应内容。只运行 `codex-roles-lite/` 就只生成 `codex-roles-lite`；只运行 `codex-roles/` 就只生成 `codex-roles`；只运行 `codex-roles-full/` 就只生成 `codex-roles-full`。
 
 ```text
 ~/.dsh/
@@ -200,10 +294,11 @@ Web UI 中选择：
   _awesome-codex-subagents/
     由 setup-deepseek-harness-codex-agents.sh clone/update
     作用：缓存 https://github.com/VoltAgent/awesome-codex-subagents.git
+    仅在线安装模式使用；离线安装时读取 --local-source 指定目录
 
   .agent-presets/
     <preset-id>/
-      例如 codex-roles 或 codex-roles-full
+      例如 codex-roles-lite、codex-roles 或 codex-roles-full
       由当前执行的 preset 子目录决定
 ```
 
@@ -233,17 +328,20 @@ agent-role-map.md
 
 ## 转换器调试
 
-正常用户不需要手动运行转换器。调试转换逻辑时，可以从主目录执行：
+正常用户不需要手动运行转换器。调试 lite 转换逻辑时，可以从主目录执行：
 
 ```bash
 cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness
 
 python3 common/convert-codex-agents-to-dsh-preset.py \
   --source-dir=~/.dsh/_awesome-codex-subagents \
-  --output-dir=/tmp/codex-roles-preview \
-  --preset-id=codex-roles \
+  --output-dir=/tmp/codex-roles-lite-preview \
+  --preset-id=codex-roles-lite \
+  --include-roles-file=codex-roles-lite/ROLE_ALLOWLIST.txt \
   --force
 ```
+
+调试默认或全量模式时，不传 `--include-roles-file`，转换器会读取上游仓库中的全部角色。
 
 ## 启动和使用
 
@@ -264,7 +362,7 @@ http://127.0.0.1:3080
 
 1. 选择工作区目录。
 2. 配置模型和 API key。
-3. 新建会话时选择「专家角色模式」或「专家角色全量模式」。
+3. 新建会话时选择「专家角色精简模式」、「专家角色模式」或「专家角色全量模式」。
 4. 不要使用「极简模式」复现多 agent 工作流。
 
 已经开始的会话不会自动切换到新 preset。重新生成 preset 后，建议重启 `dsh web` 并新建会话。
@@ -279,6 +377,20 @@ grep -E 'id: tool-subagent$|toolName: subagent$' /tmp/dsh-web-config.yml
 grep -E 'id: tool-subagent-fork$|toolName: subagent_fork$' /tmp/dsh-web-config.yml
 grep -E 'id: tool-workflow$|name: .+dsh-tool-workflow' /tmp/dsh-web-config.yml
 grep -E 'id: agent-presets$|default: standard' /tmp/dsh-web-config.yml
+```
+
+验证 lite 专家 preset：
+
+```bash
+test -f ~/.dsh/.agent-presets/codex-roles-lite/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/codex-roles-lite/preset.yml
+grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/codex-roles-lite/agent.cordis.yml
+```
+
+最后一条应输出 `ROLE_ALLOWLIST.txt` 当前有效角色数量，例如：
+
+```text
+67
 ```
 
 验证默认专家 preset：
@@ -307,10 +419,11 @@ grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/codex-roles-full/agen
 
 ```bash
 grep -n '^- id: include-' ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+grep -n '^- id: include-' ~/.dsh/.agent-presets/codex-roles-lite/agent.cordis.yml
 grep -n '^- id: include-' ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
 ```
 
-这两条命令应该没有输出。当前方案要求 `agent.cordis.yml` 保持扁平化，避免用户 preset 子 include 的包解析问题。
+这些命令应该没有输出。当前方案要求 `agent.cordis.yml` 保持扁平化，避免用户 preset 子 include 的包解析问题。
 
 ## 日常使用示例
 
@@ -389,6 +502,7 @@ http://127.0.0.1:3080
 
 ```bash
 test -f ~/.dsh/.agent-presets/codex-roles/agent.cordis.yml
+test -f ~/.dsh/.agent-presets/codex-roles-lite/agent.cordis.yml
 test -f ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
 ```
 
@@ -397,6 +511,13 @@ test -f ~/.dsh/.agent-presets/codex-roles-full/agent.cordis.yml
 ### 选择专家模式后秒切回标准模式
 
 通常表示 preset 被发现了，但 mount 失败。重新生成对应 preset：
+
+```bash
+cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles-lite
+./setup-deepseek-harness-codex-agents.sh --force
+```
+
+或：
 
 ```bash
 cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-deepseek-harness/codex-roles
@@ -418,6 +539,12 @@ cd /Users/admin/Downloads/Code/claude_blueprint/docs/ClaudeCodeCli/voltagent-dee
 
 ```bash
 mv ~/.dsh/AGENTS.md.bak.YYYYMMDDHHMMSS ~/.dsh/AGENTS.md
+```
+
+停用 lite 专家 preset：
+
+```bash
+mv ~/.dsh/.agent-presets/codex-roles-lite ~/.dsh/.agent-presets/codex-roles-lite.disabled.YYYYMMDDHHMMSS
 ```
 
 停用默认专家 preset：

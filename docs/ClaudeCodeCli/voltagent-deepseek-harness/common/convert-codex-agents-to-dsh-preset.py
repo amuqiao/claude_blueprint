@@ -13,8 +13,7 @@ Each role file contributes one @deepseek-ai/dsh-tool-subagent row with a fixed
 toolName and persona. The primary source is the upstream
 VoltAgent/awesome-codex-subagents repository, usually its categories/**/*.toml
 files. The Harness-required preset entrypoint is deliberately flattened because
-nested cordis:include files under ~/.dsh/.agent-presets do not inherit the
-package-resolution base that agent-presets applies to the root composition.
+one user preset is loaded from one agent.cordis.yml composition entrypoint.
 """
 
 from __future__ import annotations
@@ -172,6 +171,35 @@ def read_codex_agents(source_dir: Path) -> list[CodexAgent]:
     return agents
 
 
+def read_role_allowlist(source: Path) -> list[str]:
+    if not source.is_file():
+        raise ValueError(f"role allowlist file not found: {source}")
+
+    roles: list[str] = []
+    seen: set[str] = set()
+    for line_number, raw_line in enumerate(source.read_text(encoding="utf-8").splitlines(), start=1):
+        line = raw_line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        if line in seen:
+            raise ValueError(f"{source}:{line_number}: duplicate role in allowlist: {line}")
+        seen.add(line)
+        roles.append(line)
+
+    if not roles:
+        raise ValueError(f"role allowlist file is empty: {source}")
+    return roles
+
+
+def filter_agents_by_allowlist(agents: list[CodexAgent], role_names: list[str], source: Path) -> list[CodexAgent]:
+    by_name = {agent.name: agent for agent in agents}
+    missing = [name for name in role_names if name not in by_name]
+    if missing:
+        rendered = "\n".join(f"- {name}" for name in missing)
+        raise ValueError(f"{source}: allowlist contains roles not found in source TOML files:\n{rendered}")
+    return [by_name[name] for name in role_names]
+
+
 def npm_global_root() -> Optional[Path]:
     try:
         output = subprocess.check_output(["npm", "root", "-g"], text=True, stderr=subprocess.DEVNULL).strip()
@@ -286,9 +314,8 @@ def render_flat_entrypoint(standard_content: str, agents: list[CodexAgent]) -> s
     return (
         "# DeepSeek Harness preset entrypoint.\n"
         "# This file is flattened for runtime loading. Keep agents/*.cordis.yml as\n"
-        "# readable generated fragments, but do not include them from here: nested\n"
-        "# cordis:include files under ~/.dsh/.agent-presets do not inherit Harness'\n"
-        "# package-resolution base for @deepseek-ai/dsh-* plugins.\n"
+        "# readable generated fragments, but do not include them from here: one user\n"
+        "# preset is loaded from one agent.cordis.yml composition entrypoint.\n"
         "\n"
         "# ---- official standard preset rows ----\n"
         f"{standard_content.rstrip()}\n"
@@ -299,7 +326,12 @@ def render_flat_entrypoint(standard_content: str, agents: list[CodexAgent]) -> s
 
 
 def render_preset_metadata(count: int, preset_id: str) -> str:
-    preset_name = "专家角色全量模式" if preset_id.endswith("-full") else "专家角色模式"
+    if preset_id.endswith("-full"):
+        preset_name = "专家角色全量模式"
+    elif preset_id.endswith("-lite"):
+        preset_name = "专家角色精简模式"
+    else:
+        preset_name = "专家角色模式"
     return (
         f"name: {preset_name}\n"
         "description: 基于 DeepSeek Harness 原生 agent preset / tool-subagent / persona 机制，"
@@ -375,6 +407,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--dsh-home", default=os.environ.get("DSH_HOME", "~/.dsh"))
     parser.add_argument("--preset-id", default=DEFAULT_PRESET_ID)
     parser.add_argument("--standard-preset-dir")
+    parser.add_argument("--include-roles-file", help="Optional newline-delimited allowlist of source role names to include.")
     parser.add_argument("--output-dir")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--force", action="store_true")
@@ -393,9 +426,15 @@ def main(argv: list[str]) -> int:
     target = expand_path(args.output_dir) if args.output_dir else dsh_home / ".agent-presets" / args.preset_id
     standard_preset = locate_standard_preset(args.standard_preset_dir)
     agents = read_codex_agents(source_dir)
+    if args.include_roles_file:
+        include_roles_file = expand_path(args.include_roles_file)
+        role_names = read_role_allowlist(include_roles_file)
+        agents = filter_agents_by_allowlist(agents, role_names, include_roles_file)
 
     print(f"Source roles : {source_dir}")
     print(f"Role count   : {len(agents)}")
+    if args.include_roles_file:
+        print(f"Allowlist    : {include_roles_file}")
     print(f"Standard base: {standard_preset}")
     print(f"Preset id    : {args.preset_id}")
     print(f"Output dir   : {target}")
