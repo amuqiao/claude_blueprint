@@ -24,11 +24,24 @@
 | [scripts/setup-deepseek-harness-workflow.sh](./scripts/setup-deepseek-harness-workflow.sh) | 公共工作流规则安装入口，通过 `--preset-dir` 选择模式配置目录 | 是 |
 | [scripts/setup-deepseek-harness-voltagent-roles.sh](./scripts/setup-deepseek-harness-voltagent-roles.sh) | 公共专家角色 preset 安装入口，通过 `--preset-dir` 选择模式配置目录 | 是 |
 | [scripts/common/](./scripts/common/) | 公共转换器，把上游 TOML 转成 Harness `.cordis.yml` | 通常否 |
-| [scripts/voltagent-roles-lite/](./scripts/voltagent-roles-lite/) | 推荐日常使用的 lite 专家角色配置，按 `ROLE_ALLOWLIST.txt` 生成较少但覆盖常用领域的固定专家工具 | 否 |
-| [scripts/voltagent-roles/](./scripts/voltagent-roles/) | 默认专家角色配置，`ROLE_ALLOWLIST.txt` 固定全量角色集，`AGENTS.md` 保持精简路由规则 | 否 |
-| [scripts/voltagent-roles-full/](./scripts/voltagent-roles-full/) | 全量专家角色配置，`ROLE_ALLOWLIST.txt` 固定全量角色集，`AGENTS.md` 内置完整角色索引 | 否 |
+| [scripts/voltagent-roles-lite/](./scripts/voltagent-roles-lite/) | 推荐日常使用的 lite 专家角色配置，注册 67 个常用固定专家工具 | 否 |
+| [scripts/voltagent-roles/](./scripts/voltagent-roles/) | 默认专家角色配置，注册 80 个高频固定专家工具，`AGENTS.md` 保持精简路由规则 | 否 |
+| [scripts/voltagent-roles-full/](./scripts/voltagent-roles-full/) | 全量专家角色配置，注册 172 个固定专家工具，`AGENTS.md` 内置完整角色索引 | 否 |
 
-三个 preset 子目录都从 `VoltAgent/awesome-codex-subagents` 读取角色源，并通过各自的 `ROLE_ALLOWLIST.txt` 明确声明要注册哪些角色。`voltagent-roles-lite` 是 67 个常用专家；`voltagent-roles` 和 `voltagent-roles-full` 当前是 172 个全量专家。二者区别在规则层：`voltagent-roles` 使用精简路由规则；`voltagent-roles-full` 的 `AGENTS.md` 直接内置完整角色索引，方便主 agent 按全量表路由。
+三个 preset 子目录都从 `VoltAgent/awesome-codex-subagents` 读取角色源，并通过各自的 `ROLE_ALLOWLIST.txt` 明确声明要注册哪些角色。当前分层是 `67 / 80 / 172`：
+
+```text
+voltagent-roles-lite
+  67 个常用专家，推荐日常默认使用
+
+voltagent-roles
+  80 个高频专家，适合作为标准专家模式
+
+voltagent-roles-full
+  172 个全量专家，适合需要完整角色索引和全量工具时使用
+```
+
+在 DeepSeek Harness 里，`ROLE_ALLOWLIST.txt` 会影响最终 `agent.cordis.yml` 注册多少个 `subagent_<role>` 工具，因此这是运行时能力层差异，不只是文档分类。
 
 ## 最短复现路径
 
@@ -108,15 +121,15 @@ dsh web
 
 ~/.dsh/.agent-presets/voltagent-roles-lite/
   由 ./scripts/setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-lite 生成
-  作用：DeepSeek Harness lite 专家角色 preset
+  作用：DeepSeek Harness lite 专家角色 preset，注册 67 个固定专家工具
 
 ~/.dsh/.agent-presets/voltagent-roles/
   由 ./scripts/setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles 生成
-  作用：DeepSeek Harness 专家角色 preset
+  作用：DeepSeek Harness 标准专家角色 preset，注册 80 个固定专家工具
 
 ~/.dsh/.agent-presets/voltagent-roles-full/
   由 ./scripts/setup-deepseek-harness-voltagent-roles.sh --preset-dir=voltagent-roles-full 生成
-  作用：DeepSeek Harness 全量专家角色 preset
+  作用：DeepSeek Harness 全量专家角色 preset，注册 172 个固定专家工具
 ```
 
 运行时关系：

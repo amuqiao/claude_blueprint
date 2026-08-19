@@ -15,13 +15,15 @@
 选择 scripts/ 下的 preset 子目录
   scripts/voltagent-roles-lite/
     生成 ~/.dsh/.agent-presets/voltagent-roles-lite
-    推荐日常使用
+    注册 67 个常用专家，推荐日常使用
 
   scripts/voltagent-roles/
     生成 ~/.dsh/.agent-presets/voltagent-roles
+    注册 80 个高频专家，适合作为标准专家模式
 
   scripts/voltagent-roles-full/
     生成 ~/.dsh/.agent-presets/voltagent-roles-full
+    注册 172 个全量专家，适合全量覆盖
 
 安装工作流规则
   scripts/setup-deepseek-harness-workflow.sh
@@ -115,21 +117,21 @@ voltagent-deepseek-harness/
 
     voltagent-roles-lite/
       ROLE_ALLOWLIST.txt
-        lite 模式固定专家角色清单
+        lite 模式固定专家角色清单，当前 67 个
 
       AGENTS.md
         要安装到 ~/.dsh/AGENTS.md 的 lite 工作流规则模板
 
     voltagent-roles/
       ROLE_ALLOWLIST.txt
-        默认模式固定专家角色清单
+        默认模式固定专家角色清单，当前 80 个
 
       AGENTS.md
         要安装到 ~/.dsh/AGENTS.md 的工作流规则模板
 
     voltagent-roles-full/
       ROLE_ALLOWLIST.txt
-        全量模式固定专家角色清单
+        全量模式固定专家角色清单，当前 172 个
 
       AGENTS.md
         全量模式独立工作流规则模板，内置完整角色索引
@@ -143,7 +145,7 @@ lite 专家角色模式生成：
 ~/.dsh/.agent-presets/voltagent-roles-lite
 ```
 
-它会从 `VoltAgent/awesome-codex-subagents` 读取角色源，但只按 `voltagent-roles-lite/ROLE_ALLOWLIST.txt` 注册常用专家工具。这个模式适合日常使用：仍然是专家模式，但不会像全量模式一样把上游全部角色都注册进工具目录。
+它会从 `VoltAgent/awesome-codex-subagents` 读取角色源，但只按 `voltagent-roles-lite/ROLE_ALLOWLIST.txt` 注册 67 个常用专家工具。这个模式适合日常使用：仍然是专家模式，但不会像全量模式一样把上游全部角色都注册进工具目录。
 
 执行前也可以先查看脚本内置示例：
 
@@ -184,7 +186,7 @@ Web UI 中选择：
 ~/.dsh/.agent-presets/voltagent-roles
 ```
 
-它会从 `VoltAgent/awesome-codex-subagents` 读取角色源，并按 `voltagent-roles/ROLE_ALLOWLIST.txt` 注册当前固定的全量角色工具；最终 `AGENTS.md` 只保留精简路由规则，不把完整角色表塞进规则文件。
+它会从 `VoltAgent/awesome-codex-subagents` 读取角色源，并按 `voltagent-roles/ROLE_ALLOWLIST.txt` 注册 80 个高频专家工具；最终 `AGENTS.md` 只保留精简路由规则，不把完整角色表塞进规则文件。这个模式比 lite 覆盖更多 reviewer、协调、治理、生产风险和基础设施角色，但仍然比 full 更轻。
 
 执行：
 
@@ -216,7 +218,7 @@ Web UI 中选择：
 ~/.dsh/.agent-presets/voltagent-roles-full
 ```
 
-它和默认模式的区别在规则层：全量模式的 `voltagent-roles-full/AGENTS.md` 直接内置完整角色路由索引，让主 agent 在规则文件里看到完整角色表。工具层同样按 `voltagent-roles-full/ROLE_ALLOWLIST.txt` 注册当前固定的全量角色。
+它会按 `voltagent-roles-full/ROLE_ALLOWLIST.txt` 注册 172 个全量专家工具。和默认模式相比，全量模式不只工具更多，`voltagent-roles-full/AGENTS.md` 还直接内置完整角色路由索引，让主 agent 在规则文件里看到完整角色表。
 
 执行：
 
@@ -405,6 +407,12 @@ test -f ~/.dsh/.agent-presets/voltagent-roles/preset.yml
 grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/voltagent-roles/agent.cordis.yml
 ```
 
+最后一条应输出：
+
+```text
+80
+```
+
 验证全量专家 preset：
 
 ```bash
@@ -413,7 +421,7 @@ test -f ~/.dsh/.agent-presets/voltagent-roles-full/preset.yml
 grep -c '^- id: tool-subagent-role-' ~/.dsh/.agent-presets/voltagent-roles-full/agent.cordis.yml
 ```
 
-最后一条应输出对应 `ROLE_ALLOWLIST.txt` 当前有效角色数量，例如：
+最后一条应输出：
 
 ```text
 172

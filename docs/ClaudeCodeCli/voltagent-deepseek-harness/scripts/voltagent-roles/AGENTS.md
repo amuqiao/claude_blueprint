@@ -1,9 +1,9 @@
 <!-- WORKFLOW_START -->
 ## DeepSeek Harness Multi-Agent Workflow
 
-本文件用于在 DeepSeek Harness 中复现多 agent 协作工作流。规则目标是固定协作流程；如果当前会话使用带固定角色工具的 preset，还可以调用 `subagent_<role>` 形式的专家子 agent 工具。
+本文件用于在 DeepSeek Harness 中启用“专家角色模式”。该模式注册 80 个高频固定专家工具，规则目标是固定协作流程，同时避免把完整 172 角色索引塞进 `AGENTS.md`。
 
-DeepSeek Harness 的子 agent 能力来自当前 agent preset 暴露的工具，例如 `subagent`、`subagent_fork`、`list_agents`、`send_message`、`interrupt_agent` 和 `workflow`。如果使用 `voltagent-roles` 这类固定角色 preset，还会看到按 `subagent_<role_name>` 命名的专家工具，例如 `subagent_api_designer`、`subagent_code_reviewer`、`subagent_typescript_pro`。如果通用子 agent 工具不可见，应切换到标准模式、PTC 模式或固定角色 preset；如果固定专家工具不可见，应切换到「专家角色模式」。
+DeepSeek Harness 的子 agent 能力来自当前 agent preset 暴露的工具，例如 `subagent`、`subagent_fork`、`list_agents`、`send_message`、`interrupt_agent` 和 `workflow`。当会话选择「专家角色模式」时，还会看到按 `subagent_<role_name>` 命名的固定专家工具，例如 `subagent_api_designer`、`subagent_code_reviewer`、`subagent_typescript_pro`。如果通用子 agent 工具不可见，应切换到标准模式、PTC 模式或固定角色 preset；如果固定专家工具不可见，应切换到「专家角色模式」并确认该 preset 已重新生成。
 
 ### 任务开始前必须选择工作流
 
@@ -82,7 +82,7 @@ Plan 阶段默认由主 agent 完成。只在确有必要时派发少数只读�
 - 有明确匹配时，优先调用固定专家工具，例如 API 合同设计用 `subagent_api_designer`，代码审查用 `subagent_code_reviewer`，安全审查用 `subagent_security_auditor`。
 - 没有明确匹配时，用通用 `subagent` 并在 prompt 中写清角色。
 - 固定专家工具只固定 persona 和工具名，不代表可以跳过任务边界说明；仍需在 prompt 中写清输入、范围、禁止事项和输出格式。
-- 不要在 `AGENTS.md` 中展开全部专家说明；完整映射表由 generated preset 的 `agent-role-map.md` 保存，避免规则文件膨胀。
+- 不要在 `AGENTS.md` 中展开全部专家说明；本模式的 80 个固定专家由 `voltagent-roles/ROLE_ALLOWLIST.txt` 决定，生成后的完整映射表由 preset 目录里的 `agent-role-map.md` 保存。
 
 #### Review 阶段
 
